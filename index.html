@@ -72,10 +72,10 @@ function hurt(a,b,d){if(b==P&&(P.pu=="shield"||P.ff>0)){spark(b.x,b.y-50,"#0cf",
  let dbl=false;if(a.h.boss)d*=1.6;if(b.h.boss)d*=0.5;if(b==E){if(E.sleep>0||E.brag>0)dbl=true;if(mood.id=="grumpy"&&Math.sign(a.x-E.x)!=E.f)dbl=true}
  if(dbl){d*=2;show("DOUBLE HURT! 💥",50,40)}b.hp-=d;spark(b.x,b.y-50,"#fff",8);beep(dbl?200:140,.1,"sawtooth");
  if(b==E){score+=dbl?20:10;if(Math.random()<.4)say(mood.hurt[Math.floor(Math.random()*mood.hurt.length)],60)}}
-function punch(a,b){if(a.cd>0||a.frz>0||(a==E&&(E.sleep>0||E.brag>0)))return;a.cd=25;a.hit=8;if(Math.abs(a.x-b.x)<70&&Math.abs(a.y-b.y)<60)hurt(a,b,a.h.dm)}
+function punch(a,b){if(a.cd>0||a.frz>0||(a==E&&(E.sleep>0||E.brag>0)))return;a.cd=25;a.hit=8;if(Math.abs(a.x-b.x)<(a.h.boss?100:70)&&Math.abs(a.y-b.y)<60)hurt(a,b,a.h.dm)}
 const HP6=["Laser Eyes 👀","Ice Breath ❄️","Springy Jump 🦘","Force-Field Bubble 🫧","Tornado Spin 🌪️","Rainbow Shield 🌈"],VP6=["Sticky Goo Hands 🟢","Grumpy Stomp 🦶","Shrink Ray 🔍","Whoopee Cushion 💨","Dizzy Dance 💫","Pizza Bubbles 🍕"];
 function shuf(l){l=l.slice();for(let i=l.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[l[i],l[j]]=[l[j],l[i]]}return l}
-function nextP(a){if(!a.q||!a.q.length)a.q=shuf(a==P?HP6:VP6);return a.q[0]}
+function nextP(a){if(!a.q||!a.q.length)a.q=shuf(a==P?(a.h.boss?HP6.map(p=>p.startsWith("Tornado")?"Sword Spin Speed Attack ⚔️":p):HP6):VP6);return a.q[0]}
 function shot(a,o){shots.push(Object.assign({x:a.x,y:a.y-40,v:a.f*10,o:a,d:8,c:"#fff"},o))}
 function special(a,b){if(a.sc>0||a.frz>0)return;a.sc=(a==P?120:200)*(a.h.boss?0.6:1);let n=nextP(a);a.q.shift();beep(300,.2,"triangle");
  if(a==P){show(n+"!",50,40);
@@ -83,6 +83,7 @@ function special(a,b){if(a.sc>0||a.frz>0)return;a.sc=(a==P?120:200)*(a.h.boss?0.
   else if(n.startsWith("Ice"))shot(a,{v:a.f*9,d:8,c:"#bff",web:1});
   else if(n.startsWith("Springy")){a.vy=-26;a.spring=1}
   else if(n.startsWith("Force"))a.ff=180;
+  else if(n.startsWith("Sword Spin")){show("⚔️ SWORD SPIN SPEED ATTACK! ⚔️",70,40);a.spin=40;let x0=a.x;a.x+=a.f*350;for(let q=0;q<6;q++)spark(x0+a.f*q*60,a.y-50,q%2?"#fff":"#6cf",15);if(Math.abs(a.x-b.x)<180||(Math.min(x0,a.x)<b.x&&b.x<Math.max(x0,a.x)))hurt(a,b,30);[880,1100,1320,1760].forEach((f,i)=>setTimeout(()=>beep(f,.1,"sawtooth"),i*50))}
   else if(n.startsWith("Tornado")){a.x+=a.f*250;spark(a.x,a.y-40,"#ccc",25);if(Math.abs(a.x-b.x)<130)hurt(a,b,16)}
   else {a.hp=Math.min(100,a.hp+20);a.ff=120;spark(a.x,a.y-50,"#f0f",30)}
   pw.textContent=nextP(P)}
@@ -102,7 +103,7 @@ function man(a,col){let y=a.y,s=a.h.c;
  if(a==P&&(P.pu=="speed"||P.boost>0))for(let i=1;i<4;i++){x.fillStyle="rgba(255,255,0,"+(0.3/i)+")";x.fillRect(a.x-22-a.f*i*14,y-70,44,70)}
  x.fillStyle=a.frz>0?"#fff":s;x.fillRect(a.x-22,y-70,44,70);x.beginPath();x.arc(a.x,y-88,22,0,7);x.fill();
  x.fillStyle="#000";x.fillRect(a.x+a.f*8-3,y-94,6,6);
- if(a.hit>0){x.fillStyle=s;x.fillRect(a.x+a.f*22,y-55,a.f*32,14)}
+ if(a.h.boss){let ang=a.spin>0?(a.spin--)*0.6:(a.hit>0?-0.2:-1.1);x.save();x.translate(a.x+a.f*22,y-48);x.scale(a.f,1);x.rotate(ang);let gr=x.createLinearGradient(0,-4,70,4);gr.addColorStop(0,"#fff");gr.addColorStop(.5,"#9ef");gr.addColorStop(1,"#fff");x.fillStyle="#a60";x.fillRect(-10,-4,14,8);x.fillStyle="#fd0";x.fillRect(2,-12,6,24);x.fillStyle=gr;x.beginPath();x.moveTo(8,-5);x.lineTo(70,0);x.lineTo(8,5);x.fill();if(t%20<4){x.fillStyle="#fff";x.fillText("✨",50,-8)}x.restore();if(a.spin>0){x.strokeStyle="rgba(150,230,255,.7)";x.lineWidth=6;x.beginPath();x.arc(a.x,y-50,75,0,7);x.stroke()}}else if(a.hit>0){x.fillStyle=s;x.fillRect(a.x+a.f*22,y-55,a.f*32,14)}
  if(a==E&&E.sleep>0){x.fillStyle="#fff";x.font="bold 26px sans-serif";x.fillText("Z z z",a.x+10,y-120-(t%30))}
  x.fillStyle="#fff";x.font="bold 15px sans-serif";x.textAlign="center";x.fillText(a==P?a.h.n+" (YOU)":a.nick,a.x,y-118);x.textAlign="left"}
 function bar(a,xx,lab){x.fillStyle="#400";x.fillRect(xx,12,330,20);x.fillStyle=a.h.c;x.fillRect(xx,12,3.3*Math.max(0,a.hp),20);x.strokeStyle="#fff";x.strokeRect(xx,12,330,20);x.fillStyle="#fff";x.font="bold 15px sans-serif";x.fillText(lab,xx,50)}
