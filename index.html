@@ -36,7 +36,7 @@ body.full h1{display:none}body.full canvas{max-width:none;width:100vw;height:cal
 <div id="over"><h2 id="otext"></h2><p id="oscore" style="font-size:24px"></p><div id="chest" style="display:none;font-size:90px;cursor:pointer;animation:bob 1s infinite">🧰</div><p id="ctext" style="font-size:24px;color:#ffd800"></p><button id="again" style="background:#ffd800">🔄 Try Again!</button><button id="home" style="background:#9cf">🏠 New Heroes</button></div>
 <script>
 // ---------- data ----------
-const C=[{n:"Subsonic",c:"#eee",sp:6,dm:8,p:"Sonic Boom"},{n:"Mario",c:"#e22",sp:4,dm:9,p:"Fireball"},{n:"Sonic",c:"#26f",sp:7,dm:7,p:"Spin Dash"},{n:"Knuckles",c:"#c11",sp:4.5,dm:11,p:"Ground Pound"},{n:"Hulk",c:"#3c3",sp:3.5,dm:14,p:"Smash"},{n:"Iron Man",c:"#d90",sp:5,dm:8,p:"Repulsor Blast"},{n:"Alice",c:"#f4c",sp:5,dm:9,p:"Web Shot"},{n:"Dopey",c:"#fd0",sp:9,dm:9,p:"Golden Spin Dash"}];
+const C=[{n:"Subsonic",c:"#eee",sp:11,dm:18,p:"Sonic Boom",boss:1},{n:"Mario",c:"#e22",sp:4,dm:9,p:"Fireball"},{n:"Sonic",c:"#26f",sp:7,dm:7,p:"Spin Dash"},{n:"Knuckles",c:"#c11",sp:4.5,dm:11,p:"Ground Pound"},{n:"Hulk",c:"#3c3",sp:3.5,dm:14,p:"Smash"},{n:"Iron Man",c:"#d90",sp:5,dm:8,p:"Repulsor Blast"},{n:"Alice",c:"#f4c",sp:5,dm:9,p:"Web Shot"},{n:"Dopey",c:"#fd0",sp:9,dm:9,p:"Golden Spin Dash"}];
 const PU=[{id:"speed",n:"⚡ Super Speed",c:"#ff0"},{id:"jump",n:"🦘 Double Jump",c:"#0f8"},{id:"shield",n:"🛡️ Shield",c:"#0cf"}];
 const MOODS=[
  {id:"silly",n:"😜 Silly",nick:["Captain Wobblebottom","Mister Noodle Nose","Sir Gigglepants"],tip:"Silly laughs so hard he falls asleep! Hit him while he sleeps for DOUBLE hurt!",
@@ -48,7 +48,7 @@ const MOODS=[
 let hi=+localStorage.heroHi||0,pick={h:null,p:"speed",m:"silly"},foe;
 // ---------- menu ----------
 function chips(box,list,key,lab,col){list.forEach((it,i)=>{let b=document.createElement('button');b.textContent=lab(it);b.style.background=col(it);b.onclick=()=>{pick[key]=key=="h"?i:it.id;[...box.children].forEach(x=>x.classList.remove('sel'));b.classList.add('sel');beep(500+i*60,.08)};box.appendChild(b);if(key!="h"&&it.id===pick[key])b.classList.add('sel')})}
-chips(heroes,C,"h",h=>h.n,h=>h.c);chips(pups,PU,"p",p=>p.n,p=>p.c);chips(moods,MOODS,"m",m=>m.n,()=>"#fa8");
+chips(heroes,C,"h",h=>h.boss?"👑 "+h.n+" (STRONGEST!)":h.n,h=>h.c);chips(pups,PU,"p",p=>p.n,p=>p.c);chips(moods,MOODS,"m",m=>m.n,()=>"#fa8");
 function showMenu(){over.style.display="none";game.style.display="none";menu.style.display="block";best.textContent="🏆 Best score: "+hi}
 startb.onclick=()=>{if(pick.h==null){startb.textContent="Pick a hero first! 👆";return}startb.textContent="▶ FIGHT!";let j;do j=Math.floor(Math.random()*C.length);while(j==pick.h);foe=j;start()};
 again.onclick=start;home.onclick=showMenu;
@@ -69,7 +69,7 @@ function start(){P=mk(C[pick.h],150,1);E=mk(C[foe],750,-1);mood=MOODS.find(m=>m.
 function say(s,d){bubble={s,t:d||100}}function show(s,d,size){banner={s,t:d||90,size:size||48}}
 function spark(xx,yy,col,n){for(let i=0;i<(n||20);i++)fx.push({x:xx,y:yy,vx:(Math.random()-.5)*10,vy:(Math.random()-.8)*10,l:40,c:col})}
 function hurt(a,b,d){if(b==P&&(P.pu=="shield"||P.ff>0)){spark(b.x,b.y-50,"#0cf",8);beep(900,.05);return}
- let dbl=false;if(b==E){if(E.sleep>0||E.brag>0)dbl=true;if(mood.id=="grumpy"&&Math.sign(a.x-E.x)!=E.f)dbl=true}
+ let dbl=false;if(a.h.boss)d*=1.6;if(b.h.boss)d*=0.5;if(b==E){if(E.sleep>0||E.brag>0)dbl=true;if(mood.id=="grumpy"&&Math.sign(a.x-E.x)!=E.f)dbl=true}
  if(dbl){d*=2;show("DOUBLE HURT! 💥",50,40)}b.hp-=d;spark(b.x,b.y-50,"#fff",8);beep(dbl?200:140,.1,"sawtooth");
  if(b==E){score+=dbl?20:10;if(Math.random()<.4)say(mood.hurt[Math.floor(Math.random()*mood.hurt.length)],60)}}
 function punch(a,b){if(a.cd>0||a.frz>0||(a==E&&(E.sleep>0||E.brag>0)))return;a.cd=25;a.hit=8;if(Math.abs(a.x-b.x)<70&&Math.abs(a.y-b.y)<60)hurt(a,b,a.h.dm)}
@@ -77,7 +77,7 @@ const HP6=["Laser Eyes 👀","Ice Breath ❄️","Springy Jump 🦘","Force-Fiel
 function shuf(l){l=l.slice();for(let i=l.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[l[i],l[j]]=[l[j],l[i]]}return l}
 function nextP(a){if(!a.q||!a.q.length)a.q=shuf(a==P?HP6:VP6);return a.q[0]}
 function shot(a,o){shots.push(Object.assign({x:a.x,y:a.y-40,v:a.f*10,o:a,d:8,c:"#fff"},o))}
-function special(a,b){if(a.sc>0||a.frz>0)return;a.sc=a==P?120:200;let n=nextP(a);a.q.shift();beep(300,.2,"triangle");
+function special(a,b){if(a.sc>0||a.frz>0)return;a.sc=(a==P?120:200)*(a.h.boss?0.6:1);let n=nextP(a);a.q.shift();beep(300,.2,"triangle");
  if(a==P){show(n+"!",50,40);
   if(n.startsWith("Laser"))shot(a,{y:a.y-88,v:a.f*16,d:14,c:"#f33"});
   else if(n.startsWith("Ice"))shot(a,{v:a.f*9,d:8,c:"#bff",web:1});
