@@ -1,0 +1,119 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Hero Fight"><title>Hero Fight</title>
+<style>
+body{margin:0;background:#120a24;color:#fff;font-family:"Comic Sans MS","Chalkboard SE",sans-serif;text-align:center;user-select:none;-webkit-user-select:none}
+h1{margin:6px;font-size:34px;color:#ffd800;text-shadow:3px 3px #e2008a}
+h3{margin:8px 0 4px}
+button{font-family:inherit;font-size:18px;margin:4px;padding:10px 16px;border:3px solid #fff;border-radius:14px;cursor:pointer;color:#000;-webkit-tap-highlight-color:transparent}
+.sel{outline:5px solid #ffd800;transform:scale(1.08)}
+#menu,#game{display:none}
+canvas{width:100%;max-width:900px;height:auto;display:block;margin:4px auto;border:4px solid #fff;border-radius:10px;touch-action:none;background:#226}
+#pad{display:flex;justify-content:space-between;max-width:900px;margin:0 auto;padding:6px;touch-action:none}
+#pad div{display:flex;gap:10px}
+.t{width:84px;height:84px;border-radius:50%;font-size:32px;font-weight:bold;color:#fff;padding:0}
+#pw{width:auto;min-width:120px;border-radius:42px;font-size:18px;padding:0 12px;background:#e90}
+#fs{position:fixed;top:6px;right:6px;z-index:9;background:#2b6;color:#fff;font-size:16px;padding:8px 12px}
+#over{display:none;position:fixed;inset:0;background:#000b;z-index:8;flex-direction:column;justify-content:center;align-items:center}
+#over h2{font-size:44px;margin:10px;color:#ffd800}
+#over button{font-size:28px;padding:16px 30px}
+body.full h1{display:none}body.full canvas{max-width:none;width:100vw;height:calc(100vh - 110px);object-fit:contain;margin:0;border:0}body.full #pad{max-width:none}
+@media (min-width:700px){.t{width:110px;height:110px;font-size:40px}#pw{min-width:160px;font-size:22px}}
+</style></head><body>
+<button id="fs">⛶ Big Screen</button>
+<h1>⚡ HERO FIGHT ⚡</h1>
+<div id="menu">
+ <h3>1. Pick your hero!</h3><div id="heroes"></div>
+ <h3>2. Pick your favorite power-up!</h3><div id="pups"></div>
+ <h3>3. Pick the bad guy's mood!</h3><div id="moods"></div>
+ <p id="best"></p>
+ <button id="startb" style="font-size:30px;padding:14px 40px;background:#ffd800">▶ FIGHT!</button>
+</div>
+<div id="game">
+ <canvas id="c" width="900" height="420"></canvas>
+ <div id="pad"><div><button class="t" data-k="arrowleft" style="background:#447">◀</button><button class="t" data-k="arrowright" style="background:#447">▶</button></div>
+ <div><button class="t" data-k="arrowup" style="background:#4a4">⬆</button><button class="t" data-k="a" style="background:#d33">👊</button><button class="t" id="pw" data-k="s">POWER</button></div></div>
+</div>
+<div id="over"><h2 id="otext"></h2><p id="oscore" style="font-size:24px"></p><button id="again" style="background:#ffd800">🔄 Try Again!</button><button id="home" style="background:#9cf">🏠 New Heroes</button></div>
+<script>
+// ---------- data ----------
+const C=[{n:"Subsonic",c:"#eee",sp:6,dm:8,p:"Sonic Boom"},{n:"Mario",c:"#e22",sp:4,dm:9,p:"Fireball"},{n:"Sonic",c:"#26f",sp:7,dm:7,p:"Spin Dash"},{n:"Knuckles",c:"#c11",sp:4.5,dm:11,p:"Ground Pound"},{n:"Hulk",c:"#3c3",sp:3.5,dm:14,p:"Smash"},{n:"Iron Man",c:"#d90",sp:5,dm:8,p:"Repulsor Blast"},{n:"Alice",c:"#f4c",sp:5,dm:9,p:"Web Shot"},{n:"Dopey",c:"#fd0",sp:9,dm:9,p:"Golden Spin Dash"}];
+const PU=[{id:"speed",n:"⚡ Super Speed",c:"#ff0"},{id:"jump",n:"🦘 Double Jump",c:"#0f8"},{id:"shield",n:"🛡️ Shield",c:"#0cf"}];
+const MOODS=[
+ {id:"silly",n:"😜 Silly",tip:"Silly laughs so hard he falls asleep! Hit him while he sleeps for DOUBLE hurt!",
+  taunt:["Hee hee! You can't catch me!","Ha ha ha! My tummy hurts!","Bet you can't jump!","Nanny nanny boo boo!"],hurt:["Ouchie!","No fair!","Tickles!"],lose:"Okay okay, you win! Hee hee!"},
+ {id:"grumpy",n:"😠 Grumpy",tip:"Grumpy can't turn around fast! Jump over him and hit his back for DOUBLE hurt!",
+  taunt:["Grrr! Go away!","I am SO grumpy!","Hmph! Too slow!","I don't like heroes!"],hurt:["Grr! That hurt!","Hmph!","Not my back!"],lose:"Fine... you win. Hmph."},
+ {id:"showoff",n:"😎 Show-off",tip:"Show-off stops to brag after his power! Hit him while he brags for DOUBLE hurt!",
+  taunt:["Look at my muscles!","I'm the BEST!","Did you see that? So cool!","Ta-da! Amazing me!"],hurt:["Hey! My hair!","Not the face!","Ow, not cool!"],lose:"Wow... you're even cooler than me!"}];
+let hi=+localStorage.heroHi||0,pick={h:null,p:"speed",m:"silly"},foe;
+// ---------- menu ----------
+function chips(box,list,key,lab,col){list.forEach((it,i)=>{let b=document.createElement('button');b.textContent=lab(it);b.style.background=col(it);b.onclick=()=>{pick[key]=key=="h"?i:it.id;[...box.children].forEach(x=>x.classList.remove('sel'));b.classList.add('sel');beep(500+i*60,.08)};box.appendChild(b);if(key!="h"&&it.id===pick[key])b.classList.add('sel')})}
+chips(heroes,C,"h",h=>h.n+" ("+h.p+")",h=>h.c);chips(pups,PU,"p",p=>p.n,p=>p.c);chips(moods,MOODS,"m",m=>m.n,()=>"#fa8");
+function showMenu(){over.style.display="none";game.style.display="none";menu.style.display="block";best.textContent="🏆 Best score: "+hi}
+startb.onclick=()=>{if(pick.h==null){startb.textContent="Pick a hero first! 👆";return}startb.textContent="▶ FIGHT!";let j;do j=Math.floor(Math.random()*C.length);while(j==pick.h);foe=j;start()};
+again.onclick=start;home.onclick=showMenu;
+// ---------- sound ----------
+let AC;function beep(f,d,type){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();let o=AC.createOscillator(),g=AC.createGain();o.type=type||"square";o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(e){}}
+function tada(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.15,"triangle"),i*90))}
+// ---------- controls ----------
+let k={};const KM={arrowleft:"arrowleft",a:"arrowleft",arrowright:"arrowright",d:"arrowright",arrowup:"arrowup",w:"arrowup",j:"a"," ":"a",k:"s",enter:"s"};
+onkeydown=e=>{let m=KM[e.key.toLowerCase()];if(m&&game.style.display=="block"){k[m]=1;e.preventDefault()}};onkeyup=e=>{let m=KM[e.key.toLowerCase()];if(m)k[m]=0};
+document.querySelectorAll(".t").forEach(b=>{let d=b.dataset.k,on=e=>{e.preventDefault();k[d]=1;b.style.opacity=.6},off=e=>{e.preventDefault();k[d]=0;b.style.opacity=1};["touchstart","mousedown"].forEach(v=>b.addEventListener(v,on));["touchend","touchcancel","mouseup","mouseleave"].forEach(v=>b.addEventListener(v,off))});
+fs.onclick=()=>{let d=document.documentElement,b=document.body;if(!b.classList.contains("full")){b.classList.add("full");fs.textContent="✕ Small";(d.requestFullscreen||d.webkitRequestFullscreen||function(){}).call(d)}else{b.classList.remove("full");fs.textContent="⛶ Big Screen";(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document)}};
+if(navigator.standalone)document.body.classList.add("full");
+// ---------- game ----------
+const x=c.getContext('2d'),G=350;let P,E,shots=[],rings=[],fx=[],on=false,score,banner=null,bubble=null,mood,t=0,lastUp=0;
+function mk(h,xx,f){return{h,x:xx,y:G,vy:0,f,hp:100,cd:0,sc:0,hit:0,frz:0,jumps:0}}
+function start(){P=mk(C[pick.h],150,1);E=mk(C[foe],750,-1);mood=MOODS.find(m=>m.id==pick.m);P.pu=null;P.put=0;E.sleep=0;E.brag=0;shots=[];rings=[];fx=[];score=0;t=0;on=true;
+ menu.style.display="none";over.style.display="none";game.style.display="block";pw.textContent=P.h.p;say(mood.taunt[0],120);show("Bad guy tip: "+mood.tip,240,26)}
+function say(s,d){bubble={s,t:d||100}}function show(s,d,size){banner={s,t:d||90,size:size||48}}
+function spark(xx,yy,col,n){for(let i=0;i<(n||20);i++)fx.push({x:xx,y:yy,vx:(Math.random()-.5)*10,vy:(Math.random()-.8)*10,l:40,c:col})}
+function hurt(a,b,d){if(b==P&&P.pu=="shield"){spark(b.x,b.y-50,"#0cf",8);beep(900,.05);return}
+ let dbl=false;if(b==E){if(E.sleep>0||E.brag>0)dbl=true;if(mood.id=="grumpy"&&Math.sign(a.x-E.x)!=E.f)dbl=true}
+ if(dbl){d*=2;show("DOUBLE HURT! 💥",50,40)}b.hp-=d;spark(b.x,b.y-50,"#fff",8);beep(dbl?200:140,.1,"sawtooth");
+ if(b==E){score+=dbl?20:10;if(Math.random()<.4)say(mood.hurt[Math.floor(Math.random()*mood.hurt.length)],60)}}
+function punch(a,b){if(a.cd>0||a.frz>0||(a==E&&(E.sleep>0||E.brag>0)))return;a.cd=25;a.hit=8;if(Math.abs(a.x-b.x)<70&&Math.abs(a.y-b.y)<60)hurt(a,b,a.h.dm)}
+function special(a,b){if(a.sc>0||a.frz>0)return;a.sc=180;let n=a.h.n;beep(300,.2,"triangle");
+ if(n=="Sonic"||n=="Dopey"){a.x+=a.f*(n=="Dopey"?300:250);if(Math.abs(a.x-b.x)<(n=="Dopey"?140:120))hurt(a,b,n=="Dopey"?20:15)}
+ else if(n=="Hulk"||n=="Knuckles"){if(Math.abs(a.x-b.x)<110)hurt(a,b,n=="Hulk"?28:22);a.hit=15;spark(a.x,G,"#a74",15)}
+ else shots.push({x:a.x,y:a.y-40,v:a.f*(n=="Subsonic"?14:n=="Iron Man"?12:n=="Alice"?13:8),o:a,d:n=="Iron Man"?18:n=="Alice"?8:15,web:n=="Alice",c:n=="Mario"?"#f60":n=="Iron Man"?"#6ff":n=="Alice"?"#fff":"#aef"});
+ if(a==E&&mood.id=="showoff"){E.brag=100;say(mood.taunt[Math.floor(Math.random()*4)],100)}}
+function phys(a){if(a.frz>0){a.frz--;a.x=a.px}a.px=a.x;a.vy+=1;a.y+=a.vy;if(a.y>=G){a.y=G;a.vy=0;a.jumps=0}a.x=Math.max(30,Math.min(870,a.x));a.cd--;a.sc--;a.hit--}
+function end(win){on=false;if(win)score+=100+Math.max(0,Math.round(P.hp));let nb=score>hi;if(nb){hi=score;localStorage.heroHi=hi}
+ setTimeout(()=>{otext.textContent=win?"🎉 YOU WIN! 🎉":"Oh no! "+E.h.n+" won this time!";oscore.innerHTML="Score: "+score+"<br>"+(nb?"⭐ NEW BEST SCORE! ⭐":"🏆 Best: "+hi)+(win?"<br>"+E.h.n+": \""+mood.lose+"\"":"");over.style.display="flex"},900);win?tada():beep(120,.6,"sawtooth")}
+function man(a,col){let y=a.y,s=a.h.c;
+ if(a==P&&P.pu=="shield"){x.strokeStyle="#0cf";x.lineWidth=5;x.beginPath();x.arc(a.x,y-55,62,0,7);x.stroke()}
+ if(a==P&&P.pu=="speed")for(let i=1;i<4;i++){x.fillStyle="rgba(255,255,0,"+(0.3/i)+")";x.fillRect(a.x-22-a.f*i*14,y-70,44,70)}
+ x.fillStyle=a.frz>0?"#fff":s;x.fillRect(a.x-22,y-70,44,70);x.beginPath();x.arc(a.x,y-88,22,0,7);x.fill();
+ x.fillStyle="#000";x.fillRect(a.x+a.f*8-3,y-94,6,6);
+ if(a.hit>0){x.fillStyle=s;x.fillRect(a.x+a.f*22,y-55,a.f*32,14)}
+ if(a==E&&E.sleep>0){x.fillStyle="#fff";x.font="bold 26px sans-serif";x.fillText("Z z z",a.x+10,y-120-(t%30))}
+ x.fillStyle="#fff";x.font="bold 15px sans-serif";x.textAlign="center";x.fillText(a.h.n+(a==P?" (YOU)":""),a.x,y-118);x.textAlign="left"}
+function bar(a,xx,lab){x.fillStyle="#400";x.fillRect(xx,12,330,20);x.fillStyle=a.h.c;x.fillRect(xx,12,3.3*Math.max(0,a.hp),20);x.strokeStyle="#fff";x.strokeRect(xx,12,330,20);x.fillStyle="#fff";x.font="bold 15px sans-serif";x.fillText(lab,xx,50)}
+function loop(){t++;let g=x.createLinearGradient(0,0,0,420);g.addColorStop(0,"#4af");g.addColorStop(1,"#a6f");x.fillStyle=g;x.fillRect(0,0,900,420);x.fillStyle="#3a3";x.fillRect(0,G,900,70);
+ if(P){if(on){
+  let spd=P.h.sp*(P.pu=="speed"?1.8:1);if(P.frz<=0){if(k.arrowleft){P.x-=spd;P.f=-1}if(k.arrowright){P.x+=spd;P.f=1}}
+  if(k.arrowup&&!lastUp){if(P.y>=G){P.vy=-17;P.jumps=1}else if(P.pu=="jump"&&P.jumps<2){P.vy=-17;P.jumps=2;spark(P.x,P.y,"#0f8",10);beep(700,.08)}}lastUp=k.arrowup;
+  if(k.a)punch(P,E);if(k.s)special(P,E);
+  // villain brain
+  if(E.sleep>0)E.sleep--;else if(E.brag>0)E.brag--;else{
+   if(mood.id!="grumpy"||t%40==0)E.f=P.x<E.x?-1:1;let d=Math.abs(P.x-E.x);if(d>65)E.x+=(P.x<E.x?-1:1)*E.h.sp*0.6;else if(Math.random()<.05)punch(E,P);
+   if(Math.random()<.007)special(E,P);if(Math.random()<.01&&E.y>=G)E.vy=-15;
+   if(t%300==150){say(mood.taunt[Math.floor(Math.random()*4)],100);if(mood.id=="silly"){E.sleep=110;show("He fell asleep laughing! HIT HIM! 😴",80,34)}}}
+  phys(P);phys(E);if(P.put>0&&--P.put==0)P.pu=null;
+  shots=shots.filter(s=>{s.x+=s.v;let tg=s.o==P?E:P;if(Math.abs(s.x-tg.x)<30&&Math.abs(s.y-(tg.y-45))<55){hurt(s.o,tg,s.d);if(s.web)tg.frz=60;return false}return s.x>0&&s.x<900});
+  // rings
+  if(t%220==60&&rings.length<2){let fav=Math.random()<.6?pick.p:PU[Math.floor(Math.random()*3)].id;rings.push({x:80+Math.random()*740,y:G-30-Math.random()*130,pu:fav})}
+  rings=rings.filter(r=>{if(Math.hypot(P.x-r.x,(P.y-50)-r.y)<55){let p=PU.find(q=>q.id==r.pu);P.pu=r.pu;P.put=360;score+=5;show("I GOT THE POWER! "+p.n,90,44);spark(r.x,r.y,p.c,40);tada();return false}return true});
+  if(P.hp<=0||E.hp<=0)end(E.hp<=0)}
+  rings.forEach(r=>{let p=PU.find(q=>q.id==r.pu),b=Math.sin(t/8)*5;x.strokeStyle=p.c;x.lineWidth=7;x.beginPath();x.arc(r.x,r.y+b,16,0,7);x.stroke();x.font="20px sans-serif";x.fillText(p.n.split(" ")[0],r.x-11,r.y+b+7)});
+  shots.forEach(s=>{x.fillStyle=s.c;x.beginPath();x.arc(s.x,s.y,11,0,7);x.fill()});
+  man(P);man(E);bar(P,15,"YOU"+(P.sc<=0?"  ⭐ POWER READY":"")+(P.pu?"  "+PU.find(q=>q.id==P.pu).n+" "+Math.ceil(P.put/60):""));bar(E,555,E.h.n+" ("+mood.n+")");
+  fx=fx.filter(f=>{f.x+=f.vx;f.y+=f.vy;f.vy+=.3;x.fillStyle=f.c;x.fillRect(f.x,f.y,6,6);return --f.l>0});
+  x.fillStyle="#ffd800";x.font="bold 26px sans-serif";x.textAlign="center";x.fillText("⭐ "+score+"   🏆 "+hi,450,40);
+  if(bubble&&bubble.t-->0){let bx=Math.max(120,Math.min(780,E.x));x.fillStyle="#fff";x.fillRect(bx-130,E.y-185,260,42);x.fillStyle="#000";x.font="bold 18px sans-serif";x.fillText(bubble.s,bx,E.y-157)}
+  if(banner&&banner.t-->0){x.font="bold "+banner.size+"px sans-serif";x.lineWidth=6;x.strokeStyle="#e2008a";x.strokeText(banner.s,450,200,860);x.fillStyle="#ffd800";x.fillText(banner.s,450,200,860)}
+  x.textAlign="left"}
+ requestAnimationFrame(loop)}
+showMenu();loop();
+</script></body></html>
