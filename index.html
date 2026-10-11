@@ -25,7 +25,7 @@ body.full h1{display:none}body.full canvas{max-width:none;width:100vw;height:cal
  <h3>1. Pick your hero!</h3><div id="heroes"></div>
  <div id="card" style="display:none;max-width:880px;margin:6px auto;background:#2a1850;border:3px solid #ffd800;border-radius:14px;padding:8px;font-size:15px;text-align:left"></div><h3>2. Pick your favorite power-up!</h3><div id="pups"></div>
  <h3>3. Pick the bad guy's mood!</h3><div id="moods"></div>
- <h3>4. Pick a teammate for your team!</h3><div id="mates"></div><p id="best"></p>
+ <h3>4. Pick a teammate for your team!</h3><div id="mates"></div><p id="best"></p><p style="font-size:16px">🔗 Play on any device: <a href="https://jasonmackensie78.github.io/hero-fight/" style="color:#ffd800">jasonmackensie78.github.io/hero-fight</a> <button id="sharebtn" style="background:#9cf;font-size:15px;padding:6px 10px">📤 Share</button></p>
  <button id="startb" style="font-size:30px;padding:14px 40px;background:#ffd800">▶ FIGHT!</button>
 </div>
 <div id="game">
@@ -65,7 +65,7 @@ function tada(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.15,"tri
 let k={};const KM={arrowleft:"arrowleft",a:"arrowleft",arrowright:"arrowright",d:"arrowright",arrowup:"arrowup",w:"arrowup",j:"a"," ":"a",k:"s",enter:"s",l:"b",shift:"b"};
 onkeydown=e=>{let m=KM[e.key.toLowerCase()];if(m&&game.style.display=="block"){k[m]=1;e.preventDefault()}};onkeyup=e=>{let m=KM[e.key.toLowerCase()];if(m)k[m]=0};
 document.querySelectorAll(".t").forEach(b=>{let d=b.dataset.k,on=e=>{e.preventDefault();k[d]=1;b.style.opacity=.6},off=e=>{e.preventDefault();k[d]=0;b.style.opacity=1};["touchstart","mousedown"].forEach(v=>b.addEventListener(v,on));["touchend","touchcancel","mouseup","mouseleave"].forEach(v=>b.addEventListener(v,off))});
-mus.onclick=()=>{musicOn=!musicOn;mus.textContent=musicOn?"🎵 Music ON":"🔇 Music OFF"};fs.onclick=()=>{let d=document.documentElement,b=document.body;if(!b.classList.contains("full")){b.classList.add("full");fs.textContent="✕ Small";(d.requestFullscreen||d.webkitRequestFullscreen||function(){}).call(d)}else{b.classList.remove("full");fs.textContent="⛶ Big Screen";(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document)}};
+sharebtn.onclick=()=>{let u="https://jasonmackensie78.github.io/hero-fight/";if(navigator.share)navigator.share({title:"Hero Fight",url:u}).catch(()=>{});else{navigator.clipboard&&navigator.clipboard.writeText(u);sharebtn.textContent="✅ Copied!"}};mus.onclick=()=>{musicOn=!musicOn;mus.textContent=musicOn?"🎵 Music ON":"🔇 Music OFF"};fs.onclick=()=>{let d=document.documentElement,b=document.body;if(!b.classList.contains("full")){b.classList.add("full");fs.textContent="✕ Small";(d.requestFullscreen||d.webkitRequestFullscreen||function(){}).call(d)}else{b.classList.remove("full");fs.textContent="⛶ Big Screen";(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document)}};
 if(navigator.standalone)document.body.classList.add("full");
 // ---------- game ----------
 const x=c.getContext('2d'),G=350,W=2700;let cam=0,trail=[],L0;let T=null,P,E,shots=[],rings=[],fx=[],on=false,score,banner=null,bubble=null,mood,t=0,lastUp=0;
