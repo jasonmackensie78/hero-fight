@@ -149,7 +149,7 @@ function special(a,b){if(a.meteor==2){meteorDrop(a);return}if(a.sc>0||a.frz>0)re
   else if(ty=="shadow"){for(let q=0;q<2;q++){let sh=mk(a.h,a.x-a.f*(40+q*40),a.f);sh.life=500;sh.nick="Shadow Mario";SH.push(sh)}show("Shadow buddies, help me! 👥",60,40)}
   else if(ty=="sflight"){a.vy=-30;a.fly=1;show("Up, up, and away! 🦸",60,44)}
   else if(ty=="lasers"){for(let q=0;q<4;q++)shot(a,{y:a.y-118+q*4,v:a.f*(16+q),d:6,c:"#f33"})}
-  else if(ty=="glass"){let gy0=Math.min(a.y,G);for(let q=1;q<=18;q++)GL.push({x:a.x+a.f*q*44,y:gy0-q*18,l:1400});show("A glass path to the sky! Walk up! 🪟",60,38)}
+  else if(ty=="glass"){let gy0=Math.min(a.y,G);let top=Math.max(-700,gy0-18*18),st=Math.round((gy0-top)/18);for(let q=1;q<=st;q++)GL.push({x:a.x+a.f*q*44,y:gy0-q*18,l:1600});GL.push({x:a.x+a.f*(st+1)*44,y:top,l:1600,peak:1});for(let q=1;q*18<=G-top;q++)GL.push({x:a.x+a.f*(st+1+q)*44,y:top+q*18,l:1600});show("A glass bridge over the sky! Walk up and down! 🌈🪟",70,34)}
   else if(ty=="watermenu"){if(a==P)openWater();else shot(a,{emo:"💦"})}
   else if(ty=="wblast"){for(let q=0;q<4;q++)shot(a,{y:a.y-70+q*8,v:a.f*(12+q),d:5,emo:"💦"});show("SPLASH! 💦",50,46)}
   else if(ty=="wjet"){a.wjet=480;a.vy=-16;show("Water jet flying! Hold ⬆ to go up! 💧",70,36)}
