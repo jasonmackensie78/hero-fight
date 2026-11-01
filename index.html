@@ -1433,7 +1433,7 @@ function realCanvasFact(){if(!RCUR){RCB=null;return}if(++RVC%20==1){realPlace();
 if(window.visualViewport){visualViewport.addEventListener("resize",()=>{realPlace();realCheckVis()});visualViewport.addEventListener("scroll",()=>{realPlace();realCheckVis()})}
 /* hook: first time a power is used (wraps special) */
 const _realSpecial=special;special=function(a,b){let s0=a&&a.sc,info=null;try{if(a==P&&P.list&&P.list[P.sel])info=P.list[P.sel].p}catch(e){}let r=_realSpecial.apply(this,arguments);try{if(a==P&&info&&!(s0>0)&&a.sc>0)realPow(info)}catch(e){}return r};
-function realPow(p){let n=String(p[0]||""),ty=String(p[1]||"");if(RF[ty]){realFact(ty);return}let s=n+" "+ty;for(const [re,k] of RTOP){if(k&&re.test(s)){realFact("t:"+k);return}}}
+function realPow(p){let n=String(p[0]||""),ty=String(p[1]||"");if(/Mushroom/i.test(n))realFact("m:shroom",2);if(RF[ty]){realFact(ty);return}let s=n+" "+ty;for(const [re,k] of RTOP){if(k&&re.test(s)){realFact("t:"+k);return}}}
 /* per-frame watcher: new game, new world/place, rides, animals, shop buys */
 function realTick(){if(!P)return;RTK++;
  if(P!==RLAST.P){RLAST.P=P;RLAST.w=null;RLAST.pl=null;RTK=0}
@@ -1443,7 +1443,7 @@ function realTick(){if(!P)return;RTK++;
  if(typeof SIX!="undefined"&&(six||PLACE=="six")&&six){
   if(Math.abs(P.x-(SIX.cs-58))<60)realFact("six:height");
   if(P.cst){if(!P.cst.t0)P.cst.t0=t;realFact("six:coaster");if(t-P.cst.t0>240)realFact("six:gravity")}
-  if(P.onPlat==t&&Math.abs(P.x-SIX.fwx)<SIX.fwr+40&&P.y<G-40)realFact("six:ferris");
+  if(P.onPlat>=t-1&&Math.abs(P.x-SIX.fwx)<SIX.fwr+40&&P.y<G-40)realFact("six:ferris");
   if(P.x>SIX.bc0&&P.x<SIX.bc1&&(P.bmp>t||(P.onPlat==t&&Math.abs(P.y-(G-40))<2)))realFact("six:bump");
   if(P.dtc>t+60)realFact("six:drop");if(P.cro>=t-1)realFact("six:carousel");if(P.slm>t)realFact("six:slide");
   if(typeof SIXP!="undefined")SIXP.forEach(c=>{if(c.got==t||c.got==t-1)realFact("six:"+c.e)})}
@@ -1487,11 +1487,106 @@ function realSixBack(){let cs=SIX.cs;if(cs<cam-200||cs>cam+1100)return;x.save();
 function realBack(){let ICE=world=="ice"&&!PLACE,HL=world=="halloween"&&!PLACE;
  if(ICE)RANI.forEach(([k,ax],i)=>{let px=ax+Math.sin(t/240+i*2)*(k=="bear"?60:0);if(px<cam-150||px>cam+1050)return;let f=Math.cos(t/240+i*2)>0?1:-1;if(k=="bear"){realBear(px,G-2,1,f,i);realBear(px-60*f,G-2,.55,f,i+1);realLabel(px,G-100,"🐻‍❄️ Polar bear & cub · Arctic")}else if(k=="fox"){realFox(px,G-2,i);realLabel(px,G-62,"🦊 Arctic fox")}else if(k=="walrus"){realWalrus(px,G-2,i);realLabel(px,G-66,"🦭 Walrus")}else{realOwl(px,G-2,i);realLabel(px,G-98,"🦉 Snowy owl")}});
  if(HL)RHOUSE.forEach((hx,i)=>{if(hx>cam-150&&hx<cam+1050)realHouse(hx,i)});
- if(world=="six"&&!PLACE&&typeof SIX!="undefined")realSixBack()}
+ if(world=="six"&&!PLACE&&typeof SIX!="undefined")realSixBack();try{realBack3()}catch(e){}}
 /* front layer: coaster safety bar + landing puffs */
-function realOver(){try{realTick()}catch(e){}
+function realOver(){try{realTick()}catch(e){}try{realTick3();realOver3()}catch(e){}
  [P,E,T].forEach(a=>{if(!a||!a.cst)return;if(!a.cst.t0)a.cst.t0=t;let pr=Math.min(1,(t-a.cst.t0)/24),px=a.x-30,py=a.y-50,th=-Math.PI/2+pr*Math.PI/2,ex=px+52*Math.cos(th),ey=py+52*Math.sin(th);x.lineCap="round";x.strokeStyle="#333";x.lineWidth=9;x.beginPath();x.moveTo(px,a.y-4);x.lineTo(px,py);x.lineTo(ex,ey);x.stroke();x.strokeStyle="#ffd23f";x.lineWidth=5;x.stroke();x.lineCap="butt";if(a==P&&t-a.cst.t0<70&&pr>=1){x.font="bold 13px sans-serif";x.textAlign="center";x.fillStyle="#fff";x.strokeStyle="#333";x.lineWidth=3;x.strokeText("🔒 Safety bar down!",a.x,a.y-150);x.fillText("🔒 Safety bar down!",a.x,a.y-150);x.textAlign="left"}});
  RD=RD.filter(d=>{d.x+=d.vx;d.y+=d.vy;d.r+=.35;x.globalAlpha=Math.max(0,d.l/24)*.55;x.fillStyle=d.c;x.beginPath();x.arc(d.x,d.y,d.r,0,7);x.fill();x.globalAlpha=1;return --d.l>0})}
+
+/* ===== Realism pass 3: more real-world places, animals, objects and "how it works" moments ===== */
+Object.assign(RF,{
+ "sky:spin":["🌍 How it works: Day and night happen because the Earth spins! It turns all the way around once every day."],
+ "n:stop":["🛑 Real fact: Stop signs have 8 sides! Their special shape helps drivers know to stop."],
+ "n:mail":["📬 Real fact: Raising the little red flag on a mailbox tells the mail carrier there's a letter to pick up!"],
+ "n:hydrant":["🚒 Real fact: Firefighters hook their hoses to fire hydrants to get lots of water fast!"],
+ "n:bus":["🚌 Real fact: School buses are painted yellow so other drivers can spot them easily!"],
+ "n:squirrel":["🐿️ Real fact: Squirrels bury nuts to eat later. The ones they forget can grow into new trees!"],
+ "n:leaves":["🍂 Real fact: In fall, the green color in leaves fades away, so the yellow and orange colors show through!"],
+ "m:shroom":["🛟 Mushroom tip: Never eat a mushroom you find outside, even if it looks yummy. Only eat mushrooms a grown-up buys at the store!","🍄 Real fact: Mushrooms grow from teeny-tiny specks called spores, not seeds!"],
+ "ice:berg":["🧊 Real fact: Most of an iceberg is hidden under the water. Only a small tip pokes out!"],
+ "ice:seal":["🦭 Real fact: Ringed seals scratch breathing holes in the ice so they can pop up for air!"],
+ "ice:hare":["🐇 Real fact: Arctic hares have short ears and thick fur to stay warm, and they can hop on just their back legs!"],
+ "ice:drift":["🌬️ Real fact: Wind blows snow into big piles called snowdrifts!"],
+ "ice:slip":["⛸️ How it works: Ice is slippery because its top has a super-thin, wet, slidey layer!"],
+ "six:lift":["⛓️ How it works: A chain pulls the coaster up the first big hill. That's the clack-clack-clack sound you hear!"],
+ "six:wheels":["🛞 Real fact: Coaster cars have wheels on top, under, and beside the track, so they stay on safely!"],
+ "six:ferris2":["⚙️ How it works: A motor slowly turns the big wheel, and the seats swing so you stay sitting upright!"],
+ "six:booth":["🎟️ Real fact: At a theme park, you show your ticket at the front gate to get in!"],
+ "six:map":["🗺️ Park tip: Look at the map board with your grown-up and pick a meeting spot, just in case you get split up!"],
+ "hal:costume":["🧑‍🚀 Real fact: Real astronauts wear space suits, and real firefighters wear tough coats and helmets. Kids love dressing up like them!"],
+ "hal:bright":["🛟 Costume tip: Wear bright colors or a glow stick so drivers can see you at night!"],
+ "hal:leaves":["🍁 Real fact: Fall leaves get crunchy because they dry out after they drop from the tree!"],
+ "tx:alamo":["🏛️ Real fact: The Alamo is a famous old mission building in San Antonio, Texas!"],
+ "tx:cactus":["🌵 Real fact: The prickly pear cactus is the state plant of Texas!"],
+ "tx:longhorn":["🐂 Real fact: Texas longhorn cattle can have horns wider than a grown-up is tall!"],
+ "oh:cardinal":["🐦 Real fact: The red cardinal is the state bird of Ohio!"],
+ "oh:plane":["✈️ Real fact: The Wright brothers' very first airplane flight in 1903 lasted just 12 seconds!"],
+ "oh:corn":["🌽 Real fact: An ear of corn has about 800 kernels, lined up in an even number of rows!"]});
+const R3={stop:820,mail:1000,hyd:1180,sq:[1350,2650],shroom:[1900,3250],drift:[520,1900,3300],berg:1620,seal:2050,hare:2780,kids:[1120,2520],booth:70,map:1180,alamo:[1150,2950],horn:[750,2250],pear:[1700,3300],bonnet:500,card:[950,2450]};
+function r3vis(px,m){m=m||200;return px>cam-m&&px<cam+900+m}
+function r3fall(){let mo=new Date().getMonth();return mo>=8&&mo<=10}
+function r3Leaves(){x.save();let cols=["#e8731a","#c0392b","#f4b400","#a0522d"];for(let i=0;i<16;i++){let sp=.7+(i%3)*.25,lx=cam+((i*137+t*.5)%1000+1000)%1000-50+Math.sin(t/40+i)*18,ly=((i*61+t*sp)%(G+30))-20;x.save();x.translate(lx,ly);x.rotate(t/30+i);x.fillStyle=cols[i%4];x.beginPath();x.ellipse(0,0,7,3.5,0,0,7);x.fill();x.restore()}x.restore()}
+/* --- normal (home) world street things --- */
+function r3Stop(px){x.save();x.fillStyle="#888";x.fillRect(px-3,G-120,6,120);x.fillStyle="#c62828";x.beginPath();for(let k=0;k<8;k++){let a=Math.PI/8+k*Math.PI/4;x.lineTo(px+Math.cos(a)*24,G-140+Math.sin(a)*24)}x.closePath();x.fill();x.strokeStyle="#fff";x.lineWidth=2;x.stroke();x.fillStyle="#fff";x.font="bold 12px sans-serif";x.textAlign="center";x.fillText("STOP",px,G-136);x.fillStyle="#2e7d32";x.fillRect(px-34,G-178,68,16);x.fillStyle="#fff";x.font="bold 11px sans-serif";x.fillText("MAPLE ST",px,G-166);x.restore()}
+function r3Mail(px){x.save();x.fillStyle="#6d4c41";x.fillRect(px-3,G-60,6,60);x.fillStyle="#1565c0";rr(px-18,G-82,36,24,10);x.fill();x.fillStyle="#0d47a1";x.fillRect(px-18,G-70,36,12);let up=Math.sin(t/90)>0;x.fillStyle="#e53935";x.save();x.translate(px+18,G-72);x.rotate(up?-Math.PI/2:0);x.fillRect(0,-2,4,16);x.fillRect(0,-2,10,6);x.restore();x.restore()}
+function r3Hyd(px){x.save();x.fillStyle="#d32f2f";rr(px-10,G-38,20,38,5);x.fill();x.beginPath();x.arc(px,G-38,11,Math.PI,0);x.fill();x.fillRect(px-16,G-28,32,8);x.fillStyle="#fbc02d";x.fillRect(px-3,G-52,6,6);x.fillRect(px-12,G-6,24,6);x.restore()}
+function r3Squirrel(px,i){let ph=(t+i*300)%600,run=ph<200,dx=run?Math.sin(ph/200*Math.PI)*90:0,hop=run?Math.abs(Math.sin(t/5))*8:0,X=px+dx,Y=G-2-hop,f=run&&Math.cos(ph/200*Math.PI)<0?-1:1;x.save();x.translate(X,Y);x.scale(f,1);x.fillStyle="#8d5a3b";x.beginPath();x.ellipse(0,-10,12,8,0,0,7);x.fill();x.beginPath();x.arc(10,-18,6,0,7);x.fill();x.beginPath();x.moveTo(-10,-10);x.quadraticCurveTo(-30,-14,-22,-36);x.quadraticCurveTo(-12,-30,-8,-14);x.fill();x.fillStyle="#fff";x.beginPath();x.arc(12,-19,2,0,7);x.fill();x.fillStyle="#222";x.beginPath();x.arc(12.5,-19,1,0,7);x.fill();if(!run){x.fillStyle="#a1887f";x.beginPath();x.arc(16,-12,3.5,0,7);x.fill()}x.restore()}
+function r3Shroom(px){x.save();[[0,1],[18,.7],[-16,.6],[34,.5]].forEach(([o,s])=>{let X=px+o;x.fillStyle="#f3e5d0";x.fillRect(X-3*s,G-16*s,6*s,16*s);x.fillStyle="#9c6b3f";x.beginPath();x.ellipse(X,G-16*s,14*s,8*s,0,Math.PI,0);x.fill();x.fillStyle="rgba(255,255,255,.35)";x.beginPath();x.arc(X-4*s,G-20*s,2*s,0,7);x.fill()});x.restore();realLabel(px+8,G-30,"🍄 Wild mushrooms: just look!")}
+function r3Bus(){let bx=((t*1.3)%(W+700))-350;if(!r3vis(bx,150))return;x.save();x.translate(bx,G-6);x.scale(.75,.75);x.fillStyle="#fbc02d";rr(-80,-62,160,52,8);x.fill();x.fillStyle="#222";x.fillRect(-80,-30,160,4);x.fillStyle="#bfe3ff";for(let k=0;k<5;k++)x.fillRect(-70+k*28,-56,20,16);x.fillStyle="#d32f2f";x.fillRect(-90,-48,8,8);x.fillStyle="#222";x.font="bold 11px sans-serif";x.textAlign="center";x.fillText("SCHOOL BUS",0,-17);[-50,50].forEach(w=>{x.fillStyle="#333";x.beginPath();x.arc(w,-8,10,0,7);x.fill();x.fillStyle="#999";x.beginPath();x.arc(w,-8,4,0,7);x.fill()});x.restore()}
+/* --- Ice World extras --- */
+function r3Drift(px){x.save();x.fillStyle="#f7fbff";x.beginPath();x.moveTo(px-90,G+2);x.quadraticCurveTo(px-40,G-36,px+10,G-22);x.quadraticCurveTo(px+60,G-10,px+90,G+2);x.fill();x.strokeStyle="rgba(150,190,230,.6)";x.lineWidth=2;x.beginPath();x.moveTo(px-60,G-10);x.quadraticCurveTo(px-30,G-28,px+10,G-18);x.stroke();x.restore()}
+function r3Berg(px){x.save();let g=x.createLinearGradient(0,G,0,420);g.addColorStop(0,"rgba(40,120,200,.9)");g.addColorStop(1,"rgba(10,40,110,.95)");x.fillStyle=g;x.fillRect(px-120,G,240,72);x.strokeStyle="#cfe9ff";x.lineWidth=3;x.strokeRect(px-120,G,240,72);
+ x.fillStyle="#e8f6ff";x.beginPath();x.moveTo(px-24,G);x.lineTo(px-10,G-38);x.lineTo(px+8,G-26);x.lineTo(px+22,G);x.closePath();x.fill();
+ x.fillStyle="rgba(200,235,255,.85)";x.beginPath();x.moveTo(px-24,G);x.lineTo(px-70,G+30);x.lineTo(px-60,G+64);x.lineTo(px+40,G+70);x.lineTo(px+78,G+36);x.lineTo(px+22,G);x.closePath();x.fill();
+ x.strokeStyle="rgba(255,255,255,.5)";x.lineWidth=2;for(let k=0;k<3;k++){x.beginPath();x.moveTo(px-110,G+12+k*20+Math.sin(t/20+k)*2);x.quadraticCurveTo(px,G+8+k*20,px+110,G+12+k*20);x.stroke()}x.restore();realLabel(px,G-48,"🧊 Iceberg: most of it is underwater!")}
+function r3Seal(px){let pop=Math.max(0,Math.sin(t/120));x.save();x.fillStyle="#1d3c5a";x.beginPath();x.ellipse(px+70,G-1,18,5,0,0,7);x.fill();x.fillStyle="#8a8f99";x.beginPath();x.ellipse(px,G-11,30,12,0,0,7);x.fill();x.beginPath();x.arc(px+26,G-18,10,0,7);x.fill();x.fillStyle="#6d727c";for(let k=0;k<5;k++){x.beginPath();x.arc(px-16+k*8,G-14,2.5,0,7);x.fill()}x.fillStyle="#111";x.beginPath();x.arc(px+29,G-20,2,0,7);x.fill();x.beginPath();x.arc(px+35,G-16,1.5,0,7);x.fill();
+ if(pop>.3){x.fillStyle="#8a8f99";x.beginPath();x.arc(px+70,G-4-pop*10,9,Math.PI,0);x.fill();x.fillStyle="#111";x.beginPath();x.arc(px+73,G-8-pop*10,1.6,0,7);x.fill()}x.restore();realLabel(px+30,G-40,"🦭 Ringed seals + breathing hole")}
+function r3Hare(px){let ph=(t%360)/360,hop=ph<.5?Math.abs(Math.sin(ph*Math.PI*6))*14:0,X=px+(ph<.5?Math.sin(ph*Math.PI*2)*70:0);x.save();x.translate(X,G-2-hop);x.fillStyle="#fff";x.strokeStyle="#c9d6e3";x.lineWidth=1.5;x.beginPath();x.ellipse(0,-12,15,11,0,0,7);x.fill();x.stroke();x.beginPath();x.arc(13,-22,7,0,7);x.fill();x.stroke();x.beginPath();x.ellipse(12,-33,2.5,7,-.2,0,7);x.fill();x.stroke();x.beginPath();x.ellipse(16,-32,2.5,7,.2,0,7);x.fill();x.stroke();x.fillStyle="#333";x.beginPath();x.arc(16,-23,1.5,0,7);x.fill();x.restore();realLabel(px,G-50,"🐇 Arctic hare")}
+/* --- Halloween: kids in real costumes with a grown-up --- */
+function r3Kid(X,Y,kind,s){x.save();x.translate(X,Y);x.scale(s,s);let col={astro:"#f2f2f2",fire:"#f9c400",dino:"#4caf50"}[kind];x.fillStyle="#333";x.fillRect(-7,-14,5,14);x.fillRect(2,-14,5,14);x.fillStyle=col;rr(-10,-40,20,28,6);x.fill();
+ if(kind=="fire"){x.fillStyle="#c62828";x.fillRect(-10,-26,20,3);x.fillStyle="#ccc";x.fillRect(-10,-20,20,3)}if(kind=="astro"){x.fillStyle="#1976d2";x.fillRect(-4,-36,8,6)}if(kind=="dino"){x.fillStyle="#2e7d32";for(let k=0;k<4;k++){x.beginPath();x.moveTo(-10,-38+k*7);x.lineTo(-16,-35+k*7);x.lineTo(-10,-32+k*7);x.fill()}x.beginPath();x.moveTo(-8,-14);x.lineTo(-22,-6);x.lineTo(-6,-18);x.fill()}
+ x.fillStyle="#f1c9a5";x.beginPath();x.arc(0,-48,9,0,7);x.fill();
+ if(kind=="astro"){x.strokeStyle="#bbb";x.lineWidth=3;x.fillStyle="rgba(180,220,255,.35)";x.beginPath();x.arc(0,-48,12,0,7);x.fill();x.stroke()}
+ if(kind=="fire"){x.fillStyle="#c62828";x.beginPath();x.ellipse(0,-56,13,5,0,0,7);x.fill();x.beginPath();x.arc(0,-56,8,Math.PI,0);x.fill()}
+ if(kind=="dino"){x.fillStyle="#4caf50";x.beginPath();x.arc(0,-52,10,Math.PI,0);x.fill();x.fillStyle="#fff";x.fillRect(-6,-52,3,3);x.fillRect(3,-52,3,3)}
+ x.fillStyle="#333";x.fillRect(-4,-48,2,2);x.fillRect(2,-48,2,2);x.strokeStyle="#333";x.lineWidth=1;x.beginPath();x.arc(0,-45,3,0,Math.PI);x.stroke();
+ x.fillStyle="#ff8f00";rr(10,-24,14,12,3);x.fill();x.strokeStyle="#333";x.lineWidth=1.5;x.beginPath();x.arc(17,-24,6,Math.PI,0);x.stroke();x.fillStyle="#333";x.fillRect(13,-20,2,2);x.fillRect(19,-20,2,2);x.restore()}
+function r3Grown(X,Y,f){x.save();x.translate(X,Y);x.fillStyle="#37474f";x.fillRect(-8,-30,6,30);x.fillRect(2,-30,6,30);x.fillStyle="#5d4037";rr(-12,-72,24,44,6);x.fill();x.fillStyle="#e0b48a";x.beginPath();x.arc(0,-82,11,0,7);x.fill();x.fillStyle="#3e2723";x.beginPath();x.arc(0,-86,11,Math.PI,0);x.fill();x.fillStyle="#333";x.fillRect(-4,-83,2,2);x.fillRect(3,-83,2,2);
+ x.fillStyle="#888";x.fillRect(f*10,-54,f*12,6);let g=x.createLinearGradient(f*22,-51,f*120,-20);g.addColorStop(0,"rgba(255,250,200,.55)");g.addColorStop(1,"rgba(255,250,200,0)");x.fillStyle=g;x.beginPath();x.moveTo(f*22,-54);x.lineTo(f*120,-70);x.lineTo(f*120,-6);x.lineTo(f*22,-48);x.fill();x.restore()}
+function r3Kids(px,i){let dx=Math.sin(t/260+i*2)*170,f=Math.cos(t/260+i*2)>0?1:-1,X=px+dx,b=Math.abs(Math.sin(t/8))*2;r3Grown(X,G-2,f);r3Kid(X-f*34,G-2-b,"astro",1);r3Kid(X-f*62,G-2-Math.abs(Math.sin(t/8+1))*2,"fire",.95);r3Kid(X-f*90,G-2-Math.abs(Math.sin(t/8+2))*2,"dino",.9);realLabel(X-f*45,G-110,"🧑‍🚀🚒🦖 Trick-or-treaters with a grown-up")}
+function r3Pile(px){x.save();let cols=["#e8731a","#c0392b","#f4b400","#a0522d"];for(let k=0;k<26;k++){x.fillStyle=cols[k%4];x.beginPath();x.ellipse(px+((k*37)%70)-35,G-2-((k*13)%14)*(1-Math.abs(((k*37)%70)-35)/40),6,3,(k%5)*.6,0,7);x.fill()}x.restore()}
+/* --- Six Flags: ticket booth, map board, lift-hill clacks --- */
+function r3Booth(px){x.save();x.fillStyle="#fff";x.fillRect(px-40,G-110,80,110);x.fillStyle="#e53935";for(let k=0;k<5;k++)x.fillRect(px-40+k*16,G-130,8,22);x.fillStyle="#e53935";x.beginPath();x.moveTo(px-50,G-110);x.lineTo(px,G-140);x.lineTo(px+50,G-110);x.fill();x.fillStyle="#bfe3ff";x.fillRect(px-26,G-90,52,34);x.fillStyle="#1d3c5a";x.font="bold 12px sans-serif";x.textAlign="center";x.fillText("🎟️ TICKETS",px,G-40);x.fillStyle="#f1c9a5";x.beginPath();x.arc(px,G-70,8,0,7);x.fill();x.restore()}
+function r3Map(px){x.save();x.fillStyle="#6d4c41";x.fillRect(px-46,G-40,6,40);x.fillRect(px+40,G-40,6,40);x.fillStyle="#fffbe6";x.strokeStyle="#6d4c41";x.lineWidth=4;x.fillRect(px-56,G-130,112,92);x.strokeRect(px-56,G-130,112,92);x.fillStyle="#9ccc65";x.fillRect(px-50,G-112,100,68);x.strokeStyle="#c0392b";x.lineWidth=3;x.beginPath();x.moveTo(px-44,G-60);x.bezierCurveTo(px-20,G-110,px+10,G-50,px+44,G-100);x.stroke();x.font="12px serif";x.fillText("🎡",px-30,G-90);x.fillText("🎠",px+14,G-56);x.fillText("🍿",px-8,G-78);x.fillStyle="#d32f2f";x.beginPath();x.arc(px-40,G-52,4,0,7);x.fill();x.fillStyle="#333";x.font="bold 11px sans-serif";x.textAlign="center";x.fillText("PARK MAP",px,G-117);x.font="bold 9px sans-serif";x.fillText("● You are here",px+10,G-46);x.restore()}
+/* --- Texas: the Alamo, longhorns, bluebonnets, prickly pear --- */
+function r3Alamo(px){x.save();x.fillStyle="#d9c4a0";x.beginPath();x.moveTo(px-130,G);x.lineTo(px-130,G-120);x.lineTo(px-50,G-120);x.quadraticCurveTo(px-40,G-150,px-20,G-150);x.quadraticCurveTo(px,G-176,px+20,G-150);x.quadraticCurveTo(px+40,G-150,px+50,G-120);x.lineTo(px+130,G-120);x.lineTo(px+130,G);x.fill();
+ x.fillStyle="#7a5a3a";x.beginPath();x.moveTo(px-20,G);x.lineTo(px-20,G-56);x.arc(px,G-56,20,Math.PI,0);x.lineTo(px+20,G);x.fill();x.fillStyle="#b89f7a";[[-80,-80],[60,-80],[-80,-30],[60,-30]].forEach(([a,b])=>{x.beginPath();x.moveTo(px+a,G+b);x.lineTo(px+a,G+b-20);x.arc(px+a+10,G+b-20,10,Math.PI,0);x.lineTo(px+a+20,G+b);x.fill()});x.fillStyle="#b89f7a";x.fillRect(px-130,G-122,260,5);x.restore();realLabel(px,G-185,"🏛️ The Alamo · San Antonio")}
+function r3Horn(px,i){let gz=Math.sin(t/70+i)>0,X=px+Math.sin(t/400+i)*30;x.save();x.translate(X,G-2);x.fillStyle="#a0522d";x.beginPath();x.ellipse(0,-34,38,18,0,0,7);x.fill();x.fillStyle="#fff";x.beginPath();x.ellipse(-10,-36,12,8,0,0,7);x.fill();x.fillStyle="#6d3b1f";[-26,-14,14,26].forEach(l=>x.fillRect(l,-22,6,22));let hy=gz?-14:-40;x.fillStyle="#a0522d";x.beginPath();x.ellipse(40,hy,11,9,0,0,7);x.fill();x.strokeStyle="#f1e3c6";x.lineWidth=4;x.lineCap="round";x.beginPath();x.moveTo(40,hy-6);x.quadraticCurveTo(10,hy-8,2,hy-22);x.moveTo(40,hy-6);x.quadraticCurveTo(70,hy-8,78,hy-22);x.stroke();x.fillStyle="#222";x.beginPath();x.arc(44,hy-2,1.6,0,7);x.fill();x.restore();realLabel(px,G-84,"🐂 Texas longhorn")}
+function r3Bonnet(px){x.save();for(let k=0;k<9;k++){let X=px+k*11-44,h=14+(k%3)*5;x.strokeStyle="#4f7d2f";x.lineWidth=2;x.beginPath();x.moveTo(X,G);x.lineTo(X,G-h);x.stroke();x.fillStyle="#2f5fd0";for(let j=0;j<4;j++){x.beginPath();x.arc(X+(j%2?2:-2),G-h-j*4,3,0,7);x.fill()}x.fillStyle="#fff";x.beginPath();x.arc(X,G-h-14,2,0,7);x.fill()}x.restore()}
+function r3Pear(px){x.save();x.fillStyle="#5e9a3a";[[0,-22,14,20,0],[-16,-46,11,16,-.5],[14,-48,11,16,.4],[0,-68,10,14,0]].forEach(([a,b,w,h,r])=>{x.beginPath();x.ellipse(px+a,G+b,w,h,r,0,7);x.fill()});x.fillStyle="#d81b60";[[-22,-60],[20,-62],[4,-82]].forEach(([a,b])=>{x.beginPath();x.ellipse(px+a,G+b,4,5,0,0,7);x.fill()});x.fillStyle="#fff";for(let k=0;k<10;k++)x.fillRect(px-12+(k*7)%26,G-60+(k*11)%50,1.5,1.5);x.restore();realLabel(px,G-98,"🌵 Prickly pear: Texas state plant")}
+/* --- Ohio: Wright Flyer, cardinal on a fence --- */
+function r3Flyer(){let X=cam+((t*1.1)%1400)-250,Y=95+Math.sin(t/50)*8;x.save();x.translate(X,Y);x.strokeStyle="#3e2723";x.fillStyle="#f5ecd7";x.lineWidth=1.5;x.fillRect(-60,-14,120,5);x.strokeRect(-60,-14,120,5);x.fillRect(-60,6,120,5);x.strokeRect(-60,6,120,5);for(let k=-50;k<=50;k+=25){x.beginPath();x.moveTo(k,-9);x.lineTo(k,6);x.stroke()}x.fillRect(-92,-6,18,10);x.strokeRect(-92,-6,18,10);x.beginPath();x.moveTo(-74,-1);x.lineTo(-60,-1);x.moveTo(60,-1);x.lineTo(80,-1);x.stroke();x.fillRect(80,-12,6,20);x.strokeRect(80,-12,6,20);x.fillStyle="#795548";x.beginPath();x.ellipse(-6,2,6,3,0,0,7);x.fill();x.restore();realLabel(X,Y-24,"✈️ Wright brothers' Flyer (1903)")}
+function r3Card(px){x.save();x.fillStyle="#8d6e63";for(let k=-2;k<=2;k++)x.fillRect(px+k*40-3,G-50,6,50);x.fillRect(px-90,G-42,180,5);x.fillRect(px-90,G-22,180,5);let bob=Math.abs(Math.sin(t/10))*2;x.translate(px,G-52-bob);x.fillStyle="#d50000";x.beginPath();x.ellipse(0,-8,9,7,0,0,7);x.fill();x.beginPath();x.moveTo(2,-16);x.lineTo(6,-26);x.lineTo(10,-14);x.fill();x.beginPath();x.moveTo(-8,-6);x.lineTo(-20,0);x.lineTo(-8,-2);x.fill();x.fillStyle="#222";x.beginPath();x.arc(8,-12,3,0,7);x.fill();x.fillStyle="#ff9800";x.beginPath();x.moveTo(11,-12);x.lineTo(16,-10);x.lineTo(11,-8);x.fill();x.restore();realLabel(px,G-94,"🐦 Cardinal: Ohio state bird")}
+function realBack3(){let N=world=="mario"&&!PLACE,ICE=world=="ice"&&!PLACE,HL=world=="halloween"&&!PLACE,SX=world=="six"&&!PLACE;
+ if(N){r3Bus();if(r3vis(R3.stop))r3Stop(R3.stop);if(r3vis(R3.mail))r3Mail(R3.mail);if(r3vis(R3.hyd))r3Hyd(R3.hyd);R3.sq.forEach((p,i)=>r3vis(p)&&r3Squirrel(p,i));R3.shroom.forEach(p=>r3vis(p)&&r3Shroom(p));if(r3fall())r3Leaves()}
+ if(ICE){R3.drift.forEach(p=>r3vis(p)&&r3Drift(p));if(r3vis(R3.berg))r3Berg(R3.berg);if(r3vis(R3.seal))r3Seal(R3.seal);if(r3vis(R3.hare))r3Hare(R3.hare)}
+ if(HL){RHOUSE.forEach(h=>r3vis(h+95)&&r3Pile(h+95));R3.kids.forEach((p,i)=>r3vis(p,300)&&r3Kids(p,i));r3Leaves()}
+ if(SX){if(r3vis(R3.booth))r3Booth(R3.booth);if(r3vis(R3.map))r3Map(R3.map)}
+ if(PLACE=="texas"){R3.alamo.forEach(p=>r3vis(p,200)&&r3Alamo(p));R3.horn.forEach((p,i)=>r3vis(p)&&r3Horn(p,i));for(let b=R3.bonnet;b<W;b+=420)if(r3vis(b))r3Bonnet(b);R3.pear.forEach(p=>r3vis(p)&&r3Pear(p))}
+ if(PLACE=="ohio"){r3Flyer();R3.card.forEach(p=>r3vis(p)&&r3Card(p))}}
+function r3near(px,d){return Math.abs(P.x-px)<(d||130)}
+function realTick3(){if(!P||!P.h)return;let N=world=="mario"&&!PLACE,ICE=world=="ice"&&!PLACE,HL=world=="halloween"&&!PLACE,SX=world=="six"&&!PLACE;
+ if((N||ICE)&&realDusk()>.5)realFact("sky:spin");
+ if(N){if(r3near(R3.stop))realFact("n:stop");if(r3near(R3.mail))realFact("n:mail");if(r3near(R3.hyd))realFact("n:hydrant");R3.sq.forEach(p=>r3near(p,150)&&realFact("n:squirrel"));R3.shroom.forEach(p=>r3near(p,120)&&realFact("m:shroom",2));let bx=((t*1.3)%(W+700))-350;if(RTK>200&&Math.abs(bx-P.x)<220)realFact("n:bus");if(r3fall()&&RTK==700)realFact("n:leaves")}
+ if(ICE){R3.drift.forEach(p=>r3near(p,110)&&realFact("ice:drift"));if(r3near(R3.berg))realFact("ice:berg");if(r3near(R3.seal+30,150))realFact("ice:seal");if(r3near(R3.hare,150))realFact("ice:hare");if(RTK==900)realFact("ice:slip")}
+ if(HL){R3.kids.forEach((p,i)=>{let X=p+Math.sin(t/260+i*2)*170;if(r3near(X-40,160)){realFact("hal:costume");realFact("hal:bright")}});RHOUSE.forEach(h=>r3near(h+95,60)&&realFact("hal:leaves"))}
+ if(SX){if(r3near(R3.booth,120)&&RTK>60)realFact("six:booth");if(r3near(R3.map))realFact("six:map");
+  if(P.cst&&!P.cst.t0)P.cst.t0=t;if(P.cst){let el=t-(P.cst.t0||t);if(el<200){realFact("six:lift");if(el%9==0)try{beep(140,.025,"square")}catch(e){}}if(el>480)realFact("six:wheels")}
+  if(P.onPlat>=t-1&&Math.abs(P.x-SIX.fwx)<SIX.fwr+40&&P.y<G-40)realFact("six:ferris2")}
+ if(PLACE=="texas"){R3.alamo.forEach(p=>r3near(p,160)&&realFact("tx:alamo"));R3.horn.forEach(p=>r3near(p,140)&&realFact("tx:longhorn"));R3.pear.forEach(p=>r3near(p,120)&&realFact("tx:cactus"))}
+ if(PLACE=="ohio"){R3.card.forEach(p=>r3near(p,140)&&realFact("oh:cardinal"));if(RTK==240)realFact("oh:plane");if(RTK==1200)realFact("oh:corn")}}
+/* lift-hill clack marks drawn by the rider */
+function realOver3(){if(world!="six"||PLACE||!P||!P.cst)return;let el=t-(P.cst.t0||t);if(el>200)return;x.save();x.font="bold 13px sans-serif";x.fillStyle="#fff";x.strokeStyle="#333";x.lineWidth=3;x.textAlign="center";let s=(t%18<9)?"⛓️ clack":"⛓️ clack-clack";x.strokeText(s,P.x+60,P.y-40);x.fillText(s,P.x+60,P.y-40);x.textAlign="left";x.restore()}
 
 showMenu();loop();
 </script></body></html>
