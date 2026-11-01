@@ -78,7 +78,7 @@ onkeydown2=e=>{let q=e.key.toLowerCase();if(game.style.display!="block")return;i
 pad.appendChild(pw);pw.style.flexBasis="100%";pw.style.height="96px";pw.style.borderRadius="24px";function toggleInv(){if(!P||!on)return;P.inv=!P.inv;invb.style.background=P.inv?"#fff":"#889";spark(P.x,P.y-60,"#fff",15);beep(P.inv?400:800,.3,"sine");show(P.inv?(P.h.boss?"👻 INVISIBLE! Only 6 friends can see you! 👀":"👻 You're INVISIBLE! Shhh!"):"👋 Peekaboo! You're back!",60,P.h.boss&&P.inv?30:36);if(P.inv&&P.h.boss&&!pr&&E&&sees(E))setTimeout(()=>{if(P.inv)say("Hee hee! I can still see you, Subsonic! 👀",80)},700);talk(P.inv?"Now you see me, now you don't!":"Peekaboo!","force")}
 function teleport(wx,wy){if(!P||!on||race)return;if(wx==null){wx=E.x-E.f*90;wy=G-60}let ox=P.x;spark(ox,P.y-60,"#0ff",30);let nx=Math.max(30,Math.min(W-30,wx));P.x=nx;P.y=Math.max(-700,Math.min(G,wy+60));P.vy=0;P.lx=nx;spark(P.x,P.y-60,"#f0f",30);[1200,900,1500].forEach((f,i)=>setTimeout(()=>beep(f,.12,"sine"),i*60));show("🌀 ZAP! Teleport!",40,38);for(let q=0;q<14;q++)fx.push({x:P.x,y:P.y-60,vx:(Math.random()-.5)*12,vy:(Math.random()-.5)*12,l:30,emo:["✨","⭐","💫"][q%3]});telb.style.opacity=1;telb.textContent="🌀"}
 [[invb,toggleInv],[telb,()=>teleport()]].forEach(([b,fn])=>{b.addEventListener("touchend",e=>{e.preventDefault();fn()});b.addEventListener("click",()=>fn())});
-function canvasTap(cx,cy){let r=c.getBoundingClientRect(),sc=Math.min(r.width/900,r.height/420),ox=r.left+(r.width-900*sc)/2,oy=r.top+(r.height-420*sc)/2,gx=(cx-ox)/sc,gy=(cy-oy)/sc;if(gx<0||gx>900||gy<0||gy>420)return;teleport(gx+cam,gy+camY)}
+function canvasTap(cx,cy){let r=c.getBoundingClientRect(),sc=Math.min(r.width/900,r.height/420),ox=r.left+(r.width-900*sc)/2,oy=r.top+(r.height-420*sc)/2,gx=(cx-ox)/sc,gy=(cy-oy)/sc;if(RCB&&RCUR&&gx>RCB[0]&&gx<RCB[0]+RCB[2]&&gy>RCB[1]&&gy<RCB[1]+RCB[3]){realHide();return}if(gx<0||gx>900||gy<0||gy>420)return;teleport(gx+cam,gy+camY)}
 c.addEventListener("touchstart",e=>{e.preventDefault();let t0=e.changedTouches[0];canvasTap(t0.clientX,t0.clientY)});c.addEventListener("mousedown",e=>canvasTap(e.clientX,e.clientY));
 addEventListener("keydown",e=>{let q=e.key.toLowerCase();if(game.style.display!="block")return;if(q=="i")toggleInv();if(q=="t")teleport(E.x-E.f*90,G-60)});
 mus.onclick=()=>{musicOn=!musicOn;mus.textContent=musicOn?"🎵 Music ON":"🔇 Music OFF"};fs.onclick=()=>{let d=document.documentElement,b=document.body;if(!b.classList.contains("full")){b.classList.add("full");fs.textContent="✕ Small";(d.requestFullscreen||d.webkitRequestFullscreen||function(){}).call(d)}else{b.classList.remove("full");fs.textContent="⛶ Big Screen";(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document)}};
@@ -357,7 +357,7 @@ for(let i=0;i<W;i+=300){let fx0=i+Math.sin(t/60+i)*40;if(fx0>cam-340&&fx0<cam+92
   if(bubble&&bubble.t-->0){let bx=Math.max(150,Math.min(750,E.x-cam));x.fillStyle="#fff";x.fillRect(bx-150,E.y-camY-(E.h.giant?290:205),300,42);x.fillStyle="#000";x.font="bold 18px sans-serif";x.fillText(bubble.s,bx,E.y-camY-(E.h.giant?262:177),290)}
   if(banner&&banner.t-->0){x.font="bold "+banner.size+"px sans-serif";x.lineWidth=6;x.strokeStyle="#e2008a";let by0=banner.size<=30?400:200;x.strokeText(banner.s,450,by0,860);x.fillStyle="#ffd800";x.fillText(banner.s,450,by0,860)}
   x.textAlign="left"}
- x.restore();requestAnimationFrame(loop)}
+ x.restore();try{realCanvasFact()}catch(e){}requestAnimationFrame(loop)}
 // ---------- Stage B: ice world, coins, shop, race, King Wobble, Frosty Fox ----------
 const FIN=W-220,GV0=900,GVS=1200,GVW=220;
 const SHOP=[{id:"crown",n:"Gold Crown",icon:"👑",e:"👑",c:30,k:"hat"},{id:"tophat",n:"Top Hat",icon:"🎩",e:"🎩",c:20,k:"hat"},{id:"cap",n:"Ball Cap",icon:"🧢",e:"🧢",c:15,k:"hat"},{id:"bow",n:"Big Bow",icon:"🎀",e:"🎀",c:15,k:"hat"},{id:"redcape",n:"Red Cape",icon:"🦸",col:"#e22",c:20,k:"cape"},{id:"purplecape",n:"Purple Cape",icon:"💜",col:"#82f",c:20,k:"cape"},{id:"rainbowcape",n:"Rainbow Cape",icon:"🌈",col:"rainbow",c:40,k:"cape"},{id:"gold",n:"Gold Color",icon:"✨",col:"#fc2",c:35,k:"col"},{id:"pink",n:"Bubblegum Color",icon:"🍬",col:"#f8c",c:25,k:"col"},{id:"mint",n:"Mint Color",icon:"🍃",col:"#5dc",c:25,k:"col"},{id:"health",n:"Extra Health +50",icon:"❤️",c:60,k:"up"},{id:"cmag",n:"Coin Magnet",icon:"🧲",c:50,k:"up"}];
@@ -1400,13 +1400,37 @@ const RTOP=[[/wbubble|wsplash|wiceb|wbreath|wjet|wwhirl|wdolph|wrain|wtidal|wtsu
 let RSEEN=new Set(),RQ=[],RCUR=null,RLAST={P:null,w:null,pl:null},RTK=0,RD=[],ROWN=null;
 function realKeyText(k){let a=RF[k];if(!a)return null;for(let i=0;i<a.length;i++){let id=k+"#"+i;if(!RSEEN.has(id))return[id,a[i]]}return null}
 function realFact(k,n){let c=0;n=n||1;while(c<n){let r=realKeyText(k);if(!r)return;if(RQ.some(q=>q[0]==r[0])||(RCUR&&RCUR[0]==r[0]))return;if(RQ.length>=3)return;RSEEN.add(r[0]);RQ.push(r);c++}realPump()}
-function realPump(){if(RCUR||!RQ.length)return;RCUR=RQ.shift();let d=document.getElementById("realfact");if(!d){d=document.createElement("div");d.id="realfact";d.style.cssText="position:fixed;left:50%;transform:translateX(-50%);z-index:9999;max-width:min(860px,94vw);box-sizing:border-box;padding:8px 14px 8px 12px;border-radius:14px;font:bold 17px/1.25 sans-serif;color:#222;box-shadow:0 3px 12px rgba(0,0,0,.35);cursor:pointer;user-select:none;-webkit-user-select:none;transition:opacity .3s;touch-action:manipulation";let x0=e=>{e.preventDefault&&e.preventDefault();realHide()};d.addEventListener("click",x0);d.addEventListener("touchstart",x0,{passive:false});document.body.appendChild(d)}
- let safe=/tip|rule/i.test(RCUR[1].slice(0,24));d.style.background=safe?"#fff4d6":"#eaf7ff";d.style.border="3px solid "+(safe?"#ff9f1c":"#29b6f6");
- d.innerHTML="";let s=document.createElement("span");s.textContent=RCUR[1];let xb=document.createElement("span");xb.textContent="  ✖";xb.style.cssText="color:#888;font-size:14px";d.appendChild(s);d.appendChild(xb);
- let cv0=document.getElementById("c"),r=cv0&&cv0.getBoundingClientRect(),top=8;if(r&&r.height>50&&r.top>-r.height&&r.top<innerHeight)top=Math.max(6,r.top+6+(r.height/420)*(typeof race!="undefined"&&race?34:0));d.style.top=top+"px";d.style.opacity="1";d.style.display="block";
+function realFsEl(){return document.fullscreenElement||document.webkitFullscreenElement||null}
+function realGameOn(){let g=document.getElementById("game"),m=document.getElementById("menu");return !!(P&&g&&g.style.display!="none"&&g.offsetHeight>0&&!(m&&m.style.display=="block"))}
+let RVIS=true,RVC=0;
+function realBox(){let d=document.getElementById("realfact");if(!d){d=document.createElement("div");d.id="realfact";d.style.cssText="position:fixed;left:0;right:0;top:8px;z-index:2147483647;display:none;justify-content:center;pointer-events:none;transition:opacity .3s;-webkit-transform:translateZ(0);transform:translateZ(0)";
+  let b=document.createElement("div");b.id="realfactbox";b.style.cssText="pointer-events:auto;max-width:94vw;box-sizing:border-box;margin:0 3vw;padding:8px 14px 8px 12px;border-radius:14px;font:bold 17px/1.25 sans-serif;color:#222;text-align:center;box-shadow:0 3px 12px rgba(0,0,0,.35);cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation";b.style.maxWidth="min(860px,94vw)";
+  let x0=e=>{e.preventDefault&&e.preventDefault();e.stopPropagation&&e.stopPropagation();realHide()};b.addEventListener("click",x0);b.addEventListener("touchstart",x0,{passive:false});d.appendChild(b)}
+ let par=realFsEl()||document.body;if(par.tagName=="HTML"||par.tagName=="CANVAS")par=document.body;if(d.parentNode!==par)par.appendChild(d);return d}
+function realPlace(){let d=document.getElementById("realfact");if(!d||!RCUR)return;let cv0=document.getElementById("c"),r=cv0&&cv0.getBoundingClientRect(),vv=window.visualViewport,vt=vv?vv.offsetTop:0,vh=vv?vv.height:innerHeight,top=vt+8;
+ if(r&&r.height>50&&r.bottom>vt+60&&r.top<vt+vh-60){let sc=Math.min(r.width/900,r.height/420),oy=r.top+(r.height-420*sc)/2;top=Math.max(vt+6,oy+6+sc*(typeof race!="undefined"&&race?34:0))}
+ d.style.top=top+"px";if(vv&&vv.scale>1.05){d.style.left=vv.offsetLeft+"px";d.style.right="auto";d.style.width=vv.width+"px"}else{d.style.left="0";d.style.right="0";d.style.width=""}}
+function realCheckVis(){let d=document.getElementById("realfact"),b=document.getElementById("realfactbox");if(!d||!b||!RCUR){RVIS=true;return}
+ try{let fe=realFsEl();if(fe&&!fe.contains(d)){RVIS=false;return}let r=b.getBoundingClientRect();if(r.width<20||r.height<10){RVIS=false;return}let vv=window.visualViewport,vt=vv?vv.offsetTop:0,vl=vv?vv.offsetLeft:0,vw=vv?vv.width:innerWidth,vh=vv?vv.height:innerHeight;
+  if(r.bottom<vt+4||r.top>vt+vh-4||r.right<vl+4||r.left>vl+vw-4){RVIS=false;return}let cx=Math.min(Math.max(r.left+r.width/2,1),innerWidth-1),cy=Math.min(Math.max(r.top+r.height/2,1),innerHeight-1),h=document.elementFromPoint(cx,cy);RVIS=!h||d.contains(h)}catch(e){RVIS=false}}
+function realPump(){if(RCUR||!RQ.length)return;if(!realGameOn()||RTK<45){clearTimeout(realPump.w);realPump.w=setTimeout(realPump,400);return}
+ RCUR=RQ.shift();let d=realBox(),b=document.getElementById("realfactbox");
+ let safe=/tip|rule/i.test(RCUR[1].slice(0,24));b.style.background=safe?"#fff4d6":"#eaf7ff";b.style.border="3px solid "+(safe?"#ff9f1c":"#29b6f6");
+ b.innerHTML="";let s=document.createElement("span");s.textContent=RCUR[1];let xb=document.createElement("span");xb.textContent="  ✖";xb.style.cssText="color:#888;font-size:14px";b.appendChild(s);b.appendChild(xb);
+ d.style.display="flex";d.style.opacity="1";realPlace();realCheckVis();RVC=0;
  try{tune&&tune([880,1175],70,"sine",.08)}catch(e){}
- clearTimeout(realPump.tm);realPump.tm=setTimeout(realHide,4200)}
-function realHide(){clearTimeout(realPump.tm);let d=document.getElementById("realfact");if(d){d.style.opacity="0";setTimeout(()=>{if(!RCUR)d.style.display="none"},320)}RCUR=null;setTimeout(realPump,700)}
+ clearTimeout(realPump.tm);realPump.tm=setTimeout(realHide,5000)}
+function realHide(){clearTimeout(realPump.tm);let d=document.getElementById("realfact");if(d){d.style.opacity="0";setTimeout(()=>{if(!RCUR)d.style.display="none"},320)}RCUR=null;RVIS=true;setTimeout(realPump,700)}
+/* backup: if the page pop-up can't be seen (full screen, zoom, covered), draw the fact right on the game canvas */
+let RCB=null;
+function realCanvasFact(){if(!RCUR){RCB=null;return}if(++RVC%20==1){realPlace();realCheckVis()}if(RVIS){RCB=null;return}
+ if(!realGameOn())return;let txt=RCUR[1]+"  ✖",safe=/tip|rule/i.test(RCUR[1].slice(0,24));x.save();x.setTransform(1,0,0,1,0,0);x.font="bold 16px sans-serif";
+ let words=txt.split(" "),lines=[""],mw=760;words.forEach(w=>{let tl=lines[lines.length-1]?lines[lines.length-1]+" "+w:w;if(x.measureText(tl).width>mw&&lines[lines.length-1])lines.push(w);else lines[lines.length-1]=tl});
+ let bw=Math.min(800,Math.max(...lines.map(l=>x.measureText(l).width))+28),bh=lines.length*20+14,bx=450-bw/2,by=(typeof race!="undefined"&&race)?40:6;
+ x.globalAlpha=.97;x.fillStyle=safe?"#fff4d6":"#eaf7ff";x.strokeStyle=safe?"#ff9f1c":"#29b6f6";x.lineWidth=3;x.beginPath();if(x.roundRect)x.roundRect(bx,by,bw,bh,12);else x.rect(bx,by,bw,bh);x.fill();x.stroke();
+ x.globalAlpha=1;x.fillStyle="#222";x.textAlign="center";x.textBaseline="top";lines.forEach((l,i)=>x.fillText(l,450,by+8+i*20));x.textAlign="left";x.textBaseline="alphabetic";x.restore();RCB=[bx,by,bw,bh]}
+["fullscreenchange","webkitfullscreenchange","resize","orientationchange","scroll"].forEach(ev=>addEventListener(ev,()=>{if(RCUR){realBox();setTimeout(()=>{realPlace();realCheckVis()},60)}},true));
+if(window.visualViewport){visualViewport.addEventListener("resize",()=>{realPlace();realCheckVis()});visualViewport.addEventListener("scroll",()=>{realPlace();realCheckVis()})}
 /* hook: first time a power is used (wraps special) */
 const _realSpecial=special;special=function(a,b){let s0=a&&a.sc,info=null;try{if(a==P&&P.list&&P.list[P.sel])info=P.list[P.sel].p}catch(e){}let r=_realSpecial.apply(this,arguments);try{if(a==P&&info&&!(s0>0)&&a.sc>0)realPow(info)}catch(e){}return r};
 function realPow(p){let n=String(p[0]||""),ty=String(p[1]||"");if(RF[ty]){realFact(ty);return}let s=n+" "+ty;for(const [re,k] of RTOP){if(k&&re.test(s)){realFact("t:"+k);return}}}
@@ -1414,7 +1438,7 @@ function realPow(p){let n=String(p[0]||""),ty=String(p[1]||"");if(RF[ty]){realFa
 function realTick(){if(!P)return;RTK++;
  if(P!==RLAST.P){RLAST.P=P;RLAST.w=null;RLAST.pl=null;RTK=0}
  let wk=PLACE?"p:"+PLACE:"w:"+world;if(wk!==RLAST.w){RLAST.w=wk;if(PLACE=="six")wk="w:six";realFact(wk);if(RTK<5)realFact("h:"+P.h.n)}
- if(RTK>0&&RTK%2700==0)realFact(PLACE=="six"?"w:six":PLACE?"p:"+PLACE:"w:"+world);
+ if(RTK>0&&RTK%1800==0)realFact(PLACE=="six"?"w:six":PLACE?"p:"+PLACE:"w:"+world);
  let six=world=="six"&&!PLACE,ICE=world=="ice"&&!PLACE,HL=world=="halloween"&&!PLACE;
  if(typeof SIX!="undefined"&&(six||PLACE=="six")&&six){
   if(Math.abs(P.x-(SIX.cs-58))<60)realFact("six:height");
