@@ -3347,4 +3347,653 @@ function fwyClose(){let d=document.getElementById("fwycz");if(d)d.remove();FWYCZ
 (function(){const o=startExtra;startExtra=function(){FWY.blue=0;try{[P,E,T].forEach(a=>{if(a){a.fwBlue=0;a.fwIt=null;a.fwChomp=0}});if(E&&P&&!pr&&!E.h.giant&&FWY.o>=0&&C[FWY.o]===E.h){let n=E.h.n+(E.h===P.h?" Twin":"");E.nick=n;bubble={s:"I am "+n+"! Let's play fight! 🥊",t:140};if(!race)talk("Hi! I am "+n+"! Let's play fight!","force")}}catch(e){FWY.err="sx:"+e}return o.apply(this,arguments)}})();
 try{fwyUI()}catch(e){FWY.err="ui:"+e}
 
+
+/* ===== TALKING TOWN: offline kid-safe answer bank (every answer checked to be true) ===== */
+/* TKB[topic] = [[question, answer, extra keywords], ...] */
+var TKB={
+earth:[
+["What is a volcano?","A volcano is a mountain or an opening in the ground where hot melted rock, called lava, can come out!","volcano"],
+["How old is Earth?","About 4.5 billion years old! That's super, super old.","old earth age"],
+["How deep is the ocean?","The deepest spot, called the Challenger Deep, is about 7 miles down — deeper than Mount Everest is tall!","deep ocean deepest sea"],
+["Why is grass green?","Plants have a green stuff called chlorophyll that helps them make food from sunlight!","grass green plant leaf"],
+["How many days are in a year?","365 days! And every 4 years there's usually a leap year with 366 days.","day year many leap"],
+["How many days are in a week?","Seven days: Sunday, Monday, Tuesday, Wednesday, Thursday, Friday and Saturday!","day week many"],
+["How many months are in a year?","Twelve months, from January to December!","month year many"],
+["When is Christmas?","Christmas is on December 25th! 🎄","christmas december"],
+["When is Halloween?","Halloween is on October 31st! 🎃","halloween october"],
+["What is the tallest mountain?","Mount Everest! It's about 29,000 feet tall — more than 5 miles high!","tallest mountain everest high"],
+["What is the biggest ocean?","The Pacific Ocean! It's bigger than all the land on Earth put together.","biggest ocean pacific sea"],
+["How many continents are there?","Seven! Africa, Antarctica, Asia, Australia, Europe, North America and South America.","continent many"],
+["How many oceans are there?","Five! The Pacific, Atlantic, Indian, Southern and Arctic Oceans.","ocean many"],
+["Why is the ocean salty?","Rain washes tiny bits of salt out of rocks, and rivers carry it to the sea. Over a long, long time, the ocean got salty!","ocean sea salty salt"],
+["What is lava?","Lava is melted rock that comes out of a volcano. It's super hot — way hotter than an oven!","lava hot rock volcano"],
+["How do volcanoes work?","Deep underground, rock gets so hot it melts. When it pushes up through a crack in the ground — whoosh — the volcano erupts!","volcano erupt"],
+["What's inside the Earth?","Earth has layers, kind of like a peach! A rocky crust on top, a thick hot mantle, and a metal core in the middle that's about as hot as the surface of the Sun.","inside earth core layer middle center"],
+["What is the longest river?","The Nile River in Africa is usually called the longest river in the world. The Amazon River is super long too!","longest river nile amazon"],
+["What is the biggest desert?","Antarctica! A desert is a place with very little rain or snow — so a cold desert counts. The biggest hot desert is the Sahara.","biggest desert sahara"],
+["What is the capital of the United States?","Washington, D.C.! That's where the White House is.","capital united states america usa washington"],
+["What is the biggest state?","Alaska! It's more than twice as big as Texas.","biggest state alaska texas"],
+["How many states are in the United States?","Fifty states!","state many united america usa"],
+["What state is Chicago in?","Illinois! Chicago is right next to Lake Michigan, one of the five Great Lakes.","chicago state illinois lake michigan"],
+["How big is Earth?","Earth is about 8,000 miles wide. If you could walk all the way around it, that's about 25,000 miles!","big size earth wide around"],
+["What makes earthquakes?","Earth's outside is made of giant puzzle pieces called plates. When they slip and bump, the ground shakes!","earthquake shake plate"]
+],
+animals:[
+["What do cows eat?","Cows eat grass and hay! A cow's tummy has four parts to help it digest all that grass.","cow eat food grass"],
+["How fast can a horse run?","A galloping horse can run about 30 miles per hour, and the fastest racehorses can go over 40!","horse fast run speed"],
+["How much does an elephant weigh?","A big African elephant can weigh about 12,000 pounds — as much as three or four cars!","elephant weigh heavy weight"],
+["Where do penguins live?","Almost all penguins live in the southern half of the world — some in icy Antarctica, and some on warm beaches!","penguin live where"],
+["Why do birds sing?","Birds sing to talk to each other — to say 'this is my home!' or to find a bird friend.","bird sing song"],
+["How do birds fly?","Birds flap their wings to push air down and back. Many birds have light, hollow bones that help them stay up!","bird fly wing"],
+["What is the fastest bird?","The peregrine falcon! When it dives, it can go more than 200 miles per hour.","fastest bird falcon"],
+["Can dogs see colors?","Yes, but fewer than we can! Dogs see mostly blues and yellows.","dog see color colour"],
+["What do bees eat?","Bees eat nectar and pollen from flowers!","bee eat food"],
+["How long do cats live?","Pet cats often live about 12 to 18 years!","cat live long old"],
+["Do dogs dream?","Scientists think they do! Sleeping dogs sometimes twitch their paws like they're running in a dream.","dog dream sleep"],
+["Why do dogs bark?","Barking is how dogs talk! They bark to say hello, to say someone's coming, or when they want to play.","dog bark"],
+["How do fish breathe?","Fish breathe with gills! Gills take the oxygen out of the water.","fish breathe gill water"],
+["What is the biggest fish?","The whale shark! It's a gentle giant that eats tiny food called plankton.","biggest fish whale shark"],
+["How many legs does an octopus have?","Eight arms! Octo means eight.","octopus leg arm eight"],
+["What is the biggest animal ever?","The blue whale! It's the heaviest animal that has ever lived — even heavier than the biggest dinosaurs. It can be almost 100 feet long.","largest huge blue whale"],
+["What is the fastest land animal?","The cheetah! It can sprint about 60 to 70 miles per hour, but only for a short run.","fast quick speed cheetah run"],
+["Why do zebras have stripes?","Scientists think the stripes help keep biting flies away. And every zebra's stripes are different, like a fingerprint!","zebra stripe"],
+["How many hearts does an octopus have?","Three hearts! An octopus also has eight arms, and it can squirt ink to make a quick getaway.","octopus heart arm"],
+["Can penguins fly?","Penguins can't fly in the air, but they zoom through the water using their wings like flippers!","penguin fly"],
+["Why do cats purr?","Cats often purr when they're happy and relaxed. Sometimes they purr to calm themselves down, too.","cat kitty purr"],
+["What do pandas eat?","Giant pandas eat mostly bamboo — and they spend about half the day munching it!","panda bamboo eat"],
+["Do fish sleep?","Fish rest, but most fish can't close their eyes, because they don't have eyelids!","fish sleep"],
+["Why do giraffes have long necks?","Long necks help giraffes reach leaves high in the trees. Fun fact: a giraffe's neck has 7 bones — the same number as yours!","giraffe neck tall"],
+["Are bats blind?","No! Bats can see. Many bats also use echolocation — they squeak and listen to the echoes to find bugs in the dark.","bat blind see echolocation"],
+["What is a baby kangaroo called?","A joey! A baby kangaroo grows up snug inside its mom's pouch.","kangaroo baby joey pouch"],
+["How do frogs drink water?","Most frogs don't drink with their mouths — they soak up water through their skin!","frog drink"],
+["How far can an owl turn its head?","An owl can turn its head about 270 degrees — almost all the way around! Its eyes can't move like ours, so it turns its whole head.","owl head turn"],
+["How many legs does a spider have?","Eight legs! That's why spiders are not insects — insects have six legs.","spider leg"],
+["How many legs does an insect have?","Six legs! Ants, bees, ladybugs and butterflies are all insects.","insect bug leg ant"],
+["What is the biggest bird?","The ostrich! It can't fly, but it can run super fast, and it lays the biggest eggs of any bird alive today.","biggest bird ostrich egg"],
+["What is the smallest bird?","The bee hummingbird — it's only about 2 inches long!","smallest tiny bird hummingbird"],
+["Can hummingbirds fly backwards?","Yes! Hummingbirds are the only birds that can fly backwards. Their wings beat super fast.","hummingbird backwards"],
+["Do snakes have ears?","Snakes don't have ears on the outside, but they can feel vibrations and hear low sounds with tiny bones inside their heads.","snake ear hear"],
+["Why do dogs wag their tails?","Dogs wag their tails to 'talk' with their bodies. A loose, happy wag usually means a dog is excited or friendly.","dog puppy wag tail"],
+["How good is a dog's nose?","A dog's nose is thousands of times better at smelling than ours! Dogs can sniff out things we can't smell at all.","dog nose smell sniff"],
+["What do bees make?","Bees make honey from the nectar of flowers. They also help flowers grow by carrying pollen from flower to flower!","bee honey pollen"],
+["Do sharks have bones?","Nope! A shark's skeleton is made of cartilage — the same bendy stuff that's in your nose and ears.","shark bone"],
+["Are whales fish?","No — whales are mammals, like us! They breathe air through a blowhole on top of their heads.","whale fish mammal blowhole"],
+["How do butterflies taste food?","With their feet! Butterflies have taste sensors on their feet.","butterfly taste feet"],
+["Why are flamingos pink?","From their food! Flamingos eat shrimp and tiny plants called algae that have pink coloring in them.","flamingo pink"],
+["Which animal sleeps the most?","Koalas are super sleepy — they can sleep about 18 to 22 hours a day!","sleep sleepy koala"],
+["Can a starfish grow a new arm?","Yes! Many sea stars can grow back an arm. And they're not really fish, so scientists call them sea stars.","starfish sea star arm"],
+["What's inside a camel's hump?","Fat, not water! Camels store fat in their humps for energy when food is hard to find.","camel hump water"],
+["What color is a polar bear's skin?","Black! A polar bear's fur is see-through and looks white, but the skin underneath is black.","polar bear skin fur white"],
+["How many teeth does a shark have?","Sharks lose and grow new teeth over and over — some sharks go through thousands of teeth in their lives!","shark teeth tooth"],
+["Can chickens fly?","A little bit! Chickens can flap up for short hops, like onto a fence, but they can't fly far.","chicken fly"],
+["What is a group of lions called?","A pride! Lions are the only big cats that live together in big family groups.","lion group pride"],
+["What do caterpillars turn into?","Butterflies or moths! A butterfly caterpillar makes a chrysalis and changes inside it. That change is called metamorphosis.","caterpillar butterfly moth chrysalis cocoon"],
+["How long can turtles live?","Some tortoises can live more than 100 years! A tortoise named Jonathan is thought to be over 190 years old!","turtle tortoise old age live"],
+["Are dolphins smart?","Very smart! Each dolphin has its own special whistle that works kind of like its name.","dolphin smart whistle"],
+["How slow is a sloth?","Super slow! Sloths move so slowly that tiny green plants called algae can grow on their fur. They climb down from their tree about once a week to poop!","sloth slow"],
+["Can elephants jump?","No — grown-up elephants can't jump. But they're amazing swimmers and use their trunks like snorkels!","elephant jump trunk"],
+["What is the biggest cat?","The tiger! Tigers are the biggest wild cats, and they actually like water and swimming.","biggest cat tiger"],
+["How strong are ants?","Super strong for their size! Some ants can carry 10 to 50 times their own body weight.","ant strong carry"],
+["Why do roosters crow in the morning?","Roosters have a body clock inside that tells them morning is coming — so they crow, even before the sun comes up!","rooster crow morning"],
+["Why do cows have spots?","Spots are just the cow's coat color pattern — like hair color for people. Every cow's spots are a little different!","cow spot"],
+["How long does a baby elephant grow before it's born?","Almost two years! That's longer than any other land animal.","elephant baby born"],
+["What animal has the best eyesight?","Eagles have amazing eyes! They can spot a tiny rabbit from very high up in the sky.","eagle eye see eyesight"],
+["What is a baby goat called?","A kid! So a goat kid and you are both kids!","goat baby kid"]
+],
+space:[
+["What is the Moon made of?","Rock and dust! Astronauts even brought Moon rocks back to Earth to study.","moon made"],
+["What is the Moon?","The Moon is a big ball of rock that travels around Earth. It's our closest neighbor in space!","moon"],
+["What is space?","Space is the huge, huge place past Earth's air, where the stars and planets are. It's dark, and there's no air to breathe!","space"],
+["What is a star?","A star is a giant ball of super hot, glowing gas. The Sun is our closest star!","star"],
+["What is a planet?","A planet is a big round world that travels around a star. Earth is a planet!","planet what"],
+["What is the Sun made of?","Mostly two gases called hydrogen and helium — so hot that they glow!","sun made gas"],
+["How big is the Moon?","The Moon is about one-fourth as wide as Earth. About 50 Moons could fit inside Earth!","big size moon"],
+["How hot is the Sun?","Super hot! The outside of the Sun is about 10,000 degrees Fahrenheit, and the middle is millions of degrees!","hot sun temperature"],
+["Why do stars twinkle?","Starlight wiggles as it passes through the moving air around Earth, so stars seem to twinkle!","star twinkle"],
+["What is the Sun?","The Sun is a star — the closest star to Earth! It gives us light and keeps us warm.","sun star"],
+["How big is the Sun?","Super big! More than a million Earths could fit inside the Sun!","sun big size"],
+["How far away is the Moon?","About 239,000 miles away. If you could drive there in a car, it would take more than 5 months without stopping!","moon far distance"],
+["Who walked on the Moon first?","Neil Armstrong! He stepped onto the Moon in July 1969 and said, 'That's one small step for man, one giant leap for mankind.'","moon first walk armstrong"],
+["How many planets are there?","Eight planets go around our Sun: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus and Neptune.","planet many how solar system"],
+["What is the biggest planet?","Jupiter! It's so big that more than 1,300 Earths could fit inside it.","biggest planet jupiter solar system"],
+["What is the hottest planet?","Venus! It's even hotter than Mercury, because its thick clouds trap the heat like a blanket.","hottest hot planet venus"],
+["Why is Mars red?","Mars is covered in rusty dust! The iron in its dirt turned rusty, which makes the planet look red.","mars red"],
+["What are Saturn's rings made of?","Chunks of ice and rock — some as small as sand, some as big as a house!","saturn ring"],
+["Is Pluto a planet?","Pluto is a dwarf planet. Scientists put it in that group in 2006, because it's smaller than the eight main planets.","pluto dwarf"],
+["What is a shooting star?","It's not really a star! It's a tiny space rock that zooms into our air and glows brightly as it burns up.","shooting star meteor"],
+["Why does the Moon change shape?","The Moon doesn't really change! It goes around Earth, and we see different amounts of its sunny side. The Moon doesn't make its own light — it reflects sunlight.","moon shape phase change light"],
+["How long does Earth take to go around the Sun?","About 365 days — that's one whole year! Each birthday, you've ridden all the way around the Sun.","earth around sun year orbit"],
+["Why do we have day and night?","Because Earth spins! When your side faces the Sun it's day, and when it turns away it's night. One spin takes about 24 hours.","day night spin"],
+["What do astronauts eat?","Special space food in packages! They often use tortillas instead of bread, because bread crumbs would float around everywhere.","astronaut eat food"],
+["How do astronauts sleep?","In sleeping bags tied to the wall, so they don't float away while they snooze!","astronaut sleep"],
+["What is the International Space Station?","It's a huge space lab where astronauts live and work. It zooms around Earth about every 90 minutes, so they see about 16 sunrises a day!","space station iss"],
+["Can you hear sounds in space?","No! Space has no air to carry sound, so it's totally quiet. Astronauts talk to each other with radios.","sound hear space quiet"],
+["What is a black hole?","A black hole is a place in space where gravity pulls so hard that not even light can get out. The closest ones are very, very far away from us.","black hole"],
+["What is a galaxy?","A galaxy is a giant group of billions of stars. Our galaxy is called the Milky Way!","galaxy milky way"],
+["How many stars are there?","Scientists think there are more stars in space than grains of sand on all the beaches on Earth!","many stars count"],
+["What is gravity?","Gravity is the pull that keeps your feet on the ground and makes things fall down. It also keeps the Moon going around Earth!","gravity fall pull"],
+["How much would I weigh on the Moon?","Only about one-sixth as much! You could jump about six times higher on the Moon.","weigh moon jump"],
+["Are there still footprints on the Moon?","Yes! There's no wind or rain on the Moon, so the astronauts' footprints are still there.","footprint moon"],
+["What planet is closest to the Sun?","Mercury! It's also the smallest planet.","closest planet mercury smallest"],
+["What is the farthest planet?","Neptune! It's the farthest planet from the Sun, and it has super strong winds.","farthest planet neptune"],
+["What is a comet?","A comet is a big ball of ice and dust. When it gets close to the Sun, it grows a long glowing tail!","comet tail"],
+["Have people been to Mars?","Not yet! But robot rovers like Curiosity and Perseverance are driving around on Mars right now, exploring for us.","mars people rover"],
+["Which planet spins on its side?","Uranus! It's tipped over, so it rolls around the Sun like a ball.","uranus side"],
+["Which planet has a day longer than its year?","Venus! It spins so slowly that one day on Venus is longer than its whole year.","venus day year"],
+["What's the tallest volcano in space?","Olympus Mons on Mars! It's about two and a half times taller than Mount Everest.","volcano mars olympus tallest"],
+["How long does it take to fly to the Moon?","The Apollo astronauts took about 3 days to get to the Moon.","fly moon long"],
+["Is the Moon made of cheese?","Nope! The Moon is made of rock and dust. Astronauts brought Moon rocks back to Earth to study.","moon cheese made rock"],
+["What color is the Sun?","The Sun's light is actually white! It looks yellow or orange to us because of the air around Earth.","sun color yellow"]
+],
+dinosaurs:[
+["How big was T. rex?","About 40 feet long — as long as a school bus — and about 12 feet tall at the hips!","rex"],
+["How many kinds of dinosaurs were there?","Scientists have named more than 1,000 kinds of dinosaurs — and they keep finding new ones!","many kind dinosaur type"],
+["What is a fossil?","A fossil is what's left of a plant or animal from long, long ago — like bones or footprints that turned into stone!","fossil"],
+["What is a dinosaur?","Dinosaurs were reptiles that lived millions of years ago. Some were giant, some were as small as a chicken — and birds are dinosaurs today!","dinosaur what"],
+["When did dinosaurs live?","Dinosaurs first showed up about 230 million years ago. Most of them were gone about 66 million years ago.","dinosaur live when long ago dino"],
+["Did people live with dinosaurs?","No! The big dinosaurs were gone about 66 million years before the first people. So no one ever saw a T. rex!","people human live dinosaur together"],
+["What was the biggest dinosaur?","Long-necked dinosaurs like Argentinosaurus were the biggest — about as long as three school buses!","biggest dinosaur argentinosaurus"],
+["How big were T. rex's teeth?","Huge! Some T. rex teeth were about as long as a banana.","rex teeth tooth trex tyrannosaurus"],
+["Why did T. rex have short arms?","Scientists are still figuring that out! T. rex's arms were short but strong — about as long as a grown-up's arm.","rex arm short trex tyrannosaurus"],
+["Are birds dinosaurs?","Yes! Scientists say birds are living dinosaurs. So a chicken is a dinosaur cousin of T. rex!","bird dinosaur chicken"],
+["Did dinosaurs have feathers?","Many did! Velociraptor had feathers, kind of like a big bird.","feather dinosaur"],
+["How big was Velociraptor?","About the size of a turkey! The ones in the movies were made much bigger.","velociraptor raptor size"],
+["What did Triceratops look like?","Triceratops had three horns and a big frill around its neck. It ate plants!","triceratops horn"],
+["What did Stegosaurus look like?","Stegosaurus had big plates on its back and spikes on its tail. Its brain was very small for its giant body!","stegosaurus plate spike"],
+["How do we know about dinosaurs?","From fossils! Bones, teeth, eggs and even footprints that turned into stone over millions of years.","fossil know bones"],
+["What happened to the dinosaurs?","About 66 million years ago, a giant space rock hit Earth and changed the weather. Most dinosaurs went extinct — but birds are dinosaurs that made it!","dinosaur happen extinct asteroid gone"],
+["What does dinosaur mean?","It means 'terrible lizard' — but dinosaurs weren't really lizards at all!","dinosaur mean name word"],
+["Was Pterodactyl a dinosaur?","No! Pterosaurs were flying reptiles — dinosaur cousins, not dinosaurs.","pterodactyl pterosaur fly"],
+["Did dinosaurs lay eggs?","Yes! All dinosaurs hatched from eggs, and some built nests for them.","egg nest"],
+["What is a paleontologist?","A scientist who digs up and studies fossils, like dinosaur bones!","paleontologist scientist dig"],
+["What was special about Ankylosaurus?","Ankylosaurus had bony armor and a big club on its tail, like a hammer!","ankylosaurus club armor"],
+["What was Brachiosaurus like?","Brachiosaurus had longer front legs than back legs, kind of like a giraffe, so it could reach tall trees.","brachiosaurus neck"],
+["What was the first dinosaur ever named?","Megalosaurus! It got its name way back in 1824.","first named megalosaurus"],
+["Who is Sue the T. rex?","Sue is one of the biggest and most complete T. rex fossils ever found. You can visit Sue at the Field Museum in Chicago!","sue museum chicago"],
+["Did dinosaurs swim in the sea?","The big sea reptiles like Mosasaurus weren't dinosaurs! But scientists think Spinosaurus spent lots of time in the water catching fish.","swim sea water spinosaurus"],
+["How fast could T. rex run?","Scientists think a grown-up T. rex was too heavy to run super fast — maybe about 10 to 12 miles per hour, like a fast jog.","rex run fast trex tyrannosaurus speed"]
+],
+body:[
+["Why do we have bones?","Bones hold your body up, protect soft parts like your brain and heart, and help you move with your muscles!","bone why need"],
+["Why do we cry?","Tears help keep your eyes clean and wet. People also cry when they have big feelings — and that's okay!","cry tear tears"],
+["Why do I have a belly button?","Before you were born, a tube there brought you food from your mom. Everyone has a belly button!","belly button navel"],
+["How many bones do I have?","Grown-ups have 206 bones! Babies have about 300, and some of them join together as you grow.","bone many skeleton"],
+["What is the biggest bone?","The thigh bone, called the femur! The smallest bone is inside your ear.","biggest bone femur smallest"],
+["Why do we need sleep?","Sleep helps your body grow and your brain remember what you learned. Kids your age need about 9 to 12 hours a night!","sleep need bed"],
+["Why do we yawn?","Scientists aren't totally sure! But yawns are catchy — seeing someone yawn can make you yawn too.","yawn"],
+["How many teeth do kids have?","Kids have 20 baby teeth. Grown-ups usually have 32 teeth.","teeth tooth many"],
+["Why do baby teeth fall out?","To make room for your bigger grown-up teeth growing underneath!","baby teeth fall loose wiggly"],
+["What does my heart do?","Your heart is a strong muscle that pumps all day and night to send oxygen all around your body. It's about the size of your fist!","heart pump"],
+["Why should I eat vegetables?","Veggies are full of vitamins and fiber that help you grow strong, see well, and stay healthy!","vegetable veggie eat healthy"],
+["Why do we sneeze?","Sneezes blow dust and germs out of your nose! Always sneeze into your elbow.","sneeze"],
+["Why do we get goosebumps?","Tiny muscles in your skin pull your hairs up when you're cold or excited!","goosebumps cold"],
+["What do my lungs do?","Your lungs breathe in air and give your body oxygen, then breathe out the air you don't need.","lung breathe air"],
+["Why do we need to drink water?","Your body is more than half water! Water helps you think, play, and stay cool.","water drink"],
+["Why do I have to wash my hands?","Soap washes germs away! Scrub for about 20 seconds — that's like singing 'Happy Birthday' two times.","wash hands soap germ"],
+["How many muscles do I have?","More than 600 muscles! They help you run, jump, smile and even blink.","muscle many"],
+["What does my brain do?","Your brain is your body's boss! It helps you think, feel, remember and move.","brain think"],
+["Why do we have fingerprints?","Scientists think fingerprints help your fingers feel bumpy and smooth things. Everyone's fingerprints are different — even twins!","fingerprint finger"],
+["Why does my tummy growl?","Your tummy muscles squeeze food and air along. It's louder when your tummy is empty!","tummy stomach growl hungry"],
+["Why do we hiccup?","A muscle under your lungs called the diaphragm jumps suddenly, and — hic! — out comes a hiccup.","hiccup"],
+["Can I tickle myself?","Nope! Your brain knows the tickle is coming, so it doesn't feel ticklish.","tickle"],
+["What is the biggest organ in my body?","Your skin! It covers your whole body and protects you like a suit.","organ skin biggest"],
+["How fast does hair grow?","About half an inch a month!","hair grow"],
+["Why do we have eyebrows?","Eyebrows help keep sweat and rain from dripping into your eyes!","eyebrow"],
+["Do I grow when I sleep?","Yes! Your body makes growing hormones while you sleep. Sleep is grow time!","grow sleep tall"],
+["Am I taller in the morning?","Yes, a tiny bit! The squishy cushions in your back get squeezed during the day and fill back up while you sleep.","taller morning"],
+["Why do I blink?","Blinking keeps your eyes wet and clean. You blink about 15 to 20 times a minute!","blink eye"],
+["Why do I need to brush my teeth?","Brushing scrubs away germs and sticky stuff that cause cavities. Brush two times a day for two minutes!","brush teeth tooth toothbrush"],
+["Why do I burp?","A burp is extra air from your tummy coming back up — maybe from drinking fizzy drinks or eating fast!","burp"],
+["Why do my fingers get wrinkly in the bath?","Scientists think wrinkly fingers help you grip wet things better — like tire treads!","wrinkly finger bath prune"]
+],
+weather:[
+["Why is the sky blue?","Sunlight has all the colors in it. When it hits our air, the blue light bounces around the most, so the sky looks blue!","sky blue"],
+["What makes a rainbow?","Sunlight shining through raindrops! The drops split the light into colors: red, orange, yellow, green, blue, indigo and violet. You can only see a rainbow with the sun behind you.","rainbow color"],
+["What makes thunder?","Lightning heats the air super fast, and the air goes BOOM! You see the flash first because light travels faster than sound.","thunder boom"],
+["How can I tell how far away lightning is?","Count the seconds between the flash and the boom. Every 5 seconds is about 1 mile away!","lightning far count"],
+["What should I do in a thunderstorm?","When thunder roars, go indoors! Stay inside until the storm passes.","thunderstorm storm safe lightning"],
+["What are clouds made of?","Tiny drops of water or tiny bits of ice floating in the sky!","cloud made"],
+["Why does it rain?","Tiny water drops in clouds bump together and grow. When they get too heavy, they fall down as rain!","rain why"],
+["How does snow happen?","When it's very cold up in the clouds, water freezes into ice crystals that fall as snow. Snowflakes almost always have six sides!","snow snowflake"],
+["Are all snowflakes different?","Scientists think no two snowflakes are exactly the same, because each one takes its own path through the sky.","snowflake different same"],
+["What is wind?","Wind is moving air! Air moves from places with high pressure to places with low pressure.","wind air"],
+["What is hail?","Balls of ice! They get tossed up and down inside big storm clouds, growing bigger each time.","hail ice"],
+["What is fog?","Fog is a cloud that's down low, touching the ground!","fog"],
+["Why is summer hot?","Earth is tilted! In summer, your part of Earth tips toward the Sun and gets more sunlight.","summer hot season tilt"],
+["Where is the coldest place on Earth?","Antarctica! It's covered in ice, and penguins live there.","coldest antarctica"],
+["What is a hurricane?","A giant spinning storm that forms over warm ocean water. The middle, called the eye, is calm!","hurricane"],
+["What is a tornado?","A tornado is a spinning tube of wind that reaches from a storm cloud to the ground. If there's a warning, grown-ups take everyone to a safe room low in the house.","tornado twister"],
+["Why do leaves change color in fall?","Leaves have a green color that fades in fall, so the yellow and orange that were hiding underneath show up!","leaf leaves fall autumn color"],
+["What is dew?","Dew is water from the air that collects on cool grass overnight!","dew grass morning"],
+["Why does rain smell nice?","That rainy smell has a name — petrichor! It comes partly from oils from plants and tiny living things in the soil.","rain smell"],
+["How hot is lightning?","Lightning is hotter than the surface of the Sun!","lightning hot"],
+["Who tells us the weather?","Meteorologists! They're scientists who study the sky and predict the weather.","meteorologist forecast weather"],
+["Why do we see our breath when it's cold?","Your breath is warm and wet. When it hits cold air, the water turns into a tiny cloud!","breath cold"]
+],
+how:[
+["How do airplanes fly?","Wings are shaped so moving air pushes them up — that's called lift! Engines push the plane forward fast.","airplane plane fly wing"],
+["How do magnets work?","Magnets pull on iron and steel. Opposite ends pull together, and same ends push apart!","magnet"],
+["How does a phone send my voice?","Your phone turns your voice into radio waves that zoom through the air to towers and then to the other phone.","phone call voice"],
+["How does a fridge stay cold?","A fridge pumps heat from the inside out to the back. That's why the back of a fridge feels warm!","fridge refrigerator cold"],
+["How do boats float?","A boat pushes water out of the way, and the water pushes back up on it! That push is called buoyancy.","boat float ship"],
+["Why does ice float?","Ice is lighter than the same amount of water, so it floats on top!","ice float"],
+["How do rockets work?","Rockets push hot gas down super fast, and that pushes the rocket up! It's like letting go of a balloon.","rocket launch"],
+["What is electricity?","Electricity is tiny particles called electrons moving along! Only grown-ups should touch plugs and outlets.","electricity electric power"],
+["How does a microwave heat food?","It makes the water in food wiggle super fast, and that wiggling makes heat!","microwave heat"],
+["How do cars go?","An engine or an electric motor turns the wheels to make the car move!","car drive go engine"],
+["How do computers work?","Computers follow instructions called code, super super fast, using only 1s and 0s!","computer code"],
+["How do video games work?","Code tells the computer what to draw and do. Hero Fight redraws the picture about 60 times every second — like a super-fast flip book!","video game work"],
+["How does a straw work?","When you sip, you lower the air pressure in the straw, and the air outside pushes your drink up!","straw drink"],
+["Why can I see myself in a mirror?","A mirror is so smooth that light bounces straight back to your eyes!","mirror reflection"],
+["How does a camera take pictures?","A lens bends light onto a sensor that saves the picture!","camera picture photo"],
+["Why does a ball bounce?","When a ball hits the ground it squishes, then springs back into shape and pushes off — boing!","ball bounce"],
+["What is a robot?","A robot is a machine that follows a program to do jobs, like vacuum floors or explore Mars!","robot"],
+["How do trains stay on the tracks?","Train wheels have a lip on the inside, called a flange, that keeps them on the rails!","train track"],
+["Why does a balloon stick to my hair?","Rubbing makes static electricity! It makes the balloon and your hair pull toward each other.","balloon static hair"],
+["How does a seed grow into a plant?","With water, soil and sunlight! Roots grow down and a shoot grows up. Plants make their own food from sunlight.","seed plant grow"],
+["How do bikes stay up?","When you pedal and steer, you keep your balance! It's easier to balance when you're moving.","bike bicycle balance"],
+["How do elevators go up?","Strong cables and a motor lift the elevator car up and down!","elevator lift"],
+["How does a toilet flush?","Water from the tank rushes down into the bowl and pushes everything down the pipes!","toilet flush"],
+["How do fireworks get their colors?","Different metals make different colors — copper makes blue and strontium makes red! Only grown-ups handle fireworks.","firework color"],
+["How does a light bulb glow?","Electricity flows through it and makes it glow! Most new bulbs are LEDs, which use very little power.","light bulb lamp led"],
+["Why do things fall down?","Gravity! Earth pulls everything toward it.","fall drop gravity"],
+["How do bridges stay up?","Bridges use strong shapes like triangles and arches to spread out the weight!","bridge"],
+["How does a helicopter fly?","Its spinning blades work like wings that go around and around, lifting it straight up!","helicopter"]
+],
+food:[
+["Where does chocolate come from?","From cacao beans! They grow in big pods on cacao trees.","chocolate cocoa cacao"],
+["Is a tomato a fruit?","Scientists say yes, because it has seeds inside! But cooks usually use it like a vegetable.","tomato fruit vegetable"],
+["How does popcorn pop?","Each kernel has a tiny bit of water inside. When it gets hot, the water turns to steam and — POP!","popcorn pop"],
+["Is a banana a berry?","Yes! Scientists call bananas berries. But strawberries aren't true berries!","banana berry strawberry"],
+["Does honey ever go bad?","Honey almost never spoils! Scientists have found very, very old honey that was still okay.","honey spoil"],
+["Where does pizza come from?","Pizza as we know it comes from Naples, a city in Italy!","pizza italy"],
+["Are peanuts nuts?","Nope! Peanuts are legumes, like beans and peas, and they grow underground.","peanut nut"],
+["What color were the first carrots?","Purple and yellow! Orange carrots became popular later.","carrot purple orange"],
+["Why do onions make people cry?","Cutting an onion lets out a gas that stings your eyes, so they make tears to wash it away.","onion cry"],
+["Why do apples float?","Apples are about one-quarter air, so they float in water — that's why bobbing for apples works!","apple float"],
+["Why does bread puff up?","Yeast! It's tiny living things that make gas bubbles in the dough.","bread yeast rise"],
+["What is brain freeze?","When something very cold touches the roof of your mouth, the tiny tubes in your mouth squeeze and then open up fast — brrr, brain freeze!","brain freeze ice cream cold"],
+["Where does cheese come from?","Cheese is made from milk — from cows, goats or sheep!","cheese milk"],
+["Why are carrots good for my eyes?","Carrots have vitamin A, and your eyes need vitamin A to work well!","carrot eye vitamin"],
+["What food do most people in the world eat?","Rice! It's the main food for more than half the people in the world.","rice world"],
+["Why do chefs wear tall hats?","The tall white hat is called a toque. It's a chef tradition, and the hat helps keep hair out of the food!","chef hat toque"]
+],
+safety:[
+["What does a fire truck do?","A fire truck carries firefighters, ladders, hoses and tools to help people. Many fire trucks carry lots of water too!","fire truck do carry"],
+["What do firefighters do?","Firefighters put out fires, rescue people and pets, and teach everyone how to stay safe!","firefighter do job"],
+["What should I do if there's a fire?","Get out and stay out! Crawl low under smoke, then go to your family's meeting spot. Grown-ups call 911 from outside.","fire do house"],
+["What number do I call in an emergency?","In the United States, the emergency number is 911. Only call it for a real emergency!","emergency 911 number call"],
+["What does a smoke alarm do?","It beeps loudly when it smells smoke, to wake everyone up. Grown-ups should test smoke alarms every month!","smoke alarm detector"],
+["Why do I need a helmet?","A helmet protects your head when you ride a bike, scooter or skateboard. Click it on every time!","helmet bike"],
+["How do I cross the street safely?","Hold a grown-up's hand, look left, right, and left again, and walk — don't run!","cross street road"],
+["What if my clothes catch on fire?","Stop, drop and roll! Stop where you are, drop to the ground, cover your face, and roll.","stop drop roll clothes"],
+["Why are fire trucks red?","Lots of fire trucks are red because red is easy to see. Some towns use bright yellow-green ones too!","fire truck red"],
+["Why do firefighters have Dalmatians?","Long ago, Dalmatian dogs ran alongside horse-drawn fire wagons and kept the horses calm. Now they're a fun firehouse tradition!","dalmatian dog firefighter"],
+["How heavy is a firefighter's gear?","A firefighter's suit and air tank can weigh more than 40 pounds! It keeps them safe from heat and smoke.","firefighter gear heavy suit"],
+["What if I get lost in a store?","Stay where you are, and ask a store worker or a mom or dad with kids for help!","lost store"],
+["Why do I need a car seat?","Car seats and booster seats keep kids snug and safe in the car. Buckle up every ride!","car seat seatbelt booster buckle"]
+],
+sports:[
+["How long is a soccer game?","A grown-up soccer game is 90 minutes — two halves of 45 minutes!","soccer game long"],
+["How high is a basketball hoop?","10 feet high! That's way taller than a grown-up!","basketball hoop high"],
+["Who invented basketball?","James Naismith invented basketball in 1891. The first hoops were peach baskets!","basketball invent naismith"],
+["How many players are on a soccer team?","11 players on the field for each team, including the goalie!","soccer player team many"],
+["How many innings are in baseball?","A baseball game has 9 innings, and there are 4 bases to run around!","baseball inning base"],
+["How often are the Olympics?","The Summer Olympics happen every 4 years. The Olympic flag has 5 colorful rings!","olympic olympics"],
+["Who is the fastest runner ever?","Usain Bolt! He ran 100 meters in 9.58 seconds in 2009.","fastest runner bolt run"],
+["Who won the most Olympic medals?","Swimmer Michael Phelps — 28 Olympic medals!","most medal phelps swim"],
+["Why do golf balls have dimples?","The little dimples help a golf ball fly farther through the air!","golf ball dimple"],
+["How long is a football field?","100 yards, plus an end zone at each end!","football field long"],
+["Why is a hockey puck frozen?","Pucks are frozen before games so they slide better and don't bounce around as much!","hockey puck"],
+["What does 'love' mean in tennis?","In tennis, 'love' means zero points!","tennis love"],
+["How many players are on a basketball team?","5 players from each team are on the court at a time!","basketball player team many"],
+["How long is a marathon?","26.2 miles! That's a looong run.","marathon run"],
+["What sports teams are in Chicago?","Chicago has the Bears for football, the Cubs and White Sox for baseball, the Bulls for basketball, the Blackhawks for hockey, and the Fire for soccer!","chicago team bears cubs bulls"],
+["How do I get better at a sport?","Practice, practice, practice — and have fun! Every great player started as a beginner.","better practice sport good"]
+],
+jokes:[
+["Why did the cookie go to the doctor?","Because it felt crummy! 🍪"],
+["What do you call a sleeping dinosaur?","A dino-snore! 🦕"],
+["Why did the banana go to the doctor?","It wasn't peeling well! 🍌"],
+["What do you call a bear with no teeth?","A gummy bear! 🐻"],
+["Why can't a bicycle stand up by itself?","Because it's two-tired! 🚲"],
+["What do clouds wear under their shorts?","Thunderwear! ☁️"],
+["Why did the student eat his homework?","Because the teacher said it was a piece of cake! 🍰"],
+["What has ears but can't hear?","A cornfield! 🌽"],
+["Why do cows wear bells?","Because their horns don't work! 🐮"],
+["What do you call a fish with no eyes?","A fsh! 🐟"],
+["How does the Moon cut its hair?","Eclipse it! 🌙"],
+["What did the ocean say to the beach?","Nothing — it just waved! 🌊"],
+["Why are fish so smart?","Because they live in schools! 🐠"],
+["What do you call a pig that does karate?","A pork chop! 🐷"],
+["What kind of tree fits in your hand?","A palm tree! 🌴"],
+["Why did the teddy bear say no to dessert?","Because she was stuffed! 🧸"],
+["What do you call a dog magician?","A labracadabrador! 🐶"],
+["Why was the math book sad?","It had too many problems! 📘"],
+["What did one plate say to the other?","Dinner's on me! 🍽️"],
+["What do you call cheese that isn't yours?","Nacho cheese! 🧀"],
+["Why did the golfer bring two pairs of pants?","In case he got a hole in one! ⛳"],
+["What do you call an alligator in a vest?","An investigator! 🐊"],
+["How do you make a tissue dance?","Put a little boogie in it! 🤧"],
+["Why did the scarecrow win a prize?","Because he was outstanding in his field! 🌾"],
+["What did the left eye say to the right eye?","Between you and me, something smells! 👀"],
+["What do elves learn in school?","The elf-abet! 🧝"]
+],
+tips:[
+["How do I go Big Screen?","Tap the ⛶ Big Screen button at the top!","big screen fullscreen"],
+["How do I record my fight?","Tap ⏺️ REC during a fight. After the fight, you can watch your replay!","record rec replay video"],
+["How do I go into a pipe level?","Stand on top of a green pipe and keep holding ⬇ to warp inside!","pipe level warp"],
+["How do I beat a Silly bad guy?","Silly laughs so hard he falls asleep! Hit him while he sleeps for DOUBLE hurt.","silly mood"],
+["How do I beat a Grumpy bad guy?","Grumpy can't turn around fast! Jump over him and hit his back for DOUBLE hurt.","grumpy mood"],
+["How do I beat a Show-off bad guy?","Show-off stops to brag after his power! Hit him while he brags for DOUBLE hurt.","show off showoff mood brag"],
+["Who can see me when I'm invisible?","Everyone can still see you except Noodle Man! But hiding inside a pipe hides you from everybody.","invisible see noodle hide"],
+["How do I make a friend in Hero Fight?","On the start screen, tap 🧒 Make a Friend! or 👧 Make a Girl!, pick how they look, and save them.","make friend custom"],
+["How do I pick who I fight?","On the start screen, look for 🥊 Pick WHO YOU FIGHT and tap anyone — even Mom, Dad or Pac-Man!","pick fight opponent who"],
+["How do I fight the Giant Boss?","Turn on the 👑 Giant Boss: King Wobble button on the start screen!","giant boss king wobble"],
+["Where can I practice?","Tap 🎯 Practice Zone to practice your moves!","practice zone"],
+["How do I race?","Tap the 🏁 Race! button on the start screen!","race"],
+["What do the warning hints mean?","When a bad guy gets ready for a big move, watch the hint — it tells you to JUMP! or DUCK ⬇️.","warning hint jump duck"],
+["What can I do with coins?","Spend them in the 🛒 Shop and the 🪄 Magic Shop!","coin shop spend"],
+["Can every hero fly?","Yes! Every hero in Hero Fight can fly! 🚀","fly hero every"],
+["What does Pac-Man's Power Pellet do?","It turns the other fighter blue, and they run away! Catch them for a big bonk.","pacman pellet blue"]
+]};
+/* topic labels */
+var TKT={earth:"🌍 Our Earth",animals:"🐾 Animals",space:"🚀 Space",dinosaurs:"🦖 Dinosaurs",body:"🫀 My Body",weather:"🌦️ Weather",how:"⚙️ How Things Work",food:"🍕 Food",safety:"🚒 Safety",sports:"⚽ Sports",jokes:"😂 Jokes",tips:"🎮 Hero Fight Tips"};
+/* myths: [regex, kind true correction] */
+var TKMYTH=[
+[/dinosaurs? (are|is) (still )?alive|dinosaurs still (live|exist)/,"Big dinosaurs aren't around anymore — they lived millions of years ago. But birds are living dinosaurs, so in a way they're still here! 🐦"],
+[/sun.*(is|a).*planet/,"Great thinking! Lots of people wonder that. The Sun is actually a star — the closest star to Earth! ⭐"],
+[/bats? (are|is) blind/,"Good guess — lots of people think that! But bats can see. Many also use echolocation to find bugs. 🦇"],
+[/(whale|dolphin)s? (are|is) (a )?fish/,"Super close! They live in the water like fish, but whales and dolphins are mammals, like us. They breathe air! 🐳"],
+[/spiders? (are|is) (an )?insect/,"Great thinking! Spiders look buggy, but they have 8 legs, so they're not insects — insects have 6. 🕷️"],
+[/(people|humans?|cavemen).*(with|and) dinosaurs?|dinosaurs?.*(with|and) (people|humans?)/,"Fun idea for a movie! But really, dinosaurs were gone about 66 million years before the first people. 🦖"],
+[/moon.*(makes?|has) (its own )?light/,"Good thinking! The Moon looks bright, but it doesn't make its own light — it reflects light from the Sun. 🌙"],
+[/pluto (is|was) (still )?a planet/,"Great memory — Pluto used to be called a planet! Since 2006, scientists call it a dwarf planet. 🪐"],
+[/penguins? (can|could) fly/,"So close! Penguins can't fly in the air, but they 'fly' underwater with their flipper wings! 🐧"],
+[/(goldfish).*(3|three) second/,"Lots of people think that! But scientists found goldfish can remember things for months. 🐠"],
+[/lightning (never|doesn.?t|does not) strike.*(twice|same)/,"Good thinking, but lightning can strike the same place more than once! Tall buildings get hit many times a year. ⚡"],
+[/tomato (is|are)( a)? vegetable/,"You're kind of right — cooks use it like a vegetable! But scientists call a tomato a fruit, because it has seeds. 🍅"],
+[/camels?.*(hump|humps).*(water)/,"Great thinking — lots of people think that! A camel's hump actually stores fat, not water. 🐪"],
+[/bulls?.*(hate|mad|angry).*red|red.*(makes?|make) bulls?/,"Good guess! Bulls can't really tell red apart — they react to the cape moving, not its color. 🐂"],
+[/(moon|it).*(made of|is) cheese/,"Ha! That's a funny idea! The Moon is really made of rock and dust. 🌕"],
+[/(earth|world) is flat/,"Good thinking — people long ago wondered about that too! But Earth is round, like a ball. Astronauts have taken pictures! 🌍"],
+[/(sharks?).*(mammal)/,"Close! Sharks are fish. Whales and dolphins are the mammals of the ocean. 🦈"],
+[/ostrich.*(head|heads).*(sand)/,"Lots of people think that! But ostriches don't really hide their heads in sand — they lower them to the ground to check their eggs. 🥚"]
+];
+/* things Kit might say that are true: [regex, cheer] */
+var TKTRUE=[
+[/sun is a star/,"You're right! The Sun is a star — the closest one to us! ⭐"],
+[/(cows?) (go|say)e?s? moo|dogs? (go|say)e?s? (woof|bark)|cats? (go|say)e?s? meow|ducks? (go|say)e?s? quack/,"You're right! That's exactly what they say! 🐮🐶🐱🦆"],
+[/(earth|world) is round/,"You're right! Earth is round, like a giant ball! 🌍"],
+[/birds? (are|is) dinosaur/,"You're right! Birds are living dinosaurs! 🐦🦖"],
+[/(whale|dolphin)s? (are|is) (a )?mammal/,"You're right! They breathe air, just like us! 🐳"],
+[/spiders? (have|has) (8|eight) legs/,"You're right! 8 legs — that's why spiders aren't insects! 🕷️"],
+[/(8|eight) planets/,"You're right! Eight planets go around our Sun! 🪐"],
+[/jupiter is the biggest/,"You're right! Jupiter is the biggest planet! 🪐"],
+[/octopus(es)? (have|has) (3|three) hearts/,"You're right! Three hearts! 🐙"],
+[/cheetahs? (are|is) (the )?fastest/,"You're right! The cheetah is the fastest land animal! 🐆"],
+[/blue whale.*(biggest|largest)/,"You're right! The blue whale is the biggest animal ever! 🐋"],
+[/pluto is a dwarf planet/,"You're right! Pluto is a dwarf planet! 🪐"],
+[/tomato (is|are)( a)? fruit/,"You're right! A tomato is a fruit, because it has seeds! 🍅"],
+[/penguins? (can.?t|cannot|can not) fly/,"You're right! But they're amazing swimmers! 🐧"]
+];
+/* quizzes: [question, [choices], correct index, kind reveal] */
+var TKQ={
+animals:[["How many legs does a spider have?",["6","8","10"],1,"Spiders have 8 legs!"],["What is the fastest land animal?",["Cheetah","Turtle","Elephant"],0,"The cheetah is the fastest land animal!"],["What do pandas mostly eat?",["Pizza","Bamboo","Fish"],1,"Pandas eat mostly bamboo!"],["How many hearts does an octopus have?",["1","2","3"],2,"An octopus has 3 hearts!"],["What is a baby kangaroo called?",["A joey","A cub","A chick"],0,"A baby kangaroo is a joey!"],["Is a whale a fish or a mammal?",["Fish","Mammal","Bird"],1,"Whales are mammals — they breathe air!"]],
+space:[["What is the Sun?",["A planet","A star","A moon"],1,"The Sun is a star!"],["How many planets go around our Sun?",["8","5","12"],0,"There are 8 planets!"],["Which planet is the biggest?",["Mars","Earth","Jupiter"],2,"Jupiter is the biggest planet!"],["Who walked on the Moon first?",["Neil Armstrong","Superman","A dog"],0,"Neil Armstrong walked on the Moon first, in 1969!"],["Why does Mars look red?",["Rusty dust","Red paint","Ketchup"],0,"Mars is covered in rusty dust!"],["Can you hear sounds in space?",["Yes, loud!","No, it's quiet","Only music"],1,"Space has no air to carry sound, so it's quiet!"]],
+dinosaurs:[["Did people live with dinosaurs?",["Yes","No"],1,"No — dinosaurs were gone long before people!"],["Which animals are living dinosaurs?",["Birds","Cats","Fish"],0,"Birds are living dinosaurs!"],["How many horns did Triceratops have?",["1","2","3"],2,"Triceratops had 3 horns!"],["How do we learn about dinosaurs?",["Fossils","TV","Dreams"],0,"We learn from fossils!"],["What did Stegosaurus have on its back?",["Wings","Plates","Wheels"],1,"Stegosaurus had big plates on its back!"]],
+body:[["How many bones does a grown-up have?",["206","50","1,000"],0,"Grown-ups have 206 bones!"],["What is the biggest organ in your body?",["Skin","Nose","Toe"],0,"Your skin is the biggest organ!"],["How long should you wash your hands?",["1 second","About 20 seconds","1 hour"],1,"About 20 seconds — sing Happy Birthday twice!"],["How many baby teeth do kids have?",["20","5","100"],0,"Kids have 20 baby teeth!"],["Can you tickle yourself?",["Yes","No"],1,"No — your brain knows it's coming!"]],
+weather:[["What makes a rainbow?",["Sunlight and raindrops","Crayons","Wind"],0,"Sunlight shining through raindrops makes a rainbow!"],["What are clouds made of?",["Cotton","Tiny water drops","Marshmallows"],1,"Clouds are tiny drops of water or ice!"],["What do you do when thunder roars?",["Go indoors","Go swimming","Fly a kite"],0,"When thunder roars, go indoors!"],["How many sides does a snowflake have?",["3","6","10"],1,"Snowflakes have 6 sides!"],["What is fog?",["A cloud on the ground","Smoke","Steam from a dragon"],0,"Fog is a cloud down low on the ground!"]],
+how:[["What do magnets pull on?",["Iron and steel","Paper","Water"],0,"Magnets pull on iron and steel!"],["Why does ice float?",["It's lighter than water","It's magic","It has a motor"],0,"Ice is lighter than the same amount of water!"],["What pushes a rocket up?",["Hot gas going down","A giant hand","Balloons"],0,"Hot gas blasting down pushes the rocket up!"],["What do plants need to grow?",["Water and sunlight","Candy","TV"],0,"Plants need water, sunlight and soil!"]],
+food:[["Where does chocolate come from?",["Cacao beans","Cows","Clouds"],0,"Chocolate comes from cacao beans!"],["Is a tomato a fruit?",["Yes","No"],0,"Yes — scientists call a tomato a fruit!"],["What makes popcorn pop?",["Steam inside","A tiny drum","Magic"],0,"Water inside the kernel turns to steam — POP!"],["What is cheese made from?",["Milk","Rocks","Bread"],0,"Cheese is made from milk!"]],
+safety:[["What number do you call in an emergency in the United States?",["911","123","007"],0,"911 is the emergency number!"],["What do you do if your clothes catch on fire?",["Run fast","Stop, drop and roll","Jump"],1,"Stop, drop and roll!"],["What do you wear when you ride a bike?",["A helmet","A crown","Swim goggles"],0,"Always wear a helmet!"],["How do you cross the street?",["Hold a grown-up's hand and look both ways","Run fast","Close your eyes"],0,"Hold a grown-up's hand and look left, right, left!"]],
+sports:[["How high is a basketball hoop?",["10 feet","3 feet","100 feet"],0,"A basketball hoop is 10 feet high!"],["How many players does a soccer team have on the field?",["11","2","50"],0,"11 players, including the goalie!"],["How many bases are in baseball?",["4","10","1"],0,"There are 4 bases!"],["What does 'love' mean in tennis?",["Zero","Ten","A hug"],0,"In tennis, love means zero!"]],
+tips:[["Who can see invisible Kit?",["Nobody","Everyone except Noodle Man","Only Mom"],1,"Everyone except Noodle Man can see you — but a pipe hides you from everybody!"],["What do you hold to warp into a pipe?",["⬇ Down","⬆ Up","Nothing"],0,"Stand on a green pipe and hold ⬇!"],["What does a Silly bad guy do?",["Falls asleep laughing","Cries","Flies away"],0,"Silly laughs so hard he falls asleep — hit him for DOUBLE hurt!"],["Where do you spend coins?",["The Shop","The trash","The pipe"],0,"Spend coins in the 🛒 Shop and 🪄 Magic Shop!"]],
+jokes:[["What do you call a sleeping dinosaur?",["A dino-snore","A T. nap","A snore-asaurus"],0,"A dino-snore! 😂"],["What do clouds wear under their shorts?",["Thunderwear","Rainboots","Fog socks"],0,"Thunderwear! 😂"],["What do you call a bear with no teeth?",["A gummy bear","A soft bear","A teddy"],0,"A gummy bear! 😂"]]
+};
+
+/* ===================== 🗣️ TALKING TOWN (Talking Level) =====================
+   A peaceful level: walk Kit down a cozy street and talk to friendly people.
+   Offline: answers come from a big bank of true kid facts (tk/bank.js). Unknown
+   questions get "let's find out together" — nothing is ever made up.        */
+var TK={open:0,raf:0,x:180,vx:0,f:1,cam:0,near:-1,talk:-1,mode:"walk",topic:null,seen:{},stars:+localStorage.heroTalkStars||0,chat:0,
+ tts:localStorage.heroTalkTTS!=="0",typed:"",err:null,fr:0,goal:null,goTalk:-1,quiz:null,qseen:{},last:null,fx:[],W:2760,hold:0,sayFor:-1,sayT:0,asked:{},sr:null};
+var TKC=[
+ {id:"owl",favs:{food:"Owls really do munch bugs and mice — but I'm a cartoon owl, so I love berries! 🫐",color:"Brown, like my feathers! 🤎"},n:"Professor Owl",em:"🦉",x:430,kind:"owl",topics:["animals","body","how","earth"],col:"#a8743f",pitch:.9,bld:"library",
+  hi:"Hoo-hoo! Hello, Kit! I'm Professor Owl. I love questions about animals, your body, and how things work!",fav:"My favorite animal? Owls, of course! Hoo-hoo! 🦉"},
+ {id:"fire",favs:{food:"A big pot of firehouse chili! 🌶️",color:"Fire-truck red, of course! ❤️"},n:"Firefighter Fran",em:"👩‍🚒",x:870,kind:"human",hat:"helmet",topics:["safety","weather","how"],col:"#e8322a",pitch:1.2,bld:"fire",
+  look:{sk:"medium",hs:"ponytail",hc:"#a8481c",sh:"#d8322a",pa:"#3a3a44",out:"hoodie",so:"#222",iris:"#4a3a2a"},
+  hi:"Hi, Kit! I'm Firefighter Fran! Ask me about staying safe, the weather, or how things work!",fav:"My favorite thing is our fire truck — and our firehouse dog! 🚒"},
+ {id:"zoo",favs:{food:"Bananas — the monkeys taught me! 🍌",color:"Jungle green! 💚"},n:"Zookeeper Zeke",em:"🦒",x:1310,kind:"human",hat:"safari",topics:["animals","dinosaurs"],col:"#5a9a3a",pitch:1,bld:"zoo",
+  look:{sk:"tan",hs:"short",hc:"#5a3a20",sh:"#c9a86a",pa:"#7a6a3a",out:"tee",so:"#6a4a2a",collar:1,iris:"#3a6aaa"},
+  hi:"Howdy, Kit! I'm Zookeeper Zeke. I take care of the animals — and I know lots about dinosaurs too!",fav:"My favorite animal is the giraffe. Those long necks are amazing! 🦒"},
+ {id:"astro",favs:{food:"Space tacos on tortillas! 🌮",color:"Deep-space blue! 💙"},n:"Astronaut Ava",em:"👩‍🚀",x:1750,kind:"human",hat:"space",topics:["space","weather","earth"],col:"#3a7bd5",pitch:1.25,bld:"space",
+  look:{sk:"deep",hs:"bun",hc:"#1d1a1a",sh:"#eef2f8",pa:"#dfe5ee",out:"tee",logo:"🚀",so:"#9aa4b4",iris:"#3a2a1a"},
+  hi:"Hello, Kit! I'm Astronaut Ava! Ask me anything about space, planets and stars!",fav:"My favorite planet is Saturn, with those beautiful rings! 🪐"},
+ {id:"chef",favs:{animal:"Chickens — they lay the eggs for my pancakes! 🐔",color:"Tomato red! 🍅"},n:"Chef Pepe",em:"👨‍🍳",x:2190,kind:"human",hat:"toque",topics:["food","jokes","body"],col:"#ff9f1c",pitch:1,bld:"cafe",
+  look:{sk:"light",hs:"short",hc:"#2a2020",sh:"#ffffff",pa:"#3a3a44",out:"apron",ap:"#ff6b6b",apE:"🍕",stache:1,so:"#2a2a2a",iris:"#4a3a2a"},
+  hi:"Ciao, Kit! I'm Chef Pepe! Ask me about yummy food — or ask me for a silly joke!",fav:"My favorite food is pizza, of course! 🍕"},
+ {id:"mom",favs:{food:"Anything we cook together! 🍪",animal:"Puppies! 🐶",color:"Pink! 💗"},n:"Mom",em:"👩",x:2590,kind:"human",topics:["jokes","sports","tips"],col:"#ff6fae",pitch:1.3,bld:"house",momL:1,
+  hi:"Hi, sweetie! It's Mom! Ask me for jokes, sports facts, or Hero Fight tips!",fav:"My favorite thing in the whole world is YOU! 💛"}];
+TKC.forEach(c=>{if(c.look&&typeof FWYSK!="undefined"&&FWYSK[c.look.sk])c.look.sk=FWYSK[c.look.sk]});
+
+/* ---------- words ---------- */
+var TKSTOP=new Set("a an the is are was were be been am i me my you your we our it its this that these those of to in on at for from with and or but do does did can could would should will what whats why how who whos when where which there their they them he she his her so very really much many tell about please have has had work works working happen hey hi hello ok okay just know thing things kind if into up out than then also us some any".split(" "));
+var TKSYN={dino:"dinosaur",dinos:"dinosaur",kitty:"cat",kitten:"cat",puppy:"dog",doggy:"dog",doggie:"dog",bunny:"rabbit",tummy:"stomach",belly:"stomach",trex:"rex",tyrannosaurus:"rex",planets:"planet",teeth:"tooth",feet:"foot",mice:"mouse",aeroplane:"airplane",plane:"airplane",fridge:"refrigerator",veggies:"vegetable",veggie:"vegetable",astronauts:"astronaut",rockets:"rocket",biggest:"big",largest:"big",bigger:"big",huge:"big",large:"big",hottest:"hot",hotter:"hot",quickest:"fast",speediest:"fast",mount:"mountain",mt:"mountain",mountains:"mountain",taller:"tall",highest:"high",tv:"television"};
+function tkNorm(s){return(" "+String(s||"").toLowerCase()+" ").replace(/[’']/g,"").replace(/(^|[^a-z])t[\s.\-]*rex/g," rex ").replace(/pac[\s\-]*man/g," pacman ").replace(/show[\s\-]*off/g," showoff ").replace(/[^a-z0-9+\-*\/×÷.?\s]/g," ").replace(/\s+/g," ").trim()}
+function tkStem(w){if(TKSYN[w])return TKSYN[w];if(w.length>5&&/est$/.test(w))return w.slice(0,-3);if(w.length>4&&/ies$/.test(w))return w.slice(0,-3)+"y";if(w.length>4&&/(ch|sh|x|ss)es$/.test(w))return w.slice(0,-2);if(w.length>3&&/s$/.test(w)&&!/(ss|us|is)$/.test(w))return w.slice(0,-1);return w}
+function tkToks(s){return tkNorm(s).replace(/[^a-z0-9\s]/g," ").split(" ").filter(w=>w&&!TKSTOP.has(w)&&w.length>1).map(tkStem)}
+var TKI=[];(function(){let df={};for(let tp in TKB)TKB[tp].forEach((e,i)=>{let qk=new Set(tkToks(e[0]+" "+(e[2]||""))),at=new Set(tkToks(e[1]));TKI.push({tp:tp,i:i,e:e,qk:qk,at:at});qk.forEach(w=>df[w]=(df[w]||0)+1)});
+ let N=TKI.length;TKI.idf=w=>Math.log((N+1)/((df[w]||0)+.5));})();
+var TKOP=/\b(i think|i like|i love|favou?rite|is the best|are the best|is cool|are cool|is awesome|are awesome|is fun|is great|rocks|i want|i wish|so cool|cool|awesome|best|great|fun|like|love)\b/g;
+function tkQW(s){let m=tkNorm(s).match(/^(?:can you |could you |please )?(?:tell me )?(how many|how much|how big|how fast|how long|how far|how old|how tall|how hot|how deep|how|what|whats|why|who|whos|where|when|which|can|do|does|did|is|are)\b/);return m?m[1].replace(/s$/,"").replace(/^wha$/,"what"):""}
+TKI.forEach(r=>{r.qw=tkQW(r.e[0]);r.qq=new Set(tkToks(r.e[0]))});
+function tkMatch(s,topics){let q=[...new Set(tkToks(s))];if(!q.length)return null;let me=/\b(i|my|me|we|our|im)\b/.test(tkNorm(s)),qw=tkQW(s),tot=q.reduce((a,w)=>a+TKI.idf(w),0),best=null,bs=0;
+ TKI.forEach(r=>{let cv=0,ans=0,hit=0;q.forEach(w=>{if(r.qk.has(w)){cv+=TKI.idf(w);hit++}else if(r.at.has(w))ans+=.3*TKI.idf(w)});if(!hit)return;
+  let same=qw&&r.qw==qw,diff=qw&&r.qw&&r.qw!=qw&&!(/^(is|are|do|does|can|did)$/.test(qw)&&/^(is|are|do|does|can|did)$/.test(r.qw));if(q.length==1&&(diff||!r.qq.has(q[0])))return;
+  let ew=0;r.qk.forEach(w=>ew+=TKI.idf(w));if(r.tp=="jokes"&&cv/ew<.6)return;let sc=cv+ans+1.2*cv/ew+(me&&r.tp=="body"?.8:0)+(topics&&topics.includes(r.tp)?.1:0)+(same?1:0);if(cv>=2&&cv/tot>=.74&&sc>bs){bs=sc;best=r}});
+ return best?{r:best,s:bs}:null}
+function tkPick(a){return a[Math.floor(Math.random()*a.length)]}
+function tkFact(){let tps=["animals","space","dinosaurs","body","weather","how","food"],e=tkPick(TKB[tkPick(tps)]);return e[1]}
+var TKBAD=/\b(kill\w*|die|dies|died|dying|dead|death|blood\w*|guns?|shoot|shoots|shooter|shooting(?! stars?)|knife|knives|weapons?|bombs?|wars?|murder\w*|drugs?|beer|wine|alcohol|drunk|cigarettes?|vape\w*|sex\w*|naked|nude|porn\w*|suicide|steal\w*)\b|babies (made|come)|make (a )?bab(y|ies)/;
+var TKSWEAR=/\b(shit\w*|fuck\w*|bitch\w*|damn|crap|hell|ass|asshole|stupid|dumb|idiot|shut up|hate you|ugly|loser)\b/;
+var TKYES=["You're right, that's awesome! 🌟","Great idea! I love it! 💛","Ooh, that's so cool! 😎","You're so right — that's a great one! 👍","Awesome! Great thinking, Kit! ⭐"];
+var TKRIGHT=["YES! You got it! 🎉","You're right! Super smart! 🌟","Correct! High five! ✋","WOW! You're a genius! 🧠"];
+var TKUNK="Great question, let's find out together! Ask a grown-up or look it up. 🔎";
+function tkMath(s){let m=s.replace(/what is|whats|what s|how much is|equals|=|\?/g," ").replace(/plus/g,"+").replace(/minus|take away/g,"-").replace(/times|multiplied by|×/g,"*").replace(/divided by|÷/g,"/").replace(/(\d)\s*x\s*(\d)/g,"$1*$2");
+ let mm=m.match(/-?\d+(\.\d+)?(\s*[+\-*\/]\s*-?\d+(\.\d+)?)+/);if(!mm)return null;let ex=mm[0];if(!/^[\d\s+\-*\/.]+$/.test(ex))return null;
+ if(/\/\s*0(?![\d.])/.test(ex))return"Dividing by zero is a puzzle that can't be done — even grown-ups can't do it! 🤯";
+ let v;try{v=Function("return ("+ex+")")()}catch(e){return null}if(typeof v!="number"||!isFinite(v))return null;v=Math.round(v*1000)/1000;
+ return ex.replace(/\*/g,"×").replace(/\//g,"÷").replace(/\s+/g," ").replace(/\s*([+\-×÷])\s*/g," $1 ")+" = "+v+"! 🧮 Math power!"}
+/* the brain: returns {a: answer text, k: kind} — kinds: fact joke unk bad kind math say myth yes greet */
+function tkAnswer(raw,mode,c){c=c||TKC[TK.talk]||TKC[0];let s=tkNorm(raw);if(!s)return{a:"Type or tap a question, and I'll answer!",k:"empty"};
+ if(TKBAD.test(s))return{a:"That's a grown-up question — ask Mom or Dad! Want a fun fact instead? "+tkFact(),k:"bad"};
+ if(TKSWEAR.test(s))return{a:"Let's use kind words — kind words make everyone smile! 😊 Here's a fun fact: "+tkFact(),k:"kind"};
+ let mth=tkMath(s);if(mth)return{a:mth,k:"math"};
+ if(/^(hi|hello|hey|howdy|yo|hiya|good morning|good afternoon)\b/.test(s)&&s.split(" ").length<=4)return{a:c.hi,k:"greet"};
+ if(/(your name|who are you)/.test(s))return{a:c.hi,k:"greet"};
+ if(/how are you/.test(s))return{a:"I'm super, thanks for asking! I hope you're having a great day too! 😊",k:"greet"};
+ if(/^(thank|thanks)/.test(s))return{a:"You're welcome, Kit! 😊",k:"greet"};
+ if(/i love you|you.?re (my )?(best|friend|nice|cool|awesome)/.test(s))return{a:"Aww, thank you! You're a great friend, Kit! 💛",k:"greet"};
+ {let dl=s.match(/^do you (like|love) (.{2,40})$/);if(dl)return{a:"Yes! I love "+dl[2].replace(/\?/g,"").trim()+"! 💛 What do you like about it?",k:"greet"}}
+ if(/(what|whats).*(your|ur) favou?rite|do you like/.test(s)){let k=(s.match(/\b(food|animal|color|colour)\b/)||[])[1];if(k=="colour")k="color";return{a:c.favs&&k&&c.favs[k]||c.fav,k:"greet"}}
+ if(/\bmy name\b/.test(s))return{a:"Your name is Kit — the awesome kid who dreamed up tons of Hero Fight! 🌟",k:"greet"};
+ if(/^(can|could|do|are|will|did) you\b/.test(s)&&!/\b(tell|say|teach|help|explain)\b/.test(s)&&!(tkToks(s).length>1&&tkMatch(s,c&&c.topics)))return{a:"Ha! I'm a cartoon friend in Talking Town — my superpower is chatting! But in Hero Fight, every hero can fly! 🚀 Ask me a question!",k:"greet"};
+ if(/how old are you/.test(s))return{a:"I'm a cartoon, so I don't have birthdays like you do — but I'm always happy to chat! 🎂",k:"greet"};
+ if(/where do you live/.test(s))return{a:"Right here in Talking Town! 🏡",k:"greet"};
+ if(/weather (today|now|outside)|(is it|will it) (rain|snow|sunny|cold|hot)/.test(s))return{a:"I can't peek outside from inside the game! Look out the window with a grown-up — or check the weather together. 🌤️",k:"unk"};
+ if(/(what|whats) time/.test(s)){let d=new Date();return{a:"Right now it's "+d.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})+"! ⏰",k:"fact"}}
+ if(/(what|whats) (day|date)|today/.test(s)&&!/weather/.test(s)){let d=new Date();return{a:"Today is "+d.toLocaleDateString([], {weekday:"long",month:"long",day:"numeric"})+"! 📅",k:"fact"}}
+ if(/who is kit|who.?s kit/.test(s))return{a:"Kit is the awesome kid who dreamed up tons of Hero Fight! 🌟",k:"greet"};
+ if(/^(hero fight |game )?tips?$|(hero fight|game) tips?|give me a tip|any tips/.test(s)){let j=tkPick(TKB.tips);return{a:"Here's a Hero Fight tip: "+j[1],k:"fact"}}
+ if(/\b(joke|jokes|funny|laugh)\b|^(be )?silly$|something silly/.test(s)&&!/(why do|why does) .*laugh/.test(s)){let j=tkPick(TKB.jokes);return{a:j[0]+" … "+j[1],k:"joke"}}
+ let isQ=/\?\s*$/.test(String(raw).trim())||/^(what|why|how|who|when|where|which|whats|is|are|can|could|do|does|did|will|would|should|tell|was|were|whos|wheres|hows|whys)\b/.test(s);
+ for(const m of TKMYTH)if(m[0].test(s))return{a:m[1],k:"myth"};
+ if(mode=="say"||!isQ){for(const m of TKTRUE)if(m[0].test(s))return{a:m[1],k:"yes"};
+  if(/^(i am|im|i can|i was|i will|ill)\b/.test(s))return{a:tkPick(["You're right, Kit — you're awesome! 🌟","Yes! That's so cool, Kit! 😎","Wow, way to go, Kit! 🎉"]),k:"say"};
+  if(/\b(yucky|gross|boring|yuck|icky|dont like|do not like|hate)\b/.test(s))return{a:"That's okay — everybody likes different things! That's what makes us all special. 😊",k:"say"};
+  let op=/\b(i think|i like|i love|favou?rite|is the best|are the best|is cool|are cool|is awesome|are awesome|is fun|is great|rocks|i want|i wish|i can|i am|im|i will|i.?m gonna|so cool)\b/.test(s);
+  let m=tkMatch(op?s.replace(TKOP," "):s,c.topics);
+  if(op)return{a:tkPick(TKYES)+(m&&m.r.tp!="jokes"?" Here's a true fact about that: "+m.r.e[1]:""),k:"say"};
+  if(m&&m.r.tp!="jokes")return{a:"Ooh, I know something about that! "+m.r.e[1],k:"say"};
+  return{a:"Cool thought! I'm not totally sure about that one — let's find out together! Ask a grown-up or look it up. 🔎",k:"unk"}}
+ let m=tkMatch(s,c.topics);if(m)return{a:m.r.tp=="jokes"?m.r.e[0]+" … "+m.r.e[1]:m.r.e[1],k:m.r.tp=="jokes"?"joke":"fact",q:m.r.e[0],tp:m.r.tp};
+ return{a:TKUNK,k:"unk"}}
+
+/* ---------- speaking ---------- */
+function tkSpeak(txt,c){try{if(!TK.tts||!window.speechSynthesis)return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(String(txt).replace(/[^\p{L}\p{N}\s.,!?'’:;-]/gu," ").replace(/…/g,". "));u.rate=.95;u.pitch=c&&c.pitch||1.1;speechSynthesis.speak(u)}catch(e){}}
+function tkSay(c,txt,kitQ){let b=document.getElementById("tksay");if(!b)return;TK.sayFor=c?TKC.indexOf(c):-1;TK.sayT=TK.fr;TK.last=txt;
+ b.innerHTML=(kitQ?'<div style="font-size:.72em;opacity:.85;margin-bottom:4px">🧒 Kit: '+tkEsc(kitQ)+'</div>':"")+(c?'<b style="color:'+c.col+'">'+c.em+" "+c.n+':</b> ':"")+tkEsc(txt);
+ try{let r=b.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)b.scrollIntoView({block:"nearest"})}catch(e){}
+ if(c)tkSpeak(txt,c)}
+function tkEsc(s){return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
+function tkReward(st,co,why){TK.stars+=st;try{localStorage.heroTalkStars=TK.stars}catch(e){}if(co){coins+=co;try{localStorage.heroCoins=coins}catch(e){}}
+ TK.fx.push({x:TK.x,y:200,l:70,s:(st?"+"+st+"⭐ ":"")+(co?"+"+co+"🪙":"")});for(let i=0;i<8;i++)TK.fx.push({x:TK.x+(Math.random()-.5)*60,y:240,vx:(Math.random()-.5)*4,vy:-2-Math.random()*2,l:50,e:tkPick(["⭐","✨","🌟"])});tkHud()}
+function tkHud(){let h=document.getElementById("tkhud");if(h)h.textContent="⭐ "+TK.stars+"   🪙 "+coins}
+
+/* ---------- drawing ---------- */
+function tkHat(k,X,y){x.save();
+ if(k=="helmet"){x.fillStyle="#e8322a";x.beginPath();x.arc(X,y-128,20,Math.PI,0);x.fill();x.beginPath();x.ellipse(X,y-127,27,6,0,0,7);x.fill();x.fillStyle="#ffd23f";x.beginPath();x.moveTo(X,y-148);x.lineTo(X+7,y-141);x.lineTo(X,y-132);x.lineTo(X-7,y-141);x.fill();x.strokeStyle="#ffd23f";x.lineWidth=4;x.beginPath();x.moveTo(X-16,y-62);x.lineTo(X+16,y-62);x.moveTo(X-16,y-50);x.lineTo(X+16,y-50);x.stroke()}
+ if(k=="safari"){x.fillStyle="#d8c08a";x.beginPath();x.arc(X,y-130,17,Math.PI,0);x.fill();x.beginPath();x.ellipse(X,y-129,30,7,0,0,7);x.fill();x.fillStyle="#8a6a3a";x.fillRect(X-17,y-134,34,4)}
+ if(k=="toque"){x.fillStyle="#fff";x.strokeStyle="#ddd";x.lineWidth=1.5;rr(X-15,y-150,30,20,4);x.fill();x.stroke();[-11,0,11].forEach(d=>{x.beginPath();x.arc(X+d,y-152,11,0,7);x.fill();x.stroke()})}
+ if(k=="space"){x.fillStyle="rgba(190,230,255,.28)";x.strokeStyle="rgba(255,255,255,.9)";x.lineWidth=3;x.beginPath();x.arc(X,y-117,29,0,7);x.fill();x.stroke();x.fillStyle="rgba(255,255,255,.75)";x.beginPath();x.ellipse(X-12,y-130,6,3,-.6,0,7);x.fill();x.fillStyle="#cfd6e2";rr(X-20,y-98,40,8,4);x.fill()}
+ x.restore()}
+function tkOwl(X,y,f,talk){let fl=talk?Math.sin(TK.fr/5)*.35:0;x.save();
+ x.fillStyle="#8a5a34";[-1,1].forEach(s=>{x.save();x.translate(X+s*30,y-62);x.rotate(s*(.25+fl));x.beginPath();x.ellipse(0,10,11,28,0,0,7);x.fill();x.restore()});
+ let g=x.createRadialGradient(X-8,y-80,6,X,y-60,55);g.addColorStop(0,"#b07a48");g.addColorStop(1,"#7a4a26");x.fillStyle=g;x.beginPath();x.ellipse(X,y-58,33,50,0,0,7);x.fill();
+ x.beginPath();x.moveTo(X-26,y-96);x.lineTo(X-30,y-122);x.lineTo(X-12,y-104);x.moveTo(X+26,y-96);x.lineTo(X+30,y-122);x.lineTo(X+12,y-104);x.fill();
+ x.fillStyle="#f1dcb0";x.beginPath();x.ellipse(X,y-42,21,29,0,0,7);x.fill();x.strokeStyle="#d8bc88";x.lineWidth=2;for(let i=0;i<3;i++){x.beginPath();x.arc(X,y-50+i*10,8,.3,Math.PI-.3);x.stroke()}
+ let bl=(TK.fr%180)<6;[-1,1].forEach(s=>{x.fillStyle="#fff";x.beginPath();x.arc(X+s*13,y-82,12,0,7);x.fill();x.strokeStyle="#333";x.lineWidth=2.2;x.stroke();
+  if(bl){x.beginPath();x.moveTo(X+s*13-8,y-82);x.lineTo(X+s*13+8,y-82);x.stroke()}else{x.fillStyle="#2a1a0a";x.beginPath();x.arc(X+s*13+f*3,y-81,6,0,7);x.fill();x.fillStyle="#fff";x.beginPath();x.arc(X+s*13+f*3+2,y-84,2,0,7);x.fill()}});
+ x.strokeStyle="#333";x.lineWidth=1.8;x.beginPath();x.moveTo(X-1,y-82);x.lineTo(X+1,y-82);x.stroke();
+ x.fillStyle="#ffb020";x.beginPath();x.moveTo(X-5,y-72);x.lineTo(X+5,y-72);x.lineTo(X,y-62+(talk&&TK.fr%12<6?3:0));x.fill();
+ x.fillStyle="rgba(255,120,150,.4)";x.beginPath();x.ellipse(X-24,y-70,5,3,0,0,7);x.ellipse(X+24,y-70,5,3,0,0,7);x.fill();
+ x.fillStyle="#ffb020";[-1,1].forEach(s=>{for(let i=-1;i<=1;i++){x.beginPath();x.ellipse(X+s*12+i*5,y-6,3,6,0,0,7);x.fill()}});
+ x.fillStyle="#222";x.beginPath();x.moveTo(X-26,y-112);x.lineTo(X,y-124);x.lineTo(X+26,y-112);x.lineTo(X,y-100);x.closePath();x.fill();rr(X-12,y-112,24,9,2);x.fill();
+ x.strokeStyle="#ffd23f";x.lineWidth=2;x.beginPath();x.moveTo(X,y-112);x.lineTo(X+20,y-108);x.lineTo(X+20,y-96);x.stroke();x.fillStyle="#ffd23f";x.beginPath();x.arc(X+20,y-94,3,0,7);x.fill();
+ emo("📖",X+f*30,y-30,22);x.restore()}
+function tkHuman(c,X,y,f,run,L,id){let fake={x:X,y:y,f:f,h:{n:"__tk_"+id},hp:100,mhp:100,hit:0,frz:0,vy:0,dz:0};
+ RL.LK["__tk_"+id]={k:"human",skin:L.sk,glove:"skin",iris:L.iris||"#5a3a1a"};fwHuman(fake,X,y,f,0,run,L);if(c&&c.hat)tkHat(c.hat,X,y)}
+function tkBld(c){let bx=c.x+70,G2=350;x.save();
+ const sign=(tx,col)=>{x.fillStyle=col;rr(bx-10,G2-238,190,34,10);x.fill();x.strokeStyle="#fff";x.lineWidth=3;x.stroke();x.fillStyle="#fff";x.font="bold 19px sans-serif";x.textAlign="center";x.fillText(tx,bx+85,G2-214);x.textAlign="left"};
+ if(c.bld=="library"){x.fillStyle="#e2b07a";rr(bx,G2-200,170,200,6);x.fill();x.fillStyle="#c8945e";x.beginPath();x.moveTo(bx-10,G2-200);x.lineTo(bx+85,G2-240);x.lineTo(bx+180,G2-200);x.fill();x.fillStyle="#fff6e0";for(let i=0;i<4;i++)x.fillRect(bx+14+i*42,G2-180,14,180);x.fillStyle="#7a4a26";rr(bx+64,G2-80,42,80,6);x.fill();sign("📚 LIBRARY","#7a4a26")}
+ if(c.bld=="fire"){x.fillStyle="#c8322a";rr(bx,G2-200,180,200,6);x.fill();x.fillStyle="#f4f4f4";rr(bx+20,G2-130,140,130,4);x.fill();x.strokeStyle="#ccc";x.lineWidth=2;for(let i=1;i<6;i++){x.beginPath();x.moveTo(bx+20,G2-130+i*22);x.lineTo(bx+160,G2-130+i*22);x.stroke()}
+  x.fillStyle="#ffd23f";x.beginPath();x.arc(bx+90,G2-165,14,0,7);x.fill();sign("🚒 FIRE STATION","#8a1a14");emo("🐶",bx-28,G2-12,26)}
+ if(c.bld=="zoo"){x.fillStyle="#7a5030";x.fillRect(bx,G2-170,14,170);x.fillRect(bx+166,G2-170,14,170);x.strokeStyle="#5a9a3a";x.lineWidth=14;x.beginPath();x.arc(bx+90,G2-150,84,Math.PI,0);x.stroke();
+  x.strokeStyle="#8a6a3a";x.lineWidth=4;for(let i=0;i<9;i++){x.beginPath();x.moveTo(bx+14+i*19,G2-70);x.lineTo(bx+14+i*19,G2);x.stroke()}x.beginPath();x.moveTo(bx+14,G2-60);x.lineTo(bx+166,G2-60);x.stroke();
+  emo("🦒",bx+60,G2-95,64);emo("🐘",bx+130,G2-40,46);emo("🐰",c.x-38,G2-10,24);sign("🦁 ZOO","#3a7a2a")}
+ if(c.bld=="space"){x.fillStyle="#dfe6f0";rr(bx,G2-170,150,170,8);x.fill();x.fillStyle="#3a7bd5";rr(bx+16,G2-140,118,26,6);x.fill();x.fillStyle="#9ab4d8";for(let i=0;i<3;i++){x.beginPath();x.arc(bx+35+i*40,G2-80,12,0,7);x.fill()}
+  let rx=bx+190,ry=G2;x.fillStyle="#fff";x.beginPath();x.moveTo(rx,ry-190);x.quadraticCurveTo(rx+22,ry-150,rx+20,ry-40);x.lineTo(rx-20,ry-40);x.quadraticCurveTo(rx-22,ry-150,rx,ry-190);x.fill();x.fillStyle="#e8322a";x.beginPath();x.moveTo(rx,ry-190);x.quadraticCurveTo(rx+12,ry-172,rx+15,ry-155);x.lineTo(rx-15,ry-155);x.quadraticCurveTo(rx-12,ry-172,rx,ry-190);x.fill();
+  x.beginPath();x.moveTo(rx-20,ry-70);x.lineTo(rx-38,ry-30);x.lineTo(rx-20,ry-40);x.moveTo(rx+20,ry-70);x.lineTo(rx+38,ry-30);x.lineTo(rx+20,ry-40);x.fill();x.fillStyle="#3a7bd5";x.beginPath();x.arc(rx,ry-120,9,0,7);x.fill();x.fillStyle="#888";x.fillRect(rx-26,ry-40,52,40);sign("🚀 SPACE CENTER","#2a4a8a")}
+ if(c.bld=="cafe"){x.fillStyle="#ffe08a";rr(bx,G2-180,170,180,6);x.fill();for(let i=0;i<8;i++){x.fillStyle=i%2?"#fff":"#e8322a";x.beginPath();x.moveTo(bx-6+i*23,G2-130);x.lineTo(bx+17+i*23,G2-130);x.lineTo(bx+17+i*23,G2-108);x.quadraticCurveTo(bx+5.5+i*23,G2-98,bx-6+i*23,G2-108);x.fill()}
+  x.fillStyle="#bfe8ff";rr(bx+14,G2-90,70,56,6);x.fill();x.fillStyle="#7a4a26";rr(bx+104,G2-90,46,90,6);x.fill();emo("🍕",bx+40,G2-62,26);emo("🧁",bx+62,G2-46,20);sign("🍝 CAFÉ","#c8322a")}
+ if(c.bld=="house"){x.fillStyle="#7ab8ff";rr(bx,G2-150,170,150,6);x.fill();x.fillStyle="#e8584a";x.beginPath();x.moveTo(bx-14,G2-150);x.lineTo(bx+85,G2-215);x.lineTo(bx+184,G2-150);x.fill();x.fillStyle="#fff";rr(bx+20,G2-118,50,44,6);x.fill();emo("💛",bx+45,G2-94,24);x.fillStyle="#8a5a34";rr(bx+100,G2-90,44,90,6);x.fill();x.fillStyle="#ffd23f";x.beginPath();x.arc(bx+136,G2-46,4,0,7);x.fill();sign("🏡 HOME","#3a5aa8")}
+ x.restore()}
+function tkDraw(){let cv=document.getElementById("tkcv");if(!cv)return;let ctx=cv.getContext("2d"),ox=x,ot=t;x=ctx;t=TK.fr;try{
+ let g=x.createLinearGradient(0,0,0,350);g.addColorStop(0,"#7cc8ff");g.addColorStop(1,"#d8f3ff");x.fillStyle=g;x.fillRect(0,0,900,420);
+ x.fillStyle="#ffe14a";x.beginPath();x.arc(820,62,30,0,7);x.fill();x.strokeStyle="#c89a10";x.lineWidth=2.5;x.beginPath();x.arc(820,66,12,.3,Math.PI-.3);x.stroke();x.fillStyle="#7a5a10";x.beginPath();x.arc(812,56,2.5,0,7);x.arc(828,56,2.5,0,7);x.fill();
+ x.fillStyle="#fff";for(let i=0;i<6;i++){let cx=((i*420+TK.fr*.15-TK.cam*.25)%2400+2400)%2400-200,cy=50+(i%3)*28;[[0,0,32],[28,-10,26],[54,0,28],[26,8,26]].forEach(p=>{x.beginPath();x.arc(cx+p[0],cy+p[1],p[2],0,7);x.fill()})}
+ x.fillStyle="#9ad87a";x.beginPath();x.moveTo(0,300);for(let i=0;i<=900;i+=30)x.lineTo(i,280+Math.sin((i+TK.cam*.4)/90)*22);x.lineTo(900,350);x.lineTo(0,350);x.fill();
+ x.save();x.translate(-TK.cam,0);
+ TKC.forEach(tkBld);
+ for(let tx=200;tx<TK.W;tx+=440){x.fillStyle="#7a5030";x.fillRect(tx-6,350-80,12,80);x.fillStyle="#3fb04a";[[0,-100,34],[-22,-80,26],[22,-80,26]].forEach(p=>{x.beginPath();x.arc(tx+p[0],350+p[1],p[2],0,7);x.fill()})}
+ for(let lx=640;lx<TK.W;lx+=880){x.fillStyle="#445";x.fillRect(lx-3,350-130,6,130);x.fillStyle="#ffe58a";x.beginPath();x.arc(lx,350-134,9,0,7);x.fill()}
+ x.fillStyle="#d4d4dc";x.fillRect(0,350,TK.W,24);x.strokeStyle="#b8b8c4";x.lineWidth=2;for(let sx=0;sx<TK.W;sx+=60){x.beginPath();x.moveTo(sx,350);x.lineTo(sx,374);x.stroke()}
+ x.fillStyle="#4a4a5a";x.fillRect(0,374,TK.W,46);x.fillStyle="#ffd23f";for(let sx=0;sx<TK.W;sx+=80)x.fillRect(sx,395,40,5);
+ for(let fx2=30;fx2<TK.W;fx2+=97){emo(["🌷","🌼","🌸"][fx2%3],fx2,348,14)}
+ x.fillStyle="#7a5030";x.fillRect(70,250,8,100);x.fillStyle="#ff6fae";rr(20,210,110,46,10);x.fill();x.fillStyle="#fff";x.font="bold 15px sans-serif";x.textAlign="center";x.fillText("🗣️ TALKING",75,230);x.fillText("TOWN",75,249);x.textAlign="left";
+ TKC.forEach((c,i)=>{let f=TK.x<c.x?-1:1,talk=TK.talk==i&&TK.fr-TK.sayT<160;
+  if(c.kind=="owl")tkOwl(c.x,350,f,talk);else{let L=c.momL&&typeof FWYL!="undefined"?FWYL.Mom:c.look;tkHuman(c,c.x,350+(talk?Math.sin(TK.fr/4)*1.2:0),f,0,L,c.id)}
+  x.font="bold 16px sans-serif";x.textAlign="center";x.lineWidth=4;x.strokeStyle="rgba(0,0,0,.55)";let ny=c.hat=="toque"?192:c.kind=="owl"?370:178;if(c.kind=="owl")ny=350-132;else ny=350-(c.hat=="toque"?172:156);
+  x.strokeText(c.n,c.x,ny);x.fillStyle="#fff";x.fillText(c.n,c.x,ny);
+  if(TK.mode=="walk"&&TK.near==i){let by=ny-34+Math.sin(TK.fr/8)*3;x.fillStyle="#fff";rr(c.x-44,by-20,88,30,14);x.fill();x.strokeStyle=c.col;x.lineWidth=3;x.stroke();x.fillStyle="#222";x.font="bold 16px sans-serif";x.fillText("💬 Talk",c.x,by+1)}
+  if(talk){x.fillStyle="#fff";rr(c.x+18,ny-46,46,28,12);x.fill();x.fillStyle="#555";x.font="bold 16px sans-serif";x.fillText(TK.fr%30<15?"💬 ..":"💬 . .",c.x+41,ny-27)}
+  x.textAlign="left"});
+ let KL=typeof FWYL!="undefined"?FWYL.Kit:{sk:FWYSK.light,hs:"spiky",hc:"#7a5030",sh:"#2fbf5a",out:"tee"};tkHuman(null,TK.x,350,TK.f,Math.abs(TK.vx)>.5,KL,"kit");
+ x.font="bold 15px sans-serif";x.textAlign="center";x.lineWidth=4;x.strokeStyle="rgba(0,0,0,.55)";x.strokeText("Kit (YOU)",TK.x,350-140);x.fillStyle="#ffe14a";x.fillText("Kit (YOU)",TK.x,350-140);x.textAlign="left";
+ TK.fx=TK.fx.filter(p=>p.l-->0);TK.fx.forEach(p=>{x.globalAlpha=Math.min(1,p.l/25);if(p.s){x.font="bold 22px sans-serif";x.textAlign="center";x.fillStyle="#ffe14a";x.strokeStyle="#5a3a00";x.lineWidth=4;p.y-=.8;x.strokeText(p.s,p.x,p.y);x.fillText(p.s,p.x,p.y);x.textAlign="left"}else{p.x+=p.vx;p.y+=p.vy;p.vy+=.08;emo(p.e,p.x,p.y,18)}x.globalAlpha=1});
+ x.restore();
+ x.font="bold 15px sans-serif";x.fillStyle="rgba(29,20,70,.7)";rr(8,8,190,28,10);x.fill();x.fillStyle="#fff";x.fillText("⭐ "+TK.stars+"   🪙 "+coins,18,28);
+ }catch(e){TK.err="draw:"+e}finally{x=ox;t=ot}}
+function tkTick(){if(!TK.open)return;TK.fr++;
+ if(TK.mode=="walk"){if(TK.goal!=null){let d=TK.goal-TK.x;TK.vx=Math.abs(d)<6?0:Math.sign(d)*5.5;if(Math.abs(d)<6){TK.goal=null;if(TK.goTalk>=0){let g=TK.goTalk;TK.goTalk=-1;tkTalk(g)}}}
+  else TK.vx=TK.hold*5.5;
+  TK.x=Math.max(60,Math.min(TK.W-60,TK.x+TK.vx));if(TK.vx)TK.f=TK.vx>0?1:-1;
+  let n=-1,bd=95;TKC.forEach((c,i)=>{let d=Math.abs(c.x-TK.x);if(d<bd){bd=d;n=i}});if(n!=TK.near){TK.near=n;tkPanel()}}
+ else TK.vx=0;
+ let tc=Math.max(0,Math.min(TK.W-900,TK.x-450));TK.cam+=(tc-TK.cam)*.15;
+ tkDraw();TK.raf=requestAnimationFrame(tkTick)}
+
+/* ---------- UI ---------- */
+function tkBtn(txt,bg,fn,id,big){let b=document.createElement("button");b.textContent=txt;if(id)b.id=id;b.style.cssText="background:"+(bg||"#fff")+";color:#222;font-size:"+(big?"24px":"20px")+";font-weight:bold;min-height:58px;min-width:58px;padding:8px 16px;margin:5px;border-radius:16px;border:3px solid rgba(0,0,0,.15);touch-action:manipulation";b.onclick=fn;return b}
+function tkPanel(){let p=document.getElementById("tkpanel");if(!p)return;p.innerHTML="";
+ const row=()=>{let r=document.createElement("div");r.style.cssText="display:flex;flex-wrap:wrap;justify-content:center;align-items:center";p.appendChild(r);return r};
+ if(TK.mode=="walk"){let r=row();
+  let L=tkBtn("◀","#ffd23f",()=>{TK.goal=null;TK.x=Math.max(60,TK.x-40);TK.f=-1},"tkl",1),R=tkBtn("▶","#ffd23f",()=>{TK.goal=null;TK.x=Math.min(TK.W-60,TK.x+40);TK.f=1},"tkr",1);
+  [[L,-1],[R,1]].forEach(q=>{let b=q[0],d=q[1];b.style.fontSize="34px";b.style.minWidth="96px";b.onpointerdown=e=>{TK.goal=null;TK.hold=d};["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,()=>{if(TK.hold==d)TK.hold=0}))});
+  r.appendChild(L);
+  if(TK.near>=0){let c=TKC[TK.near];r.appendChild(tkBtn("💬 Talk to "+c.n+"!",c.col,()=>tkTalk(TK.near),"tktalk",1)).style.color="#fff"}
+  else{let s=document.createElement("div");s.style.cssText="color:#fff;font-size:20px;padding:0 12px;max-width:340px;text-align:center";s.textContent="Walk to a friend, then tap 💬 Talk!";r.appendChild(s)}
+  r.appendChild(R);
+  let r2=row();TKC.forEach((c,i)=>r2.appendChild(tkBtn(c.em+" "+c.n,"#fff",()=>{TK.goal=c.x-80*(TK.x<c.x?1:-1);TK.goTalk=i},"tkgo"+c.id)));
+  return}
+ let c=TKC[TK.talk],r=row();
+ c.topics.forEach(tp=>{let b=tkBtn(TKT[tp],TK.mode=="topic"&&TK.topic==tp?"#ffe14a":"#fff",()=>{TK.mode="topic";TK.topic=tp;tkPanel()},"tkt_"+tp);r.appendChild(b)});
+ r.appendChild(tkBtn("🧠 Quiz me!",TK.mode=="quiz"?"#ffe14a":"#c9f",()=>{TK.mode="quiz";tkQuiz()},"tkquiz"));
+ r.appendChild(tkBtn("⌨️ Ask anything",TK.mode=="type"?"#ffe14a":"#9ef",()=>{TK.mode="type";TK.typed="";tkPanel()},"tktype"));
+ r.appendChild(tkBtn("💬 Kit says…",TK.mode=="kitsay"?"#ffe14a":"#afa",()=>{TK.mode="kitsay";TK.typed="";tkPanel()},"tkkitsay"));
+ r.appendChild(tkBtn("👋 Bye!","#fbb",tkBye,"tkbye"));
+ if(TK.mode=="topic"){let tp=TK.topic,list=TKB[tp].map((e,i)=>i),key=tp,un=list.filter(i=>!TK.seen[key+i]);if(un.length<5){list.forEach(i=>delete TK.seen[key+i]);un=list}
+  TK.cur=TK.cur&&TK.cur.tp==tp&&TK.cur.ok?TK.cur:{tp:tp,ok:1,ids:un.sort(()=>Math.random()-.5).slice(0,5)};
+  let r2=row();TK.cur.ids.forEach(i=>{let e=TKB[tp][i];r2.appendChild(tkBtn(e[0],"#eef6ff",()=>tkAsk(tp,i),"tkq"))});
+  row().appendChild(tkBtn("🔄 More questions","#ffd23f",()=>{TK.cur.ids.forEach(i=>TK.seen[tp+i]=1);TK.cur=null;tkPanel()},"tkmore"))}
+ if(TK.mode=="quiz"&&TK.quiz){let q=TK.quiz,r2=row();
+  let h=document.createElement("div");h.style.cssText="width:100%;text-align:center;color:#ffe14a;font-size:24px;font-weight:bold;margin:6px";h.textContent="🧠 "+q.q[0];r2.appendChild(h);
+  q.order.forEach(ci=>{let b=tkBtn(q.q[1][ci],q.done?(ci==q.q[2]?"#8f8":(ci==q.pick?"#fcc":"#eee")):"#fff",()=>tkQuizPick(ci),"tkch");b.style.fontSize="24px";b.style.minWidth="140px";if(q.done)b.disabled=true;r2.appendChild(b)});
+  if(q.done)row().appendChild(tkBtn("➡️ Next question!","#ffd23f",()=>tkQuiz(),"tknext",1))}
+ if(TK.mode=="type"||TK.mode=="kitsay"){let say=TK.mode=="kitsay";
+  let d=document.createElement("div");d.id="tkline";d.style.cssText="background:#fff;color:#222;font-size:28px;font-weight:bold;min-height:48px;border-radius:14px;margin:6px auto;padding:6px 14px;max-width:92%;text-align:left;border:4px solid "+(say?"#5c5":"#39f");d.textContent=(TK.typed||"")+"▌";p.appendChild(d);
+  let wr=row();(say?["I think","I like","I love","My favorite is","is the best","is cool","The Sun is a star","Bats are blind","Dinosaurs are awesome"]:["What","Why","How","Who","Where","Is","Can","Do","many","the","a","dinosaur","space","animal","joke","?"]).forEach(w=>{let b=tkBtn(w,"#fff6c8",()=>tkType(w==="?"?"?":(TK.typed&&!/ $/.test(TK.typed)?" ":"")+w+" "),"tkw");b.style.fontSize="18px";b.style.minHeight="50px";wr.appendChild(b)});
+  const keys=(s)=>{let kr=row();s.split("").forEach(k=>{let b=tkBtn(k,"#eef2ff",()=>tkType(k.toLowerCase()),"tkk_"+k);b.style.minWidth="50px";b.style.padding="6px";b.style.margin="3px";kr.appendChild(b)})};
+  keys("ABCDEFGHIJKLM");keys("NOPQRSTUVWXYZ");keys("0123456789+-×÷");
+  let ar=row();ar.appendChild(tkBtn("␣ space","#eee",()=>tkType(" "),"tksp"));ar.appendChild(tkBtn("⌫","#fbb",()=>{TK.typed=TK.typed.slice(0,-1);tkLine()},"tkbs"));ar.appendChild(tkBtn("🧹 Clear","#eee",()=>{TK.typed="";tkLine()},"tkclr"));
+  let SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(SR)ar.appendChild(tkBtn("🎤 Talk","#ffb3e6",tkMic,"tkmic"));
+  ar.appendChild(tkBtn(say?"✅ Say it!":"✅ Ask!","#7f7",()=>tkTyped(),"tkgo",1))}}
+function tkType(s){TK.typed=(TK.typed+s).slice(0,90);tkLine()}
+function tkLine(){let d=document.getElementById("tkline");if(d)d.textContent=(TK.typed||"")+"▌"}
+function tkTyped(){let q=TK.typed.trim();if(!q){tkSay(TKC[TK.talk],TK.mode=="kitsay"?"Tap words or letters to tell me something!":"Tap letters or words to ask me anything!");return}
+ let r=tkAnswer(q,TK.mode=="kitsay"?"say":"ask",TKC[TK.talk]);TK.lastR=r;tkSay(TKC[TK.talk],r.a,q);tkChat(q);TK.typed="";tkLine()}
+function tkAsk(tp,i){let e=TKB[tp][i],c=TKC[TK.talk];TK.seen[tp+i]=1;let a=tp=="jokes"?e[1]:e[1];tkSay(c,a,e[0]);TK.lastR={a:a,k:tp=="jokes"?"joke":"fact"};tkChat(tp+i)}
+function tkChat(k){TK.chat++;if(!TK.asked[k]&&Object.keys(TK.asked).length<60){TK.asked[k]=1;tkReward(TK.chat%5==0?1:0,1)}else if(TK.chat%5==0)tkReward(1,0)}
+function tkQuiz(){let c=TKC[TK.talk],tps=c.topics.filter(tp=>TKQ[tp]),all=[];tps.forEach(tp=>TKQ[tp].forEach((q,i)=>all.push([tp,i])));if(!all.length)return;
+ let un=all.filter(a=>!TK.qseen[a[0]+a[1]]);if(!un.length){all.forEach(a=>delete TK.qseen[a[0]+a[1]]);un=all}
+ let pk=tkPick(un);TK.qseen[pk[0]+pk[1]]=1;let q=TKQ[pk[0]][pk[1]];TK.quiz={q:q,order:q[1].map((_,i)=>i).sort(()=>Math.random()-.5),done:0,pick:-1};TK.mode="quiz";tkSay(c,q[0]);tkPanel()}
+function tkQuizPick(ci){let q=TK.quiz,c=TKC[TK.talk];if(!q||q.done)return;q.done=1;q.pick=ci;
+ if(ci==q.q[2])tkSay(c,tkPick(TKRIGHT)+" "+q.q[3]);else tkSay(c,"Great try, Kit! "+q.q[3]+" Now you know it — so you got it right too! ⭐");
+ TK.quizN=(TK.quizN||0)+1;tkReward(1,2);tkPanel()}
+function tkMic(){let SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return;let c=TKC[TK.talk];try{let r=new SR();TK.sr=r;r.lang="en-US";r.interimResults=false;r.maxAlternatives=1;
+ r.onresult=e=>{TK.typed=(e.results[0][0].transcript||"").slice(0,90);tkLine();tkTyped()};r.onerror=()=>tkSay(c,"Oops, I didn't hear that. Try again, or tap the letters!");
+ tkSay(c,"I'm listening… 🎤");r.start()}catch(e){tkSay(c,"The microphone isn't working here — tap the letters instead!")}}
+function tkTalk(i){if(i<0||!TKC[i])return;TK.talk=i;TK.mode="topic";TK.topic=TKC[i].topics[0];TK.cur=null;TK.hold=0;TK.goal=null;TK.f=TKC[i].x>TK.x?1:-1;tkSay(TKC[i],TKC[i].hi);tkPanel()}
+function tkBye(){let c=TKC[TK.talk];if(c)tkSay(c,"Bye, Kit! Come back and talk anytime! 👋");TK.talk=-1;TK.mode="walk";TK.quiz=null;TK.near=-2;tkPanel()}
+function tkTTS(){TK.tts=!TK.tts;try{localStorage.heroTalkTTS=TK.tts?"1":"0"}catch(e){}if(!TK.tts&&window.speechSynthesis)speechSynthesis.cancel();let b=document.getElementById("tktts");if(b)b.textContent=TK.tts?"🔊 Read aloud: ON":"🔇 Read aloud: OFF"}
+function tkKey(e){if(!TK.open)return;let k=e.key;e.stopImmediatePropagation();
+ if(TK.mode=="type"||TK.mode=="kitsay"){if(k.length==1&&/[a-z0-9 ?+\-*\/.,']/i.test(k)){tkType(k.toLowerCase());e.preventDefault();return}if(k=="Backspace"){TK.typed=TK.typed.slice(0,-1);tkLine();e.preventDefault();return}if(k=="Enter"){tkTyped();e.preventDefault();return}}
+ if(k=="Escape"){if(TK.mode=="walk")tkClose();else tkBye();return}
+ if(TK.mode=="walk"){if(k=="ArrowLeft"||k=="a"){TK.goal=null;TK.hold=e.type=="keydown"?-1:0}if(k=="ArrowRight"||k=="d"){TK.goal=null;TK.hold=e.type=="keydown"?1:0}if(e.type=="keydown"&&(k=="Enter"||k==" "||k=="ArrowUp")&&TK.near>=0){tkTalk(TK.near);e.preventDefault()}}}
+window.addEventListener("keydown",tkKey,true);window.addEventListener("keyup",e=>{if(!TK.open)return;e.stopImmediatePropagation();if(["ArrowLeft","ArrowRight","a","d"].includes(e.key))TK.hold=0},true);
+function tkOpen(){if(on||document.getElementById("tkov"))return;TK.open=1;TK.mode="walk";TK.talk=-1;TK.near=-2;TK.x=180;TK.cam=0;TK.hold=0;TK.goal=null;TK.err=null;
+ let o=document.createElement("div");o.id="tkov";o.style.cssText="position:fixed;inset:0;z-index:99990;background:linear-gradient(#2a1f66,#1d1446);overflow-y:auto;overflow-x:hidden;box-sizing:border-box;-webkit-overflow-scrolling:touch;font-family:sans-serif;text-align:center;padding-bottom:20px";
+ o.innerHTML='<div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;padding:4px"></div><canvas id="tkcv" width="900" height="420" style="display:block;margin:0 auto;max-width:100%;max-height:44vh;border-radius:14px;touch-action:manipulation"></canvas><div id="tksay" style="background:#fff;color:#222;font-size:clamp(20px,2.7vw,26px);line-height:1.3;border-radius:18px;margin:8px auto;padding:10px 16px;max-width:880px;width:92%;min-height:40px;text-align:left;border:4px solid #ffd23f;box-sizing:border-box"></div><div id="tkpanel"></div>';
+ document.body.appendChild(o);let top=o.firstChild;
+ top.appendChild(tkBtn("🚪 Leave Town","#fbb",tkClose,"tkleave"));let hd=document.createElement("span");hd.id="tkhud";hd.style.cssText="color:#ffe14a;font-size:22px;font-weight:bold;padding:0 10px";top.appendChild(hd);
+ if(window.speechSynthesis)top.appendChild(tkBtn(TK.tts?"🔊 Read aloud: ON":"🔇 Read aloud: OFF","#cfe",tkTTS,"tktts"));
+ let h=document.createElement("span");h.style.cssText="color:#fff;font-size:22px;font-weight:bold";h.textContent="🗣️ Talking Town";top.insertBefore(h,top.firstChild);
+ tkHud();tkSay(null,"🗣️ Welcome to Talking Town! No fighting here — just friends to talk to. Walk to someone and tap 💬 Talk!");
+ let cv=document.getElementById("tkcv");cv.addEventListener("pointerdown",e=>{if(TK.mode!="walk")return;let rc=cv.getBoundingClientRect(),gx=(e.clientX-rc.left)/rc.width*900+TK.cam,gy=(e.clientY-rc.top)/rc.height*420;
+  let hit=TKC.findIndex(c=>Math.abs(c.x-gx)<50&&gy>350-170&&gy<360);if(hit>=0){TK.goal=TKC[hit].x-80*(TK.x<TKC[hit].x?1:-1);TK.goTalk=hit}else{TK.goal=Math.max(60,Math.min(TK.W-60,gx));TK.goTalk=-1}});
+ tkPanel();cancelAnimationFrame(TK.raf);TK.raf=requestAnimationFrame(tkTick)}
+function tkClose(){TK.open=0;cancelAnimationFrame(TK.raf);try{if(window.speechSynthesis)speechSynthesis.cancel();if(TK.sr)TK.sr.abort()}catch(e){}let o=document.getElementById("tkov");if(o)o.remove();try{showMenu()}catch(e){}}
+(function(){try{let rb=document.getElementById("raceb");if(!rb||document.getElementById("talkb"))return;let b=document.createElement("button");b.id="talkb";b.textContent="🗣️ Talking Level";b.style.cssText="font-size:26px;padding:12px 30px;background:#ffb3e6";b.onclick=()=>{if(menu.style.display=="none")return;tkOpen()};rb.parentNode.insertBefore(b,rb.nextSibling);rb.parentNode.insertBefore(document.createTextNode(" "),b)}catch(e){TK.err="ui:"+e}})();
+
 </script></body></html>
