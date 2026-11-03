@@ -37,7 +37,7 @@ body.full h1{display:none}body.full canvas{max-width:none;width:100vw;height:cal
 <div id="pp" style="display:none;position:fixed;inset:0;background:#120a24f2;z-index:10;overflow:auto;padding:10px"><h2 style="color:#ffd800;margin:6px">Pick a power! 👇</h2><div id="ppl"></div><button id="ppx" style="background:#f66;font-size:24px">✖ Close</button></div><div id="over"><h2 id="otext"></h2><p id="oscore" style="font-size:24px"></p><div id="chest" style="display:none;font-size:90px;cursor:pointer;animation:bob 1s infinite">🧰</div><p id="ctext" style="font-size:24px;color:#ffd800"></p><button id="again" style="background:#ffd800">🔄 Try Again!</button><button id="home" style="background:#9cf">🏠 New Heroes</button></div>
 <script>
 // ---------- data ----------
-const C=[{n:"Subsonic",c:"#eee",sp:11,dm:18,p:"Sonic Boom",boss:1},{n:"Mario",c:"#e22",sp:4,dm:9,p:"Fireball"},{n:"Sonic",c:"#26f",sp:7,dm:7,p:"Spin Dash"},{n:"Knuckles",c:"#c11",sp:4.5,dm:11,p:"Ground Pound"},{n:"Hulk",c:"#3c3",sp:3.5,dm:14,p:"Smash"},{n:"Iron Man",c:"#d90",sp:5,dm:8,p:"Repulsor Blast",fly:1},{n:"Alice",c:"#f4c",sp:5,dm:9,p:"Web Shot"},{n:"Dopey",c:"#fd0",sp:9,dm:9,p:"Golden Spin Dash"},{n:"Captain Kid",c:"#e44",sp:6,dm:9,p:"Cape Dash"},{n:"Bolt the Robot",c:"#9ab",sp:4.5,dm:11,p:"Laser Beam"},{n:"Ember the Dragon",c:"#f73",sp:5,dm:10,p:"Fire Breath",fly:1},{n:"Ninja Kitty",c:"#a6f",sp:7.5,dm:8,p:"Star Throw"},{n:"Batman",c:"#334",sp:6,dm:10,p:"Batarang"},{n:"Superman",c:"#24f",sp:7,dm:12,p:"Heat",fly:1},{n:"Spider-Man",c:"#d22",sp:7,dm:9,p:"Web"},{n:"Wonder Woman",c:"#c24",sp:6,dm:11,p:"Golden"},{n:"Pizza Pal",c:"#fb3",sp:5.5,dm:9,p:"Pepperoni"},{n:"Robo Rex",c:"#6a8",sp:4.5,dm:13,p:"Dino"},{n:"Sparkle",c:"#f9e",sp:7,dm:9,p:"Rainbow"},{n:"Astro",c:"#eef",sp:5,dm:9,p:"Moon",fly:1},{n:"Zoom",c:"#fa3",sp:10,dm:8,p:"Cheetah"},{n:"Inky",c:"#a5d",sp:5,dm:10,p:"Eight"},{n:"Frosty Fox",c:"#cfe6ff",sp:7,dm:9,p:"Ice Skate Dash"},{n:"Soldiers of Fire",c:"#ff7a1a",sp:6.5,dm:10,p:"Fireball Toss"},{n:"Wizzle the Wonder Wizard",c:"#7b4ae0",sp:13,dm:9,p:"Sparkle Bolt"},{n:"Gooey Gus",c:"#5fd35f",sp:6.5,dm:9,p:"Slime Ball Toss"},{n:"The Smartest Man on Earth",c:"#3fb0a8",sp:2,dm:11,p:"Brain Beam"}];
+const C=[{n:"Subsonic",c:"#eee",sp:11,dm:18,p:"Sonic Boom",boss:1},{n:"Mario",c:"#e22",sp:4,dm:9,p:"Fireball"},{n:"Sonic",c:"#26f",sp:7,dm:7,p:"Spin Dash"},{n:"Knuckles",c:"#c11",sp:4.5,dm:11,p:"Ground Pound"},{n:"Hulk",c:"#3c3",sp:3.5,dm:14,p:"Smash"},{n:"Iron Man",c:"#d90",sp:5,dm:8,p:"Repulsor Blast",fly:1},{n:"Alice",c:"#f4c",sp:5,dm:9,p:"Web Shot"},{n:"Dopey",c:"#fd0",sp:9,dm:9,p:"Golden Spin Dash"},{n:"Captain Kid",c:"#e44",sp:6,dm:9,p:"Cape Dash"},{n:"Bolt the Robot",c:"#9ab",sp:4.5,dm:11,p:"Laser Beam"},{n:"Ember the Dragon",c:"#f73",sp:5,dm:10,p:"Fire Breath",fly:1},{n:"Ninja Kitty",c:"#a6f",sp:7.5,dm:8,p:"Star Throw"},{n:"Batman",c:"#334",sp:6,dm:10,p:"Batarang"},{n:"Superman",c:"#24f",sp:7,dm:12,p:"Heat",fly:1},{n:"Spider-Man",c:"#d22",sp:7,dm:9,p:"Web"},{n:"Wonder Woman",c:"#c24",sp:6,dm:11,p:"Golden"},{n:"Pizza Pal",c:"#fb3",sp:5.5,dm:9,p:"Pepperoni"},{n:"Robo Rex",c:"#6a8",sp:4.5,dm:13,p:"Dino"},{n:"Sparkle",c:"#f9e",sp:7,dm:9,p:"Rainbow"},{n:"Astro",c:"#eef",sp:5,dm:9,p:"Moon",fly:1},{n:"Zoom",c:"#fa3",sp:10,dm:8,p:"Cheetah"},{n:"Inky",c:"#a5d",sp:5,dm:10,p:"Eight"},{n:"Frosty Fox",c:"#cfe6ff",sp:7,dm:9,p:"Ice Skate Dash"},{n:"Soldiers of Fire",c:"#ff7a1a",sp:6.5,dm:10,p:"Fireball Toss"},{n:"Wizzle the Wonder Wizard",c:"#7b4ae0",sp:13,dm:9,p:"Sparkle Bolt"},{n:"Gooey Gus",c:"#5fd35f",sp:6.5,dm:9,p:"Slime Ball Toss"},{n:"The Smartest Man on Earth",c:"#3fb0a8",sp:2,dm:11,p:"Brain Beam"},{n:"Scooping Poop Man",c:"#8a5a2b",sp:6,dm:10,p:"Poop Blob Attack"}];
 const PU=[{id:"speed",n:"⚡ Super Speed",c:"#ff0"},{id:"jump",n:"🦘 Double Jump",c:"#0f8"},{id:"shield",n:"🛡️ Shield",c:"#0cf"},{id:"heart",n:"💖 Health Boost",c:"#f6a"},{id:"high",n:"🌟 Super High Jump",c:"#fd4"},{id:"giant",n:"🦖 Giant Power",c:"#8f4"},{id:"magnet",n:"🧲 Ring Magnet",c:"#f44"},{id:"star",n:"⭐ Star Power",c:"#ff8"},{id:"double",n:"✖️2 Double Points",c:"#adf"},{id:"fire",n:"🔥 Fire Fists",c:"#f80"},{id:"ghost",n:"👻 Invisible Flight",c:"#ddf"},{id:"lift",n:"🏋️ Super Strength",c:"#fa0"},{id:"tele",n:"🌀 Teleport",c:"#0dd"}];
 const MOODS=[
  {id:"silly",n:"😜 Silly",nick:["Captain Wobblebottom","Mister Noodle Nose","Sir Gigglepants"],tip:"Silly laughs so hard he falls asleep! Hit him while he sleeps for DOUBLE hurt!",
@@ -2237,7 +2237,7 @@ Object.assign(RF,{
 function smClose(){let d=document.getElementById("smtp");if(d)d.style.display="none";RL.paused=0}
 function smOpen(){if(!P)return;let d=document.getElementById("smtp");if(!d){d=document.createElement("div");d.id="smtp";d.style.cssText="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:#0d1830f0;border:3px solid #7ff;padding:8px;border-radius:16px;z-index:30;display:grid;grid-template-columns:repeat(4,86px);gap:6px;justify-content:center;font:bold 12px sans-serif;color:#fff;touch-action:manipulation";document.body.appendChild(d)}
  d.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#7ff;font:bold 15px sans-serif">🧠 Teleport where? <span style="color:#bbb;font-size:11px">(game paused)</span></div>';
- const ids=["six","ohio","texas","mexico","china","greece","twit","w:mario","w:ice","w:halloween"];
+ const ids=["six","ohio","texas","mexico","china","greece","twit","w:mario","w:ice","w:halloween","poop"];
  let mk=(html,fn,bg)=>{let b=document.createElement("button");b.innerHTML=html;b.style.cssText="height:56px;padding:2px;border-radius:12px;border:2px solid #fff;background:"+(bg||"#e3f4ff")+";color:#123;font:bold 12px sans-serif;line-height:1.1";let go=ev=>{ev.preventDefault();ev.stopPropagation();fn()};b.addEventListener("click",go);d.appendChild(b)};
  ids.forEach(id=>{let p=PLACES.find(q=>q[0]==id);if(!p)return;mk('<span style="font-size:22px">'+p[1]+'</span><br>'+p[2],()=>{smClose();try{wzGo(id)}catch(e){console.warn(e)}})});
  mk('<span style="font-size:20px">✖</span><br>Stay here',smClose,"#ffd6d6");
@@ -2397,5 +2397,123 @@ function h2Draw(){if(!hdOn()||!H2.s)return;try{x.save();var A=HD.A;
  if(H2.ch>0&&!gnd(E)){x.font="20px sans-serif";x.textAlign="center";x.fillText("🚀",E.x-14,E.y+14);x.fillText("🚀",E.x+14,E.y+14)}
  x.restore()}catch(e){x.restore()}}
 var _h2Over=realOver;realOver=function(){_h2Over.apply(this,arguments);h2Draw()};
+
+/* ===== KIT'S HERO: SCOOPING POOP MAN 💩 — PG cartoon poop powers (smiling 💩 emoji style, never gross-out) =====
+   Jet Flying, Poop Blob Attack (Ewww! + mud slip), Poop & Pee Sky Rain (yellow is ONLY ever ground puddles), Giant Poop Pile Hide (counts as invisible: everyone except a Noodle is fooled),
+   Poop World Transform & Teleport, Poop-Top Teleport (any item arrives with a 💩 on top). Also a bad guy with FOE2 scaling + 3 ❗-warned signature moves. */
+var PMN="Scooping Poop Man";
+try{if(!C.some(q=>q.n==PMN))C.push({n:PMN,c:"#8a5a2b",sp:6,dm:10,p:"Poop Blob Attack"})}catch(e){}
+RL.LK[PMN]={k:"human",sk:"tan",glove:"skin",iris:"#5a3a1a"};
+COOL[PMN]=["💩 Scooping Poop Man — the friendliest clean-up hero","🚀 Jet Flying with puffy cartoon jet clouds","🟤 Poop Blob Attack: Ewww! Bad guys slip in the mud","🌧️ Poop & Pee Sky Rain: slippy yellow puddles on the ground","🙈 Giant Poop Pile Hide (only a Noodle can spot him!)","🚽 Poop World Transform & Teleport","🎁 Poop-Top Teleport: any item arrives with a 💩 on top","🧢 Cap, blue overalls, green gloves, boots & his trusty scooper"];
+function pmDraw(a,X,y,f,ph,run){const ld=RL.LD(a.x),S=RL.st(a),fz=a.frz>0,reach=(typeof r4Reach=="function")?r4Reach(a):0,sw=run?Math.sin(t/9)*9:0;x.save();x.lineCap="round";x.lineJoin="round";
+ const sk=fz?["#f4fdff","#d6f0fa","#9cc2d2"]:["#f8d6b4","#dfa97f","#a8724c"],OV=fz?["#e6f6ff","#bfe2f2","#8fb8cc"]:["#6a9de0","#3a6fb0","#22467a"],SH=fz?["#f0faff","#cfeaf6"]:["#ffb35a","#e0822a"],GL=fz?"#cfefff":"#4fb84f",CAP=fz?"#e6f6ff":"#ff8a1f";
+ const og=x.createLinearGradient(X-20,0,X+20,0);og.addColorStop(ld>0?1:0,OV[0]);og.addColorStop(.5,OV[1]);og.addColorStop(ld>0?0:1,OV[2]);
+ /* jet pack on his back */
+ let jx=X-f*19,jg=x.createLinearGradient(jx-9,0,jx+9,0);jg.addColorStop(0,"#eef2f6");jg.addColorStop(.5,"#aeb8c4");jg.addColorStop(1,"#6a7684");x.fillStyle=jg;rr(jx-9,y-95,18,42,8);x.fill();x.strokeStyle="rgba(40,50,60,.5)";x.lineWidth=1.2;x.stroke();
+ x.fillStyle=fz?"#cfefff":"#e0262e";rr(jx-6,y-91,12,6,3);x.fill();x.fillStyle="#59606a";rr(jx-6,y-56,12,7,2);x.fill();x.fillStyle="rgba(255,255,255,.5)";x.fillRect(jx-6,y-88,2.5,28);
+ if(a.fly||a.pmjet){for(let i=0;i<4;i++){let r=5+i*3.2+Math.sin(t/3+i)*1.4;x.fillStyle="rgba(255,255,255,"+(.9-i*.2)+")";x.beginPath();x.arc(jx+Math.sin(t/4+i)*3,y-44+i*11,r,0,7);x.fill();x.strokeStyle="rgba(150,170,190,"+(.5-i*.1)+")";x.lineWidth=1;x.stroke()}}
+ /* back arm (shirt sleeve + green glove) */
+ let bh=[X-f*16-sw*.8,y-52];x.strokeStyle=SH[1];x.lineWidth=10;x.beginPath();x.moveTo(X-f*13,y-84);x.quadraticCurveTo(X-f*18-sw*.4,y-72,X-f*17-sw*.6,y-64);x.stroke();x.strokeStyle=sk[2];x.lineWidth=8;x.beginPath();x.moveTo(X-f*17-sw*.6,y-64);x.lineTo(bh[0],bh[1]+2);x.stroke();x.fillStyle=shade(GL,-30);x.beginPath();x.arc(bh[0],bh[1]+3,6,0,7);x.fill();
+ /* legs: overalls + green rubber boots */
+ [-1,1].forEach(sd=>{let p=sd*sw,back=sd==-f;x.strokeStyle=back?OV[2]:OV[1];x.lineWidth=11;x.beginPath();x.moveTo(X+sd*6,y-46);x.quadraticCurveTo(X+sd*6+p*.6,y-28,X+sd*6+p,y-14);x.stroke();
+  let bg2=x.createLinearGradient(0,y-18,0,y+2);bg2.addColorStop(0,fz?"#dff":"#5fc85f");bg2.addColorStop(1,fz?"#9cc":"#2a7a2a");x.fillStyle=bg2;rr(X+sd*6+p-6,y-18,12,14,3);x.fill();x.beginPath();x.ellipse(X+sd*6+p+f*4,y-3,9.5,5,0,0,7);x.fill();x.fillStyle="rgba(255,255,255,.35)";x.beginPath();x.ellipse(X+sd*6+p+f*6,y-6,3,1.3,0,0,7);x.fill()});
+ /* orange t-shirt torso */
+ let sg=x.createLinearGradient(X-16,0,X+16,0);sg.addColorStop(ld>0?1:0,SH[0]);sg.addColorStop(ld>0?0:1,SH[1]);x.fillStyle=sg;x.beginPath();x.moveTo(X-16,y-92);x.lineTo(X+16,y-92);x.lineTo(X+15,y-46);x.lineTo(X-15,y-46);x.closePath();x.fill();
+ x.fillStyle=pat(RL.tex().weave,X,y);x.globalAlpha*=.25;x.fillRect(X-16,y-92,32,46);x.globalAlpha=1;function pat(p,X,Y){return RL.pat(p,X,Y)}
+ /* overalls bib + straps + 💩 patch */
+ x.fillStyle=og;x.beginPath();x.moveTo(X-12,y-76);x.lineTo(X+12,y-76);x.lineTo(X+15,y-44);x.quadraticCurveTo(X,y-40,X-15,y-44);x.closePath();x.fill();x.strokeStyle="rgba(20,30,60,.45)";x.lineWidth=1;x.stroke();
+ x.strokeStyle=OV[1];x.lineWidth=5;x.beginPath();x.moveTo(X-10,y-75);x.lineTo(X-12,y-92);x.moveTo(X+10,y-75);x.lineTo(X+12,y-92);x.stroke();
+ x.fillStyle="#ffd84a";x.beginPath();x.arc(X-10,y-74,2.2,0,7);x.arc(X+10,y-74,2.2,0,7);x.fill();
+ x.strokeStyle="rgba(255,255,255,.5)";x.setLineDash([2,2]);x.lineWidth=1;rr(X-8,y-70,16,14,3);x.stroke();x.setLineDash([]);x.font="11px serif";x.textAlign="center";x.textBaseline="middle";x.fillText("💩",X,y-62.5);x.textBaseline="alphabetic";x.textAlign="left";
+ let ao=x.createRadialGradient(X,y-92,1,X,y-90,15);ao.addColorStop(0,"rgba(20,10,30,.35)");ao.addColorStop(1,"rgba(20,10,30,0)");x.fillStyle=ao;x.fillRect(X-16,y-99,32,18);
+ /* neck + head */
+ x.fillStyle=sk[2];x.fillRect(X-4,y-100,8,9);
+ x.fillStyle=sk[1];x.beginPath();x.ellipse(X-f*13,y-112,3.6,5,0,0,7);x.fill();
+ let hg=x.createRadialGradient(X+ld*6,y-126,2,X+ld*1.5,y-114,26);hg.addColorStop(0,sk[0]);hg.addColorStop(.45,sk[1]);hg.addColorStop(1,sk[2]);x.fillStyle=hg;x.beginPath();x.ellipse(X,y-115,16,20,0,0,7);x.fill();x.strokeStyle="rgba(60,30,20,.5)";x.lineWidth=1;x.stroke();
+ x.save();x.beginPath();x.ellipse(X,y-115,16,20,0,0,7);x.clip();let tg=x.createLinearGradient(X+ld*6,0,X-ld*18,0);tg.addColorStop(0,"rgba(40,10,30,0)");tg.addColorStop(1,"rgba(40,10,30,.26)");x.fillStyle=tg;x.fillRect(X-20,y-140,40,50);x.restore();
+ /* brown hair tufts under the cap */
+ const hc=fz?"#e6f2f8":"#6a4020";[[-14,-119,5],[-15,-110,4.2],[-9,-126,4.4],[12,-125,3]].forEach(q=>{x.fillStyle=hc;x.beginPath();x.arc(X-f*Math.abs(q[0])*(q[0]<0?1:-1),y+q[1],q[2],0,7);x.fill()});
+ /* orange cap with a smiling 💩 logo + brim pointing forward */
+ let cg=x.createLinearGradient(0,y-142,0,y-122);cg.addColorStop(0,shade(CAP,25));cg.addColorStop(1,shade(CAP,-35));x.fillStyle=cg;x.beginPath();x.ellipse(X,y-127,17,13,0,Math.PI,0);x.fill();x.fillRect(X-17,y-128,34,4);
+ x.fillStyle=shade(CAP,-45);x.beginPath();x.ellipse(X+f*17,y-125,13,3.6,f*.08,0,7);x.fill();x.fillStyle="rgba(255,255,255,.35)";x.beginPath();x.ellipse(X-ld*5,y-136,6,2.5,0,0,7);x.fill();
+ x.font="10px serif";x.textAlign="center";x.textBaseline="middle";x.fillText("💩",X+f*5,y-132);x.textBaseline="alphabetic";x.textAlign="left";
+ /* face (Realism 5 helpers) */
+ const nE=[X+f*8.5,y-114],fE=[X-f*2.5,y-114.5];RL.eye(fE[0],fE[1],3.8,4.6,"#5a3a1a",S,ld,0,f,"#4a2a12");RL.eye(nE[0],nE[1],4.5,5,"#5a3a1a",S,ld,0,f,"#4a2a12");
+ RL.brow(nE[0],y-121.5,9,f,-f,S.mood,"#5a3418",2.6);RL.brow(fE[0],y-121.5,7,f,f,S.mood,"#5a3418",2.6);
+ let ng=x.createRadialGradient(X+f*16,y-109,.4,X+f*15,y-107,5);ng.addColorStop(0,"rgba(255,255,255,.5)");ng.addColorStop(.5,"rgba(255,255,255,0)");ng.addColorStop(1,"rgba(110,40,20,.35)");x.fillStyle=ng;x.beginPath();x.ellipse(X+f*15,y-107,4,5,0,0,7);x.fill();
+ RL.blush(X+f*10.5,y-104,.25);RL.mouth(X+f*8.5,y-100,S.mood,f,"#8a3a2a",5);
+ /* front arm (sleeve, forearm, green glove) holding a pooper-scooper */
+ let hx=X+f*(17+reach),hy=y-54;
+ x.strokeStyle=fz?"#cfefff":"#8a5a2b";x.lineWidth=3;x.beginPath();x.moveTo(hx-f*2,hy-12);x.lineTo(hx+f*20,y-8);x.stroke();
+ x.fillStyle=fz?"#dff":"#2f9e3f";x.beginPath();x.moveTo(hx+f*12,y-10);x.lineTo(hx+f*30,y-10);x.lineTo(hx+f*33,y-1);x.lineTo(hx+f*10,y-1);x.closePath();x.fill();x.fillStyle="rgba(255,255,255,.35)";x.fillRect(hx+f*(f>0?13:-29),y-9,16,2);
+ x.strokeStyle=SH[1];x.lineWidth=10;x.beginPath();x.moveTo(X+f*12,y-85);x.quadraticCurveTo(X+f*(18+reach*.4),y-76,X+f*(18+reach*.6),y-70);x.stroke();
+ x.strokeStyle=sk[1];x.lineWidth=8;x.beginPath();x.moveTo(X+f*(18+reach*.6),y-70);x.lineTo(hx,hy+1);x.stroke();
+ RL.hand(a,X,y,f,GL,reach);
+ x.restore()}
+CUSTOMD[PMN]=pmDraw;
+/* ---- helpers ---- */
+const PMG={g:"💩 Poop Powers",c:"#c98a4a"};
+var PMPUD=[],PMQ=[];
+function pmLater(fn){PMQ.push(fn)}
+(function(){const o=objTick;objTick=function(){let r=o.apply(this,arguments);let q=PMQ;PMQ=[];q.forEach(fn=>{try{fn()}catch(e){console.warn(e)}});return r}})();
+function pmSplat(cx,cy,n,cols){for(let i=0;i<(n||10);i++)fx.push({x:cx+(Math.random()-.5)*30,y:cy,vx:(Math.random()-.5)*9,vy:-2-Math.random()*6,l:28,c:(cols||["#8a5a2b","#b07a40","#d9a066"])[i%3]})}
+function pmPlop(){try{tune([300,180,240],70,"sine",.12)}catch(e){}}
+/* a slippy ground puddle: kind "mud" (brown) or "yel" (yellow) — only foes slip */
+function pmPuddle(a,px,l,kind){if(PMPUD.length>=7){let o=PMPUD.shift();if(o)o.l=Math.min(o.l,20)}let o=obj({k:"pmpud",x:clampX(px),l:l||320,cd:0,w:kind=="yel"?44:52,kind,u:o=>{if(o.cd>0)o.cd--;if(E&&o.cd<=0&&Math.abs(E.x-o.x)<o.w+8&&E.y>G-20){o.cd=55;let d=Math.sign(E.x-o.x)||(Math.random()<.5?-1:1);E.kb=d*14;E.tspin=Math.max(E.tspin||0,22);dizzy(E,40);hurt(a,E,2);pmSplat(E.x,G-6,6,kind=="yel"?["#ffe14d","#fff07a","#ffd21a"]:null);say(lineSay(kind=="yel"?["Whoa! Slippy yellow puddle! 💛","Wheee! Slip-slide! 💛","Oopsie! So slippy!"]:["Ewww! Slippy mud! 🟤","Whoa! Mud slide! Wheee!","Squish! I slipped in the mud!"]),45)}if(o.l<=1){let i=PMPUD.indexOf(o);if(i>=0)PMPUD.splice(i,1)}},
+ d:o=>{x.save();x.globalAlpha=Math.min(.9,o.l/40);let w=o.w+Math.sin(t/12+o.x)*2,g=x.createRadialGradient(o.x-8,G-3,2,o.x,G-1,w);if(o.kind=="yel"){g.addColorStop(0,"#fff7a8");g.addColorStop(.6,"#ffe14d");g.addColorStop(1,"rgba(240,200,40,.7)")}else{g.addColorStop(0,"#b07a40");g.addColorStop(.6,"#7a4a22");g.addColorStop(1,"rgba(90,55,25,.75)")}x.fillStyle=g;x.beginPath();x.ellipse(o.x,G-1,w,9,0,0,7);x.fill();x.fillStyle="rgba(255,255,255,.6)";x.beginPath();x.ellipse(o.x-w*.35,G-4,w*.22,2,0,0,7);x.fill();x.beginPath();x.arc(o.x+w*.3,G-3,1.6,0,7);x.fill();x.restore()}});PMPUD.push(o);return o}
+function pmJet(a){show("🚀 JET FLYING! Puff puff puff! 💨",60,34);talk("Jet flying! Puff puff!","force");a.fly=1;a.vy=-16;a.pmjet=1;try{tune([330,440,550],50,"triangle",.08)}catch(e){}
+ eff(a,{k:"pmjet",l:600,tick:(a,f,q)=>{a.pmjet=1;a.fly=1;if(a==P){if(k.arrowup)a.vy=-8;else if(k.arrowdown)a.vy=7;else a.vy=Math.min(a.vy,-.9+(a.y<G-280?.9:0))}else a.vy=a.y>G-220?-5:-.9;if(a.y<-600){a.y=-600;a.vy=Math.max(0,a.vy)}
+  if(t%3==0)fx.push({x:a.x-(a.f||1)*19+(Math.random()-.5)*8,y:a.y-40,vx:(Math.random()-.5)*2,vy:3+Math.random()*2,l:24,c:t%6?"#ffffff":"#e6eef6"});if(t%18==0)fx.push({x:a.x-(a.f||1)*19,y:a.y-30,vx:-(a.f||1)*1.5,vy:2.5,l:30,emo:"💨"})},
+  draw:(a,f,q)=>{x.save();x.font="bold 14px sans-serif";x.textAlign="center";x.fillStyle="rgba(0,0,0,.35)";rr(a.x-30,a.y+20,60,20,9);x.fill();x.fillStyle="#fff";x.fillText("🚀 "+Math.ceil(q.l/60)+"s",a.x,a.y+35);x.restore()},end:a=>{a.pmjet=0;a.sfall=1}})}
+function pmBlob(a){show("💩 POOP BLOB ATTACK! Splat! 💩",55,36);talk("Poop blob attack!","force");pmPlop();let f=a.f||1;
+ pe(a,{e:"💩",x:a.x+f*30,y:a.y-80,vx:f*12,vy:-3,g:.22,d:7,kb:f*10,kvy:-9,sz:36,l:150,rx:40,ry:70,land:q=>{pmSplat(q.x,G-10,8);let px=q.x;pmLater(()=>{if(on)pmPuddle(a,px,300,"mud")})},hit:q=>{if(!E)return;E.tspin=Math.max(E.tspin||0,40);dizzy(E,60);say(lineSay(["Ewww! 💩","Ewww! Poop blob! Hee hee!","EWWW! Gross-out goofy!"]),55);pmSplat(E.x,E.y-50,10);let px=E.x;pmLater(()=>{if(on)pmPuddle(a,px,300,"mud")})}})}
+function pmRain(a){if(!E)return;show("🌧️ POOP & PEE SKY RAIN! Look out below! 💩",60,34);talk("Poop sky rain!","force");try{tune([660,520,400],80,"sine",.1)}catch(e){}
+ let cx=E.x,cy=Math.min(G-300,E.y-300);
+ obj({k:"pmcloud",l:300,u:o=>{if(!E)return;cx+=Math.sign(E.x-cx)*Math.min(3,Math.abs(E.x-cx));o.x=cx;
+  if(o.l>30&&o.l%14==0)pe(a,{e:"💩",x:cx+(Math.random()-.5)*130,y:cy+24,vx:0,vy:6+Math.random()*2,d:3,kb:0,kvy:-4,sz:26,l:120,hit:()=>{if(Math.random()<.5)say(lineSay(["Ewww! 💩","Bonk! Ewww!","Ewww, poop rain!"]),40)}});
+  if(o.l>30&&o.l%8==0){let dx=0,ok=0;for(let tr=0;tr<6&&!ok;tr++){dx=cx+(Math.random()-.5)*220;ok=[P,E,T].every(b=>!b||Math.abs(b.x-dx)>60)}if(ok)pmLater(()=>obj({k:"pmdrop",x:dx,y:cy+26,vy:4,l:120,u:d=>{d.vy=Math.min(d.vy+.35,11);d.y+=d.vy;if([P,E,T].some(b=>b&&Math.abs(b.x-d.x)<46&&d.y>b.y-170)){d.l=0;return}if(d.y>=G-4){d.l=0;let near=PMPUD.find(p=>p.kind=="yel"&&Math.abs(p.x-d.x)<70);if(near){near.l=Math.max(near.l,360);near.w=Math.min(near.w+4,64)}else{let px=d.x;pmLater(()=>pmPuddle(a,px,380,"yel"))}}},d:d=>{x.save();x.fillStyle="#ffd21a";x.beginPath();x.moveTo(d.x,d.y-9);x.quadraticCurveTo(d.x+5,d.y-1,d.x,d.y+2);x.quadraticCurveTo(d.x-5,d.y-1,d.x,d.y-9);x.fill();x.fillStyle="rgba(255,255,255,.7)";x.beginPath();x.arc(d.x-1.5,d.y-2,1.2,0,7);x.fill();x.restore()}}))}},
+  d:o=>{x.save();x.globalAlpha=Math.min(1,o.l/30);let wb=Math.sin(t/10)*3;[[-60,8,30],[-25,-6,36],[20,-4,34],[58,8,28],[0,12,40]].forEach(c=>{let g=x.createRadialGradient(cx+c[0]-6,cy+c[1]-10,3,cx+c[0],cy+c[1],c[2]);g.addColorStop(0,"#ffffff");g.addColorStop(1,"#c9b8a4");x.fillStyle=g;x.beginPath();x.arc(cx+c[0],cy+c[1]+wb,c[2],0,7);x.fill()});
+   x.fillStyle="#3a2414";x.beginPath();x.arc(cx-14,cy+4+wb,3,0,7);x.arc(cx+14,cy+4+wb,3,0,7);x.fill();x.strokeStyle="#3a2414";x.lineWidth=2;x.beginPath();x.arc(cx,cy+8+wb,9,.2,Math.PI-.2);x.stroke();x.fillStyle="rgba(255,120,150,.45)";x.beginPath();x.arc(cx-24,cy+12+wb,5,0,7);x.arc(cx+24,cy+12+wb,5,0,7);x.fill();x.restore()}})}
+function pmPile(a){if(a!==P)return;show("🙈 GIANT POOP PILE HIDE! Shhh... only a Noodle can spot you!",80,30);talk("Shhh! I'm hiding in a giant poop pile!","force");pmPlop();let was=!!P.inv;P.inv=true;try{invb.style.background="#fff"}catch(e){}
+ eff(a,{k:"pmpile",l:480,tick:(a,f,q)=>{a.pmpile=1;P.inv=true;if(t%40==0)fx.push({x:a.x+(Math.random()-.5)*70,y:a.y-150,vx:0,vy:-.6,l:30,emo:"✨"})},
+  draw:(a,f,q)=>{x.save();let k2=Math.min(1,(480-q.l)/12,q.l/12),wb=Math.sin(t/14)*2;x.globalAlpha=.94*k2;x.font=(205+wb)+"px serif";x.textAlign="center";x.textBaseline="bottom";x.fillText("💩",a.x,a.y+34);x.textBaseline="alphabetic";x.globalAlpha=k2;x.font="bold 13px sans-serif";x.fillStyle="rgba(0,0,0,.35)";rr(a.x-42,a.y+20,84,20,9);x.fill();x.fillStyle="#fff";x.fillText("🙈 "+Math.ceil(q.l/60)+"s",a.x,a.y+35);x.restore()},
+  end:a=>{a.pmpile=0;if(!was){P.inv=false;try{invb.style.background="#889"}catch(e){}}pmSplat(a.x,a.y-40,14);say("Ta-da! Here I am! 💩",50)}})}
+function pmWorld(a){if(a!==P)return;let home=PLACE=="poop";show(home?"🚽 Bye-bye Poop World! Back home!":"🚽 POOP WORLD TRANSFORM! Swirl swirl... 💩",70,34);try{tune([784,659,523,392],70,"triangle",.12)}catch(e){}
+ for(let i=0;i<26;i++){let an=i/26*6.283;fx.push({x:a.x+Math.cos(an)*30,y:a.y-70+Math.sin(an)*30,vx:Math.cos(an)*7,vy:Math.sin(an)*7-1,l:40,emo:["💩","🚽","💨","✨"][i%4]})}
+ try{wzGo(home?"w:mario":"poop")}catch(e){console.warn(e)}}
+var PMIT=[["🎂","birthday cake"],["🧸","teddy bear"],["🏀","basketball"],["🍕","pizza"],["🛹","skateboard"],["⛄","snowman"],["🚗","toy car"],["🪑","chair"],["🎩","fancy hat"],["🍦","ice cream"]],PMII=0;
+function pmItem(a){if(!E)return;let it=PMIT[PMII++%PMIT.length],ex=clampX(E.x+(E.x>a.x?50:-50));show("🎁 POOP-TOP TELEPORT! A "+it[1]+" with a 💩 on top!",65,34);talk("Poop top teleport!","force");try{tune([1046,1318,1568],50,"sine",.1)}catch(e){}
+ for(let i=0;i<16;i++)fx.push({x:ex+(Math.random()-.5)*50,y:G-40-Math.random()*60,vx:(Math.random()-.5)*5,vy:-2,l:28,c:["#fff6a0","#b8f","#8ef","#f9c"][i%4]});
+ let said=0;obj({k:"pmitem",x:ex,l:330,u:o=>{if(!said&&E&&o.l<316){said=1;hold(E,70,"Ewww! Who put poop on my "+it[1]+"?! 💩");E.f=E.x<ex?1:-1}},d:o=>{x.save();let k2=Math.min(1,o.l/30),dr=Math.max(0,o.l-310)*6;x.globalAlpha=k2;emo(it[0],ex,G-24-dr,46,0);emo("💩",ex+2,G-58-dr,24,Math.sin(t/12)*.12);x.restore()}})}
+POW[PMN]=[["Scooper Mud Toss 🟤","shot",{d:12,v:13,c:"#fff"}],["Scooper Shield 🛡️","field"],["Snack Break 🍎","heal"]];
+reg(PMN,[["Jet Flying 🚀","pmjet",(a,b,f)=>pmJet(a),0,PMG],["Poop Blob Attack 💩","pmblob",(a,b,f)=>pmBlob(a),1,PMG],["Poop & Pee Sky Rain 🌧️","pmrain",(a,b,f)=>pmRain(a),1,PMG],["Giant Poop Pile Hide 🙈","pmpile",(a,b,f)=>pmPile(a),0,PMG],["Poop World Transform & Teleport 🚽","pmworld",(a,b,f)=>pmWorld(a),0,PMG],["Poop-Top Teleport 🎁","pmitem",(a,b,f)=>pmItem(a),1,PMG]]);
+POW[PMN]=POW[PMN].concat(POOL);
+try{RL.wrap()}catch(e){}
+/* bad-guy version: FOE2 scaling (automatic) + 3 ❗-warned signature moves */
+try{FOE2.S[PMN]=[["lob","Poop Blob Lob! 💩"],["zapL","Mud Slide Wave! 🟤"],["upper","Jet Puff Hop! 💨"]]}catch(e){}
+/* clear leftovers when a new fight starts */
+(function(){const o=startExtra;startExtra=function(){PMPUD=[];[P,E,T].forEach(a=>{if(a){a.pmjet=0;a.pmpile=0}});return o.apply(this,arguments)}})();
+
+/* ===== POOP WORLD 💩🚽 — a cute emoji-style world: toilets, fart clouds, puddles, dung beetles; day + night (Milky Way at night) ===== */
+PLACES.push(["poop","💩","Poop World","toilets, fart clouds & puddles"]);
+function pmFartCloud(cx,cy,s){let wb=Math.sin(t/16+cx)*2;x.save();x.globalAlpha=.85;[[-20,4,14],[0,-4,18],[20,4,14],[0,8,14]].forEach(c=>{let g=x.createRadialGradient(cx+c[0]*s-4,cy+c[1]*s-5,2,cx+c[0]*s,cy+c[1]*s,c[2]*s);g.addColorStop(0,"#f6ffe0");g.addColorStop(1,"#c8e6a0");x.fillStyle=g;x.beginPath();x.arc(cx+c[0]*s,cy+c[1]*s+wb,c[2]*s,0,7);x.fill()});
+ x.fillStyle="#4a6a2a";x.beginPath();x.arc(cx-6*s,cy+wb,1.8*s,0,7);x.arc(cx+6*s,cy+wb,1.8*s,0,7);x.fill();x.strokeStyle="#4a6a2a";x.lineWidth=1.4*s;x.beginPath();x.arc(cx,cy+3*s+wb,4*s,.2,Math.PI-.2);x.stroke();x.restore()}
+function bgPoop(oy){let n=RN;smSky("#8fd3ff","#fff1d6",oy);x.globalAlpha=1;if(n>0){x.fillStyle="rgba(14,18,58,"+(.6*n)+")";x.fillRect(-30,-30,960,480)}
+ if(n>.4){x.save();x.globalAlpha=Math.min(1,(n-.4)*1.8);x.translate(450,140+oy*.3);x.rotate(-.35);let mw=x.createLinearGradient(0,-50,0,50);mw.addColorStop(0,"rgba(180,190,255,0)");mw.addColorStop(.5,"rgba(225,220,255,.6)");mw.addColorStop(1,"rgba(180,190,255,0)");x.fillStyle=mw;x.fillRect(-620,-50,1240,100);x.fillStyle="#fff";for(let i=0;i<90;i++){let sx=((i*97)%1240)-620,sy=((i*53)%90)-45;x.globalAlpha=Math.min(1,(n-.4)*1.8)*(.4+.6*Math.abs(Math.sin(t/25+i)));x.fillRect(sx,sy,2.2,2.2)}x.restore()}
+ for(let L2=0;L2<2;L2++){x.fillStyle=L2?"#b98a5a":"#d8b48a";for(let i=-1;i<8;i++){let hx=i*170-((cam*(.06+L2*.06))%170),hh=60+((i*47+L2*29)%50);x.beginPath();x.moveTo(hx-90,G-40+oy*.8);x.quadraticCurveTo(hx,G-40-hh*1.6+oy*.8,hx+90,G-40+oy*.8);x.fill()}}
+ for(let i=0;i<3;i++){let mx=plx(i*700+250,.15,2100),my=G-48+oy*.7;if(mx<-150||mx>1050)continue;emo("💩",mx,my-60,150,0)}
+ for(let i=0;i<4;i++){let fx2=((i*300-cam*.08+t*.25)%1300+1300)%1300-200;pmFartCloud(fx2,70+(i%2)*50+oy,1.2);emo("💨",fx2+38,88+(i%2)*50+oy,22,0)}
+ for(let i=0;i<6;i++){let tx=plx(i*260+80,.45,1560),ty=G-26+oy*.85;if(tx<-60||tx>980)continue;emo("🚽",tx,ty-24,54,0);if(n>.5)r2Glow(tx,ty-40,26,"rgba(255,240,200,",.25*n)}
+ let bx=((t*.7)%1200)-150;emo("🟤",bx+18,G-30+oy*.9,22,t/10);emo("🪲",bx,G-28+oy*.9,22,0)}
+if(typeof placeBG=="function"){const o=placeBG;placeBG=function(){if(PLACE!="poop")return o.apply(this,arguments);let oy=-camY*.5;x.save();try{bgPoop(oy)}catch(e){console.warn(e)}x.restore();try{r2PlaceNightEnd()}catch(e){}}}
+if(typeof placeGround=="function"){const o=placeGround;placeGround=function(){if(PLACE!="poop")return o.apply(this,arguments);x.fillStyle="#a8743f";x.fillRect(cam-40,G-12,1000,140);x.fillStyle="#8bd05a";x.fillRect(cam-40,G-12,1000,9);x.fillStyle="rgba(0,0,0,.12)";for(let i=Math.floor(cam/70)*70-70;i<cam+1000;i+=70)x.fillRect(i+(i%13),G+16+(i%3)*12,14,4)}}
+if(typeof placeDeco=="function"){const o=placeDeco;placeDeco=function(){if(PLACE!="poop")return o.apply(this,arguments);
+ for(let i=820;i<W;i+=1100){if(i<cam-200||i>cam+1100)continue;signB(i,G-70,"POOP WORLD 💩","#fff4d6","#6a3a12")}
+ for(let i=560;i<W;i+=420){if(i<cam-120||i>cam+1020)continue;let yel=(i/420|0)%2,w=34;x.save();x.globalAlpha=.85;x.fillStyle=yel?"#ffe14d":"#7a4a22";x.beginPath();x.ellipse(i,G-1,w,6,0,0,7);x.fill();x.fillStyle="rgba(255,255,255,.55)";x.beginPath();x.ellipse(i-10,G-3,8,1.6,0,0,7);x.fill();x.restore()}
+ x.font="40px serif";for(let i=760;i<W;i+=840){if(i<cam-100||i>cam+1000)continue;x.fillText("🚽",i,G-6)}}}
+if(typeof wzGo=="function"){const o=wzGo;wzGo=function(id){o.apply(this,arguments);try{if(id=="poop"){say("Welcome to Poop World! Toilets and fart clouds! 💩🚽",80);setTimeout(()=>{try{realFact("p:poop")}catch(e){}},0)}}catch(e){}}}
+Object.assign(RF,{
+ "p:poop":["🪲 Real fact: Dung beetles roll poop into balls — and some can steer at night using the light of the Milky Way!","🧊 Real fact: Wombats are the only animals known to make cube-shaped poop!","💪 Real fact: Some dung beetles can pull more than 1,000 times their own body weight!","🦥 Real fact: Sloths climb down from their trees only about once a week to go potty!","🏖️ Real fact: Parrotfish crunch up coral, and their poop turns into lots of the white sand on tropical beaches!","🚽 Real fact: World Toilet Day is on November 19, to help everyone in the world have a clean toilet!"],
+ ["h:"+PMN]:["🐶 Real fact: Scooping up after your dog helps keep parks clean and keeps germs out of rivers and lakes!","🚀 Real fact: In 1984, a real rocket-belt pilot flew into the Olympics opening show in Los Angeles!","💨 Real fact: Everybody farts — it's just gas from the tiny helpers in your tummy digesting food!","🌱 Real fact: Farmers use animal poop (called manure) to help plants grow big and strong!"]});
 
 </script></body></html>
