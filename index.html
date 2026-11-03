@@ -2516,4 +2516,105 @@ Object.assign(RF,{
  "p:poop":["🪲 Real fact: Dung beetles roll poop into balls — and some can steer at night using the light of the Milky Way!","🧊 Real fact: Wombats are the only animals known to make cube-shaped poop!","💪 Real fact: Some dung beetles can pull more than 1,000 times their own body weight!","🦥 Real fact: Sloths climb down from their trees only about once a week to go potty!","🏖️ Real fact: Parrotfish crunch up coral, and their poop turns into lots of the white sand on tropical beaches!","🚽 Real fact: World Toilet Day is on November 19, to help everyone in the world have a clean toilet!"],
  ["h:"+PMN]:["🐶 Real fact: Scooping up after your dog helps keep parks clean and keeps germs out of rivers and lakes!","🚀 Real fact: In 1984, a real rocket-belt pilot flew into the Olympics opening show in Los Angeles!","💨 Real fact: Everybody farts — it's just gas from the tiny helpers in your tummy digesting food!","🌱 Real fact: Farmers use animal poop (called manure) to help plants grow big and strong!"]});
 
+
+// ===== ⏺ RECORD + ▶ REPLAY (lightweight state-snapshot replay, no video) =====
+const REC={on:false,fr:null,last:null,lastV:new WeakMap(),lastM:new WeakMap(),MAX:60*60*4,cool:0};
+const RP={act:false,i:0,sp:1,pause:false,data:null,st:null,mem:null,doneT:0};
+const RDEL={del:1};
+// globals captured every frame (getter/setter pairs; same-script lexical access)
+const RGL={t:[()=>t,v=>t=v],cam:[()=>cam,v=>cam=v],camY:[()=>camY,v=>camY=v],shake:[()=>shake,v=>shake=v],stars:[()=>stars,v=>stars=v],
+ world:[()=>world,v=>world=v],PLACE:[()=>PLACE,v=>PLACE=v],RT0:[()=>RT0,v=>RT0=v],GLOW:[()=>GLOW,v=>GLOW=v],TFZ:[()=>TFZ,v=>TFZ=v],
+ TSTOP:[()=>TSTOP,v=>TSTOP=v],SWIM:[()=>SWIM,v=>SWIM=v],score:[()=>score,v=>score=v],DANCE:[()=>DANCE,v=>DANCE=v],RN:[()=>RN,v=>RN=v],
+ banner:[()=>banner,v=>banner=v],bubble:[()=>bubble,v=>bubble=v],mood:[()=>mood,v=>mood=v],
+ P:[()=>P,v=>P=v],E:[()=>E,v=>E=v],T:[()=>T,v=>T=v],
+ shots:[()=>shots,v=>shots=v],rings:[()=>rings,v=>rings=v],fx:[()=>fx,v=>fx=v],COINS:[()=>COINS,v=>COINS=v],OBJS:[()=>OBJS,v=>OBJS=v],
+ trail:[()=>trail,v=>trail=v],GL:[()=>GL,v=>GL=v],TRAMP:[()=>TRAMP,v=>TRAMP=v],SH:[()=>SH,v=>SH=v],AN:[()=>AN,v=>AN=v]};
+const RGK=Object.keys(RGL);
+function recPlain(v){if(!v||typeof v!="object")return false;let p=Object.getPrototypeOf(v);return p===Object.prototype||p===null||Array.isArray(v)}
+// --- capture: deltas of own props (by identity) for every plain object/array reachable (depth-limited) ---
+function recWalk(o,d,F,seen){if(seen.has(o))return;seen.add(o);
+ if(Array.isArray(o)){let lm=REC.lastM.get(o),ch=!lm||lm.length!=o.length;if(!ch)for(let i=0;i<o.length;i++)if(lm[i]!==o[i]){ch=true;break}
+  if(ch){let s=o.slice();REC.lastM.set(o,s);F.m.push(o,s)}
+  if(d<3&&o.length<600)for(let i=0;i<o.length;i++){let v=o[i];if(recPlain(v))recWalk(v,d+1,F,seen)}return}
+ let lv=REC.lastV.get(o),dl=null,first=!lv;if(first){lv={};REC.lastV.set(o,lv)}
+ for(let kk in o){if(!Object.prototype.hasOwnProperty.call(o,kk))continue;let v=o[kk];
+  if(first||lv[kk]!==v||!(kk in lv)){(dl=dl||{})[kk]=v;lv[kk]=v}
+  if(kk!="h"&&d<3&&recPlain(v)&&v!==P&&v!==E&&v!==T)recWalk(v,d+1,F,seen)}
+ for(let kk in lv)if(!(kk in o)){(dl=dl||{})[kk]=RDEL;delete lv[kk]}
+ if(dl)F.o.push(o,dl,first?1:0)}
+function recCapture(){let F={g:null,o:[],m:[]},G=REC.g0,seen=new Set();
+ for(let n of RGK){let v=RGL[n][0]();if(!(n in G)||G[n]!==v){(F.g=F.g||{})[n]=v;G[n]=v}}
+ for(let n of RGK){let v=RGL[n][0]();if(recPlain(v)&&n!="mood")recWalk(v,n=="P"||n=="E"||n=="T"?0:1,F,seen)}
+ REC.fr.push(F);if(REC.fr.length>=REC.MAX)recStop()}
+function recStart(){if(!on||RP.act)return;REC.on=true;REC.fr=[];REC.g0={};REC.lastV=new WeakMap();REC.lastM=new WeakMap();recCapture();recBtn()}
+function recStop(){if(!REC.on)return;REC.on=false;if(REC.fr&&REC.fr.length>30){REC.last={fr:REC.fr,n:REC.fr.length,who:(P&&P.h&&P.h.n)||"",foe:(E&&E.h&&E.h.n)||"",m:REC.mid};recSave()}REC.fr=null;recBtn();rpwShow()}
+function recSave(){try{localStorage.heroReplayInfo=JSON.stringify({n:REC.last.n,who:REC.last.who,foe:REC.last.foe,at:Date.now()})}catch(e){}}
+// --- the ⏺ button (own row slot next to the power bar, right under the ⬇ button group) ---
+const recb=document.createElement("button");recb.id="recb";recb.type="button";recb.setAttribute("aria-label","Record");recb.innerHTML='<span id="recd">⏺</span>';
+(function(){let st=document.createElement("style");st.textContent=
+ "#recb{width:88px;height:88px;flex:0 0 88px;border-radius:50%;padding:0!important;font-size:34px;line-height:1;background:#fff;color:#e22;touch-action:none;position:relative}"+
+ "#recb.on{background:#e22;color:#fff;animation:recp 1s infinite}@keyframes recp{50%{box-shadow:0 0 0 6px rgba(255,40,40,.45)}}"+
+ "#recb small{position:absolute;bottom:6px;left:0;right:0;font-size:11px;font-weight:bold}"+
+ "#pad>#pw{flex-basis:calc(100% - 104px)!important}body.full #recb{width:92px;height:92px;flex-basis:92px}body.full #pad>#pw{flex-basis:calc(100% - 120px)!important;min-width:0!important}"+
+ "@media(max-width:500px){#recb{width:68px;height:68px;flex-basis:68px;font-size:28px}#pad>#pw{flex-basis:calc(100% - 84px)!important}}"+
+ "#rpw{font-size:20px!important;padding:8px 18px!important;background:#e22;color:#fff;display:none}"+
+ "#rpbar{display:none;justify-content:center;gap:14px;flex-wrap:wrap;padding:10px;max-width:900px;margin:0 auto}"+
+ "#rpbar button{font-size:26px;min-width:120px;height:80px;border-radius:40px;color:#fff;font-weight:bold}";
+ document.head.appendChild(st)})();
+pad.insertBefore(recb,pw);
+function recBtn(){recb.classList.toggle("on",REC.on);recb.innerHTML=REC.on?'⏹<small>STOP</small>':'⏺<small>REC</small>'}recBtn();
+function recTap(e){e.preventDefault();e.stopPropagation();let n=Date.now();if(e.type=="touchstart")REC.lt=n;else if(n-(REC.lt||0)<1500)return;if(n-REC.cool<600)return;REC.cool=n;if(REC.on)recStop();else recStart()}
+recb.addEventListener("touchstart",recTap,{passive:false});recb.addEventListener("mousedown",recTap);
+// --- end screen "▶ Watch replay" ---
+const rpw=document.createElement("button");rpw.id="rpw";rpw.type="button";rpw.textContent="▶ Watch replay";
+home.parentNode.insertBefore(rpw,home.nextSibling);
+function rpwShow(){rpw.style.display=REC.last&&REC.last.m==REC.mid&&!on?"inline-block":"none"}
+rpw.onclick=()=>rpStart();
+// --- replay bar (replaces the controls only while a replay plays; never during live play) ---
+const rpbar=document.createElement("div");rpbar.id="rpbar";
+rpbar.innerHTML='<button id="rpplay" type="button" style="background:#2a2">⏸ Pause</button><button id="rpfast" type="button" style="background:#e90">⏩ 2x</button><button id="rpstop" type="button" style="background:#e22">⏹ Stop</button>';
+pad.parentNode.insertBefore(rpbar,pad.nextSibling);
+rpplay.onclick=()=>{if(!RP.act)return;if(RP.i>=RP.data.n-1){RP.i=0;RP.st=new Map();RP.mem=new Map();RP.doneT=0}RP.pause=!RP.pause;rpLbl()};
+rpfast.onclick=()=>{RP.sp=RP.sp==1?2:1;rpLbl()};rpstop.onclick=()=>rpEnd();
+function rpLbl(){rpplay.textContent=RP.pause?"▶ Play":"⏸ Pause";rpfast.textContent=RP.sp==2?"🐢 1x":"⏩ 2x"}
+function rpStart(){if(!REC.last||on)return;RP.act=true;RP.data=REC.last;RP.i=0;RP.sp=1;RP.pause=false;RP.doneT=0;RP.st=new Map();RP.mem=new Map();RP.g={};RP.pv=null;RP.fix=0;
+ for(let kk in k)k[kk]=0;over.style.display="none";menu.style.display="none";game.style.display="block";pad.style.display="none";rpbar.style.display="flex";rpLbl();
+ try{if(typeof RL!="undefined")RL.paused=0}catch(e){}}
+function rpEnd(){if(!RP.act)return;RP.act=false;rpbar.style.display="none";pad.style.display="";RP.st=RP.mem=null;showMenu()}
+// apply recorded delta i to the reconstructed state
+function rpApply(i){let F=RP.data.fr[i];if(F.g)Object.assign(RP.g,F.g);
+ for(let j=0;j<F.o.length;j+=3){let o=F.o[j],dl=F.o[j+1],s=RP.st.get(o);if(!s||F.o[j+2]){s={};RP.st.set(o,s)}for(let kk in dl){if(dl[kk]===RDEL)delete s[kk];else s[kk]=dl[kk]}}
+ for(let j=0;j<F.m.length;j+=2)RP.mem.set(F.m[j],F.m[j+1])}
+function rpPut(o,d,seen){if(seen.has(o))return;seen.add(o);
+ if(Array.isArray(o)){let m=RP.mem.get(o);if(m){o.length=0;for(let v of m)o.push(v)}if(d<3)for(let v of o)if(recPlain(v))rpPut(v,d+1,seen);return}
+ let s=RP.st.get(o);if(!s)return;for(let kk in o)if(Object.prototype.hasOwnProperty.call(o,kk)&&!(kk in s))delete o[kk];Object.assign(o,s);
+ for(let kk in s){let v=s[kk];if(kk!="h"&&d<3&&recPlain(v)&&v!==RP.g.P&&v!==RP.g.E&&v!==RP.g.T)rpPut(v,d+1,seen)}}
+function rpPrev(){let p=RP.g.P,s=p&&RP.st.get(p);RP.pv=s?{x:s.x,y:s.y,cy:RP.g.camY}:null}
+// camera in the live game is computed from the hero's position *before* that frame's move; feed it the same so the view matches exactly
+function rpUnfix(){if(RP.fix==2&&RP.sv&&P){P.x=RP.sv.x;P.y=RP.sv.y}RP.fix=0}
+(function(){const o=realSky;realSky=function(){if(RP.act&&RP.fix==1&&RP.pv&&P){RP.sv={x:P.x,y:P.y};P.x=RP.pv.x;P.y=RP.pv.y;RP.fix=2}return o.apply(this,arguments)}})();
+(function(){const o=lay;lay=function(){if(RP.fix==2)rpUnfix();return o.apply(this,arguments)}})();
+function rpRestore(){for(let n of RGK)if(n in RP.g)RGL[n][1](RP.g[n]);let seen=new Set();
+ for(let n of RGK){let v=RP.g[n];if(recPlain(v)&&n!="mood")rpPut(v,n=="P"||n=="E"||n=="T"?0:1,seen)}}
+function rpPill(X,Y,txt,bg){x.font="bold 18px Arial";let w=x.measureText(txt).width+28;x.fillStyle=bg;x.beginPath();if(x.roundRect)x.roundRect(X,Y,w,30,15);else x.rect(X,Y,w,30);x.fill();
+ x.fillStyle="#fff";x.textAlign="left";x.textBaseline="middle";x.fillText(txt,X+14,Y+16);return w}
+function rpOverlay(){x.save();x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;rpPill(8,60,"▶ REPLAY"+(RP.sp==2?" 2x":"")+(RP.pause?" ⏸":""),"rgba(220,30,30,.9)");
+ let f=RP.data.n>1?RP.i/(RP.data.n-1):1;x.fillStyle="rgba(0,0,0,.35)";x.fillRect(0,416,900,4);x.fillStyle="#e22";x.fillRect(0,416,900*f,4);
+ if(RP.doneT){x.font="bold 46px Arial";x.textAlign="center";x.textBaseline="middle";x.lineWidth=6;x.strokeStyle="#000";x.strokeText("🎬 The End!",450,200);x.fillStyle="#fff";x.fillText("🎬 The End!",450,200)}
+ x.restore()}
+function recBadge(){x.save();x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;let a=.55+.45*Math.sin(Date.now()/180);x.fillStyle="rgba(0,0,0,.45)";x.beginPath();if(x.roundRect)x.roundRect(822,60,70,26,13);else x.rect(822,60,70,26);x.fill();
+ x.fillStyle="rgba(255,30,30,"+a+")";x.beginPath();x.arc(838,73,8,0,7);x.fill();x.fillStyle="#fff";x.font="bold 15px Arial";x.textAlign="left";x.textBaseline="middle";x.fillText("REC",851,74);x.restore()}
+(function(){const L=loop;loop=function(){
+ if(RP.act){if(on){RP.act=false;rpbar.style.display="none";pad.style.display="";return L.apply(this,arguments)}
+  let n=RP.data.n;if(RP.i==0&&!RP.st.size)rpApply(0);
+  if(!RP.pause&&!RP.doneT){for(let s=0;s<RP.sp&&RP.i<n-1;s++){rpPrev();RP.i++;rpApply(RP.i)}if(RP.i>=n-1)RP.doneT=Date.now()}
+  for(let kk in k)k[kk]=0;rpRestore();if(RP.pv){camY=RP.pv.cy;RP.fix=1}t=t-1;let r;try{on=false;r=L.apply(this,arguments)}finally{on=false;rpUnfix()}rpOverlay();
+  if(RP.doneT&&Date.now()-RP.doneT>1800)rpEnd();return r}
+ let r=L.apply(this,arguments);
+ if(REC.on){if(!on)recStop();else{try{recCapture()}catch(e){REC.err=String(e&&e.stack||e).slice(0,300);REC.on=false;REC.fr=null;recBtn()}recBadge()}}
+ return r}})();
+(function(){const o=end;end=function(){let r=o.apply(this,arguments);if(REC.on){try{recCapture()}catch(e){}recStop()}rpwShow();return r}})();
+(function(){const o=start;start=function(){if(REC.on)recStop();if(RP.act)rpEnd();REC.mid=(REC.mid||0)+1;let r=o.apply(this,arguments);rpwShow();return r}})();
+(function(){const o=showMenu;showMenu=function(){if(REC.on)recStop();return o.apply(this,arguments)}})();
+
 </script></body></html>
