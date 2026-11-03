@@ -1420,7 +1420,7 @@ function realBox(){let d=document.getElementById("realfact");if(!d){d=document.c
   let x0=e=>{e.preventDefault&&e.preventDefault();e.stopPropagation&&e.stopPropagation();realHide()};b.addEventListener("click",x0);b.addEventListener("touchstart",x0,{passive:false});d.appendChild(b)}
  let par=realFsEl()||document.body;if(par.tagName=="HTML"||par.tagName=="CANVAS")par=document.body;if(d.parentNode!==par)par.appendChild(d);return d}
 function realPlace(){let d=document.getElementById("realfact");if(!d||!RCUR)return;let cv0=document.getElementById("c"),r=cv0&&cv0.getBoundingClientRect(),vv=window.visualViewport,vt=vv?vv.offsetTop:0,vh=vv?vv.height:innerHeight,top=vt+8;
- if(r&&r.height>50&&r.bottom>vt+60&&r.top<vt+vh-60){let sc=Math.min(r.width/900,r.height/420),oy=r.top+(r.height-420*sc)/2;top=Math.max(vt+6,oy+6+sc*(typeof race!="undefined"&&race?34:0))}
+ if(r&&r.height>50&&r.bottom>vt+60&&r.top<vt+vh-60){let sc=Math.min(r.width/900,r.height/420),oy=r.top+(r.height-420*sc)/2;let bh0=d.offsetHeight||60,cb=Math.min(oy+420*sc,vt+vh);top=Math.max(vt+6,cb-bh0-6*sc)}else{top=Math.max(vt+6,vt+vh-(d.offsetHeight||60)-8)}
  d.style.top=top+"px";if(vv&&vv.scale>1.05){d.style.left=vv.offsetLeft+"px";d.style.right="auto";d.style.width=vv.width+"px"}else{d.style.left="0";d.style.right="0";d.style.width=""}}
 function realCheckVis(){let d=document.getElementById("realfact"),b=document.getElementById("realfactbox");if(!d||!b||!RCUR){RVIS=true;return}
  try{let fe=realFsEl();if(fe&&!fe.contains(d)){RVIS=false;return}let r=b.getBoundingClientRect();if(r.width<20||r.height<10){RVIS=false;return}let vv=window.visualViewport,vt=vv?vv.offsetTop:0,vl=vv?vv.offsetLeft:0,vw=vv?vv.width:innerWidth,vh=vv?vv.height:innerHeight;
@@ -1442,7 +1442,7 @@ let RCB=null;
 function realCanvasFact(){if(!RCUR){RCB=null;return}if(++RVC%20==1){realPlace();realCheckVis()}if(RVIS){RCB=null;return}
  if(!realGameOn())return;let txt=RCUR[1]+"  ✖",safe=/tip|rule/i.test(RCUR[1].slice(0,24));x.save();x.setTransform(1,0,0,1,0,0);x.font="bold 16px sans-serif";
  let words=txt.split(" "),lines=[""],mw=760;words.forEach(w=>{let tl=lines[lines.length-1]?lines[lines.length-1]+" "+w:w;if(x.measureText(tl).width>mw&&lines[lines.length-1])lines.push(w);else lines[lines.length-1]=tl});
- let bw=Math.min(800,Math.max(...lines.map(l=>x.measureText(l).width))+28),bh=lines.length*20+14,bx=450-bw/2,by=(typeof race!="undefined"&&race)?40:6;
+ let bw=Math.min(760,Math.max(...lines.map(l=>x.measureText(l).width))+28),bh=lines.length*20+14,bx=450-bw/2,by=414-bh;
  x.globalAlpha=.97;x.fillStyle=safe?"#fff4d6":"#eaf7ff";x.strokeStyle=safe?"#ff9f1c":"#29b6f6";x.lineWidth=3;x.beginPath();if(x.roundRect)x.roundRect(bx,by,bw,bh,12);else x.rect(bx,by,bw,bh);x.fill();x.stroke();
  x.globalAlpha=1;x.fillStyle="#222";x.textAlign="center";x.textBaseline="top";lines.forEach((l,i)=>x.fillText(l,450,by+8+i*20));x.textAlign="left";x.textBaseline="alphabetic";x.restore();RCB=[bx,by,bw,bh]}
 ["fullscreenchange","webkitfullscreenchange","resize","orientationchange","scroll"].forEach(ev=>addEventListener(ev,()=>{if(RCUR){realBox();setTimeout(()=>{realPlace();realCheckVis()},60)}},true));
@@ -2256,5 +2256,146 @@ function smHigh(){let k=Math.min(1,(-camY-420)/500);if(k<=0)return;let n=RN;x.sa
  let ax=((t*1.2)%1200)-150;x.font="22px serif";x.fillText("✈️",ax,236);x.strokeStyle="rgba(255,255,255,.45)";x.lineWidth=1.5;x.beginPath();x.moveTo(ax-4,232);x.lineTo(ax-90,234);x.stroke();
  x.globalAlpha=k;x.font="bold 14px sans-serif";x.textAlign="center";x.fillStyle="rgba(0,0,0,.35)";rr(700,262,150,22,10);x.fill();x.fillStyle="#fff";x.fillText("☁️ Above the clouds!",775,278);x.textAlign="left";x.restore();x.globalAlpha=1}
 if(typeof realBack=="function"){const o=realBack;realBack=function(){let r=o.apply(this,arguments);try{if(P&&P.h&&P.h.n==SMN&&camY<-420)smHigh()}catch(e){}return r}}
+
+/* ===== TOUGHER BAD GUYS ROUND 2 (H2): more HP, feints, cross-ups, dodge+counter, reads jumps/ducks, platforms, chases flyers, signature combos, new ❗-warned moves =====
+   Reusable scaling: FOE2.scale(L) -> numbers for level L (1-10); FOE2.apply(actor,L) sets actor HP; FOE2.sig(name) -> that bad guy's signature moves.
+   Future enemies (e.g. pipe-level ones) can call FOE2.apply(e,hdLvl()) and read e._fs for speed/feint/counter/chase knobs. */
+var FOE2={
+ /* [level 1 value, level 10 value] — straight line in between */
+ K:{hp:[.88,1.32],sp:[1,1.38],dmg:[.84,1.2],feint:[0,.6],counter:[0,.7],cross:[0,.55],read:[0,1],chase:[0,1],sig:[0,.85],wind:[1,.92],combo:[0,.6]},
+ /* lowest level each trick switches on (Level 1 stays gentle) */
+ from:{feint:2,counter:2,cross:3,read:2,chase:3,sig:2,combo:4},
+ /* how fast things ramp (<1 = most of the jump happens by the middle levels) */
+ curve:.4,
+ scale:function(L){L=Math.max(1,Math.min(10,Math.round(L)||1));var k=(L-1)/9,K=FOE2.K,r={L:L,k:k};
+  for(var n in K)r[n]=(FOE2.from[n]&&L<FOE2.from[n])?0:K[n][0]+(K[n][1]-K[n][0])*(n!="wind"?Math.pow(k,FOE2.curve):k);
+  r.hd={hp:1.1+.9*k,sp:1.05+.55*k,pp:1+.8*k,cd:Math.round(25-9*k),dmg:1+.3*k,dodge:L<2?0:.15+.5*k,gap:Math.round(380-170*k),wind:Math.round(72-24*k)};
+  r.mhp=function(giant){return Math.round((giant?250*(1.05+.5*k):100*r.hd.hp)*r.hp)};
+  r.windup=function(ph){return Math.max(45,Math.round(r.hd.wind*r.wind*(ph>1?.88:1)))};
+  return r},
+ apply:function(a,L){var s=FOE2.scale(L);if(a){a.mhp=s.mhp(a.h&&a.h.giant);a.hp=a.mhp;a._fs=s}return s},
+ /* signature moves per bad guy: [move type, shout] */
+ S:{
+  "Subsonic":[["spin","Supersonic Twirl! 🌀"],["zapH","Sonic Zap! ⚡"],["poof","Blink Dash! 💨"]],
+  "Mario":[["stomp3","Triple Hop-Bop! 🍄"],["lob","Fireball Lob! 🔥"]],
+  "Sonic":[["spin","Spin Dash Zoom! 🌀"],["zapL","Ring Roll! 💍"]],
+  "Knuckles":[["stomp3","Ground Pound x3! 👊"],["upper","Knuckle Hop! ⬆️"]],
+  "Hulk":[["stomp3","Hulk Hop-Hop-SMASH! 💚"],["zapL","Ground Rumble! 🌊"]],
+  "Iron Man":[["zapH","Repulsor Zap! ✋"],["zapL","Boot Jet Slide! 🚀"]],
+  "Alice":[["lob","Tea Party Toss! 🫖"],["poof","Down the Rabbit Hole! 🐇"]],
+  "Dopey":[["spin","Golden Twirl! ✨"],["lob","Gem Toss! 💎"]],
+  "Captain Kid":[["spin","Cape Twirl! 🦸"],["upper","Captain Hop! ⬆️"]],
+  "Bolt the Robot":[["zapH","Robo Beep-Zap! 🤖"],["zapL","Wheel Roll! ⚙️"]],
+  "Ember the Dragon":[["zapH","Sparkle Puff! ✨"],["lob","Warm Ember Lob! 🔥"]],
+  "Ninja Kitty":[["poof","Ninja Poof! 💨"],["spin","Kitty Twirl! 🐱"]],
+  "Batman":[["lob","Bat-Goo Bombs! 🦇"],["upper","Bat Hop! ⬆️"]],
+  "Superman":[["zapH","Heat Glow Zap! 👀"],["upper","Super Hop! ⬆️"]],
+  "Spider-Man":[["lob","Web Goo Blobs! 🕸️"],["poof","Web Swing! 🕸️"]],
+  "Wonder Woman":[["spin","Lasso Twirl! ✨"],["upper","Wonder Hop! ⬆️"]],
+  "Pizza Pal":[["lob","Pepperoni Lob! 🍕"],["zapL","Cheese Slide! 🧀"]],
+  "Robo Rex":[["stomp3","Dino Stomp! 🦖"],["zapL","Tail Swish Wave! 🌊"]],
+  "Sparkle":[["zapH","Rainbow Zap! 🌈"],["lob","Glitter Lob! ✨"]],
+  "Astro":[["stomp3","Moon Bounce! 🌙"],["zapH","Star Zap! ⭐"]],
+  "Zoom":[["spin","Cheetah Zoom! 🐆"],["poof","Speedy Blink! 💨"]],
+  "Inky":[["lob","Ink Blobs! 🐙"],["zapL","Ink Slick! 🌊"]],
+  "Frosty Fox":[["zapL","Ice Slide! ❄️"],["spin","Snowy Twirl! ❄️"]],
+  "Soldiers of Fire":[["lob","Spark Toss! ✨"],["zapH","Smoke Puff Zap! 💨"]],
+  "Wizzle the Wonder Wizard":[["poof","Wizard Blink! ✨"],["zapH","Sparkle Bolt! ✨"]],
+  "Gooey Gus":[["lob","Goo Lob! 🟢"],["zapL","Slime Slide! 🟢"]],
+  "The Smartest Man on Earth":[["poof","Genius Teleport! 🧠"],["zapH","Brain Beam! 🧠"],["zapL","Invention Rollers! ⚙️"]],
+  "King Wobble":[["zapL","Jelly Jiggle Wave! 🟣"],["stomp3","Royal Bounce! 👑"]]},
+ sig:function(n){return FOE2.S[n]||[["lob","Goo Lob! 🟢"],["zapL","Goo Zap! 🟢"]]},
+ react:{zapL:"jump",spin:"jump",zapH:"duck",lob:"move",poof:"move",stomp3:"move",upper:"move",dash:"jump",roll:"jump",wave:"jump",flop:"move",rain:"move"},
+ hint:{zapL:"JUMP!",spin:"JUMP!",zapH:"DUCK ⬇️",poof:"MOVE!",stomp3:"MOVE!",upper:"MOVE!"}
+};
+var H2={s:null,jc:[],dk:0,hi:0,pg:1,eg:1,ctr:0,dcd:0,xup:0,fe:0,fx0:0,feAfter:0,ch:0,chcd:0,aa:0,aacd:0,pcd:0,si:0,last:"",nd:0};
+function h2Reset(){H2.s=null;H2.jc=[];H2.dk=0;H2.hi=0;H2.ctr=0;H2.dcd=0;H2.xup=0;H2.fe=0;H2.ch=0;H2.chcd=0;H2.aa=0;H2.aacd=0;H2.pcd=0;H2.si=Math.floor(Math.random()*3);H2.nd=0}
+var _h2Start=startExtra;startExtra=function(){_h2Start.apply(this,arguments);try{h2Reset();if(!hdOn())return;var s=H2.s=FOE2.scale(HD.L);E.mhp=s.mhp(E.h.giant);E.hp=E.mhp;E._fs=s;HD.dmg=s.hd.dmg*s.dmg}catch(e){}};
+var _h2End=end;end=function(){try{if(E&&E.fly&&H2.ch>0){E.fly=0}H2.ch=0;H2.fe=0}catch(e){}return _h2End.apply(this,arguments)};
+function h2Name(){return E.h.giant?"King Wobble":E.h.n}
+function h2Free(){return hdOn()&&H2.s&&HD.act==t&&!HD.A&&sees(E)&&!(E.frz>0)&&!(MREAD>0)&&!E.carried&&!(E.held>0)&&!(E.sleep>0)}
+/* the hero swings while the bad guy is ready: sometimes he hops back first (dodge) and then counters */
+var _h2Punch=punch;punch=function(a,b){try{if(a==P&&b==E&&H2.s&&H2.s.counter>0&&h2Free()&&P.cd<=0&&P.frz<=0&&t>H2.dcd&&gnd(E)&&Math.abs(P.x-E.x)<85&&Math.random()<H2.s.counter*.5){
+  var aw=E.x<P.x?-1:1;E.x=clampX(E.x+aw*34);E.kb=aw*7;E.vy=-6;H2.dcd=t+Math.round(200-80*H2.s.k);H2.ctr=Math.round(18-5*H2.s.k);try{fx.push({x:E.x-aw*20,y:E.y-30,vx:-aw*2,vy:-1,l:24,emo:"💨"})}catch(e){}if(Math.random()<.5)say("Missed me! 😜",40)}}catch(e){}
+ return _h2Punch.apply(this,arguments)};
+/* choose a signature move (reads the hero: high/jumpy -> uppers & high zaps, ducky -> low zaps) */
+var _h2Plan=hdPlan;hdPlan=function(){var s=H2.s;if(!s||!(s.sig>0)||Math.random()>s.sig)return _h2Plan.apply(this,arguments);
+ var L=FOE2.sig(h2Name()),pick=null,rd=s.read>0&&Math.random()<s.read*.8,up=P.y<G-90||H2.jc.length>=3;
+ if(rd){var want=H2.dk>40?["zapL","stomp3","lob"]:up?["upper","zapH","poof"]:null;if(want)for(var i=0;i<want.length&&!pick;i++)L.forEach(function(m){if(!pick&&m[0]==want[i])pick=m})}
+ if(!pick){pick=L[H2.si%L.length];H2.si++}
+ if(pick[0]==H2.last&&L.length>1&&!rd){pick=L[H2.si%L.length];H2.si++}
+ var ty=pick[0],w=s.windup(HD.ph)+(ty=="poof"?8:0),dir=P.x<E.x?-1:1;
+ HD.A={ty:ty,w:w,t:0,dir:dir,tx:P.x,hit:0,h2:1,react:FOE2.react[ty],nm:pick[1],n:0};H2.last=ty;
+ if(ty=="lob"){HD.A.ty="rain";HD.A.spots=[];var n=E.h.giant?4:3;for(var j=0;j<n;j++)HD.A.spots.push(clampX(P.x+(j-(n-1)/2)*100+(Math.random()-.5)*24))}
+ if(ty=="poof")HD.A.tx=clampX(P.x+(P.x>=E.x?1:-1)*85);
+ say(pick[1],60);try{beep(560,.12,"triangle")}catch(e){}
+ if(s.combo>0&&Math.random()<s.combo)H2.nd=1};
+function h2Hit(d,kx,vy){hdHitP(d,kx,vy);if(Math.random()<.5)try{fx.push({x:P.x,y:P.y-110,vx:0,vy:-1,l:30,emo:"💫"})}catch(e){}}
+var _h2Run=hdRun;hdRun=function(){var A=HD.A;if(!A||!A.h2||A.ty=="rain")return _h2Run.apply(this,arguments);A.t++;var g=E.h.giant,s=H2.s;
+ if(A.t<=A.w){E.kb=0;if(A.ty!="poof")A.dir=P.x<E.x?-1:1;E.f=P.x<E.x?-1:1;if(A.t%15==0)try{beep(520+A.t*5,.06,"triangle")}catch(e){}return}
+ var st=A.t-A.w,tw=P.x<E.x?-1:1;
+ if(A.ty=="zapL"||A.ty=="zapH"){var hi=A.ty=="zapH";shots.push({x:E.x+A.dir*(g?90:34),y:hi?G-74:G-16,v:A.dir*(8+3*s.k),o:E,d:hi?7:7,c:hi?"#ffd84a":"#6fdc5a",h2:hi?"H":"L"});
+  if(g||s.k>.6){var q={x:E.x+A.dir*(g?90:34),y:hi?G-74:G-16,v:A.dir*(8+3*s.k),o:E,d:6,c:hi?"#ffd84a":"#6fdc5a",h2:hi?"H":"L",_wait:18};H2.q2=q}
+  try{beep(hi?900:300,.15,"square")}catch(e){}HD.A=null;E.cd=Math.max(E.cd,20);return}
+ if(A.ty=="spin"){var sp=9+3*s.k;E.x=clampX(E.x+A.dir*sp);E.f=A.dir;if(t%3==0)fx.push({x:E.x,y:E.y-50,vx:-A.dir*2,vy:-1,l:16,emo:"🌀"});
+  if(!A.hit&&Math.abs(P.x-E.x)<(g?110:52)&&P.y>G-(g?120:68)){A.hit=1;h2Hit(8,A.dir*14,-8)}
+  if(st>38||E.x<=61||E.x>=W-61){HD.A=null;E.cd=Math.max(E.cd,22)}return}
+ if(A.ty=="stomp3"){if(st==1||(A.land&&st>=A.land+10&&A.n<3)){A.n++;A.land=0;E.vy=g?-13:-14;A.vx=Math.max(-7,Math.min(7,(P.x-E.x)/24));A.air=1;return}
+  if(A.air&&st>3){E.x=clampX(E.x+A.vx);if(gnd(E)){A.air=0;A.land=st;shake=Math.max(shake||0,8);try{thud(true)}catch(e){}HD.waves.push({x:E.x,r:0,l:22});if(Math.abs(P.x-E.x)<(g?150:100)&&P.y>G-40)h2Hit(6,Math.sign(P.x-E.x||1)*11,-8);if(A.n>=3){HD.A=null;E.cd=Math.max(E.cd,22)}}}
+  if(st>160)HD.A=null;return}
+ if(A.ty=="poof"){if(st==1){for(var i=0;i<10;i++)fx.push({x:E.x,y:E.y-50,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*8,l:24,emo:i%2?"✨":"💨"});E.x=A.tx;E.vy=0;E.f=tw;for(var j=0;j<10;j++)fx.push({x:E.x,y:E.y-50,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*8,l:24,emo:j%2?"✨":"💨"});try{beep(1200,.1,"sine")}catch(e){}return}
+  if(st==10){E.f=tw;E.cd=0;punch(E,P);HD.A=null;E.cd=Math.max(E.cd,24)}return}
+ if(A.ty=="upper"){if(st==1){E.vy=g?-15:-19;A.vx=Math.max(-8,Math.min(8,(A.tx-E.x)/20))}E.x=clampX(E.x+(A.vx||0));
+  if(!A.hit&&Math.abs(P.x-E.x)<55&&Math.abs(P.y-E.y)<75){A.hit=1;h2Hit(8,tw*-10,-10)}
+  if(st>4&&gnd(E)||st>70){HD.A=null;E.cd=Math.max(E.cd,22)}return}
+ HD.A=null};
+/* finished a signature move? at high levels chain straight into the next one (still ❗-warned) */
+function h2Combo(){if(H2.nd&&!HD.A){H2.nd=0;HD.next=Math.min(HD.next,t+40)}}
+function h2Tick(){if(!hdOn()||!H2.s)return;var s=H2.s;
+ /* habits: how often the hero jumps / ducks / stays high */
+ var pg=gnd(P);if(H2.pg&&!pg&&P.vy<0)H2.jc.push(t);H2.pg=pg;if(H2.jc.length&&t-H2.jc[0]>300)H2.jc.shift();
+ H2.dk=P.duck?Math.min(200,H2.dk+1):Math.max(0,H2.dk-.4);H2.hi=P.y<G-150?H2.hi+1:0;
+ var eg=gnd(E),landed=eg&&!H2.eg;H2.eg=eg;
+ if(H2.q2&&--H2.q2._wait<=0){var q=H2.q2;H2.q2=null;if(hdOn()&&sees(E)){q.x=E.x+Math.sign(q.v)*34;shots.push(q)}}
+ h2Combo();
+ if(!h2Free()){H2.fe=0;if(H2.ch>0&&HD.act!=t){H2.ch=0}return}
+ var d=Math.abs(P.x-E.x),tw=P.x<E.x?-1:1,reach=E.h.giant?120:65;
+ /* a bit quicker on the feet */
+ if(d>reach&&s.sp>1&&!H2.fe)E.x+=tw*E.h.sp*.6*(s.sp-1)*(E.slow>0?.4:1);
+ /* counter after a dodge */
+ if(H2.ctr>0){if(--H2.ctr==0&&d<130){E.f=tw;E.x=clampX(E.x+tw*Math.max(0,Math.min(40,d-55)));E.cd=0;punch(E,P);if(Math.random()<.5)say("Counter! 😝",40)}return}
+ /* dodged a shot by jumping (round-1 dodge) -> counter dash on landing */
+ if(landed&&s.counter>0&&H2.dodged){H2.dodged=0;if(d<220&&Math.random()<s.counter){H2.ctr=6;E.x=clampX(E.x+tw*Math.min(60,d*.4))}}
+ if(!eg&&E.vy<-12&&shots.some(function(q){return q.o==P&&Math.abs(q.x-E.x)<200}))H2.dodged=1;
+ /* cross-up landing: hop over, then bonk from the other side */
+ if(H2.xup&&landed){H2.xup=0;if(d<120){E.f=tw;E.cd=0;punch(E,P)}}
+ /* feint: fake wind-up (no ❗ — only real attacks get the ❗), then back off or quick-step in */
+ if(H2.fe>0){E.x=H2.fx0;E.kb=0;E.f=tw;if(--H2.fe==0){if(H2.feAfter){E.kb=tw*10;H2.ctr=8}else{E.kb=-tw*8}}return}
+ if(s.feint>0&&eg&&d>75&&d<210&&Math.random()<.006*s.feint){H2.fe=22;H2.fx0=E.x;H2.feAfter=Math.random()<.5?1:0;if(Math.random()<.6)say(["Fake-out! 😜","Gotcha! Hee hee!","Boo! Just kidding! 😝"][Math.floor(Math.random()*3)],40);return}
+ if(s.cross>0&&eg&&d<95&&E.x>140&&E.x<W-140&&Math.random()<.012*s.cross){E.vy=-16;E.kb=tw*12;H2.xup=1;try{fx.push({x:E.x,y:E.y-20,vx:0,vy:-1,l:20,emo:"💨"})}catch(e){}return}
+ /* anti-air: hero keeps jumping right at him -> quick little hop-bop */
+ if(s.read>0&&eg&&t>H2.aacd&&H2.jc.length>=3&&P.y<E.y-50&&P.vy<0&&d<120&&Math.random()<.08*s.read){H2.aacd=t+150;E.vy=-15;E.kb=tw*5;H2.aa=24}
+ if(H2.aa>0){H2.aa--;if(Math.abs(P.x-E.x)<55&&Math.abs(P.y-E.y)<70){H2.aa=0;h2Hit(5,tw*-9,-6)}}
+ /* ducking hero up close: step right in */
+ if(s.read>0&&P.duck&&d>reach-10&&d<200)E.x+=tw*Math.min(2.5,E.h.sp*.4);
+ /* platforms: hop up to a hero standing on one */
+ if(s.chase>0&&eg&&t>H2.pcd&&P.onPlat>=t-1&&P.y<E.y-30&&d<170&&Math.random()<.05*s.chase){var h=E.y-P.y+25;E.vy=-Math.min(25,Math.sqrt(2*.9*h)+1.5);E.kb=tw*Math.min(9,d/14);H2.pcd=t+70}
+ /* chase high flyers with rocket boots (non-flyers too) */
+ if(s.chase>0&&!E.h.giant){if(H2.ch<=0&&H2.hi>Math.round(110-50*s.k)&&t>H2.chcd){H2.ch=Math.round(120+160*s.k);H2.chcd=t+H2.ch+Math.round(260-120*s.k);if(Math.random()<.7)say(E.h.fly?"You can't fly away from me! 🚀":"Rocket boots, ON! 🚀",50)}
+  if(H2.ch>0){H2.ch--;if(E.y>P.y+20&&E.y>-640){E.vy=Math.max(E.vy-1.7,-7.5);E.fly=1}else if(E.vy>2)E.vy=2;if(d>40)E.x+=tw*Math.min(d-30,2.2+2*s.k);if(t%4==0)fx.push({x:E.x,y:E.y+4,vx:(Math.random()-.5)*2,vy:3,l:14,emo:"✨"});if(H2.ch==0||P.y>G-40){H2.ch=0;E.fly=0}}}
+}
+var _h2Tick=hdTick;hdTick=function(){_h2Tick.apply(this,arguments);try{h2Tick()}catch(e){}};
+function h2Draw(){if(!hdOn()||!H2.s)return;try{x.save();var A=HD.A;
+ if(A&&A.h2&&A.t<=A.w){var p=A.t/A.w,hn=FOE2.hint[A.ty];x.font="bold 13px sans-serif";x.textAlign="center";x.fillStyle="rgba(255,235,59,.85)";
+  if(A.ty=="zapL"){for(var j=1;j<=3;j++)x.fillRect(E.x+A.dir*(60+j*40)-8,G-6,16,6);x.fillText(hn,E.x+A.dir*150,G-26)}
+  else if(A.ty=="zapH"){x.strokeStyle="rgba(255,216,74,.8)";x.lineWidth=3;x.setLineDash([10,8]);x.beginPath();x.moveTo(E.x+A.dir*40,G-74);x.lineTo(E.x+A.dir*240,G-74);x.stroke();x.setLineDash([]);x.fillText(hn,E.x+A.dir*150,G-90)}
+  else if(A.ty=="spin"){for(var i=1;i<=4;i++){var ax=E.x+A.dir*(40+i*45);x.beginPath();x.moveTo(ax+A.dir*14,G-10);x.lineTo(ax-A.dir*6,G-20);x.lineTo(ax-A.dir*6,G);x.fill()}x.fillText(hn,E.x+A.dir*130,G-26)}
+  else if(A.ty=="stomp3"){x.strokeStyle="rgba(255,235,59,.8)";x.lineWidth=3;x.beginPath();x.ellipse(P.x,G-2,70+20*(1-p),10,0,0,7);x.stroke();x.fillText(hn,P.x,G-24)}
+  else if(A.ty=="upper"){x.strokeStyle="rgba(255,235,59,.8)";x.lineWidth=3;x.beginPath();x.moveTo(E.x,E.y-110);x.lineTo(A.tx,E.y-230);x.stroke();x.fillText("⬆️ "+hn,A.tx,E.y-240)}
+  else if(A.ty=="poof"){var pul=1+.12*Math.sin(t*.5);x.globalAlpha=.3+.4*p;x.strokeStyle="#fff";x.setLineDash([6,6]);x.lineWidth=3;x.beginPath();x.ellipse(A.tx,E.y-55,34*pul,70*pul,0,0,7);x.stroke();x.setLineDash([]);x.globalAlpha=1;x.font="bold 30px sans-serif";x.fillStyle="#ff3b3b";x.fillText("❗",A.tx,E.y-140);x.font="bold 13px sans-serif";x.fillStyle="rgba(255,235,59,.9)";x.fillText(hn,A.tx,G-24)}}
+ if(H2.fe>0){x.font="26px sans-serif";x.textAlign="center";x.fillText("😜",E.x+Math.sin(t*.8)*4,E.y-(E.h.giant?190:125))}
+ if(H2.ch>0&&!gnd(E)){x.font="20px sans-serif";x.textAlign="center";x.fillText("🚀",E.x-14,E.y+14);x.fillText("🚀",E.x+14,E.y+14)}
+ x.restore()}catch(e){x.restore()}}
+var _h2Over=realOver;realOver=function(){_h2Over.apply(this,arguments);h2Draw()};
 
 </script></body></html>
