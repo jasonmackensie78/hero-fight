@@ -2836,7 +2836,7 @@ function ssTick(){if(P&&P.ssVacP&&t>P.ssVacP.t)ssVacDone(P.ssVacP.c);if(!P)retur
    A quick tap of ⬇ still ducks (unchanged). The 🌳 camouflage power still hides you INSIDE a pipe from the ground (unchanged).
    The fight is frozen while you're in the level. Not in Race. Recording pauses inside (replay skips the level). */
 var PL={act:0,ph:"",pt:0,hold:0,tip:0,cool:0,needUp:0,lv:null,sv:null,d:null,cam:0,hp:100,tries:5,coins:0,inv:0,cp:120,pcd:0,lastA:0,lastUp:0,lastDn:0,prevY:0,kvx:0,dropT:0,force:null,seed:0,post:0,res:null,n:0,err:null,txt:[]};
-var PLB={list:[],fights:0,on:0,shield:0,flash:0};
+var PLB={list:[],fights:0,on:0,shield:0,flash:0,hA:0};
 const PLD=[{id:"easy",n:"Super Easy",ic:"🟢",col:"#2a9d48",L:1,w:50,len:2600,foes:6,cps:1,tries:5,fights:1,np:1,coins:5,tier:0},
  {id:"hard",n:"Super Hard",ic:"🟠",col:"#e67c12",L:5,w:35,len:3300,foes:10,cps:2,tries:5,fights:2,np:2,coins:12,tier:1},
  {id:"duper",n:"Super Duper Hard",ic:"🔴",col:"#d42a4a",L:8,w:15,len:4000,foes:14,cps:3,tries:5,fights:3,np:3,coins:25,tier:2}];
@@ -2897,7 +2897,7 @@ function plWin(){PL.ph="win";PL.pt=0;let d=PL.d,pz=PL.forceP?PL.forceP.map(ty=>(
  for(let i=0;i<60;i++)PL.fx.push({x:P.x+(Math.random()-.5)*300,y:P.y-200-Math.random()*100,vx:(Math.random()-.5)*6,vy:Math.random()*2,l:90,c:["#ff4","#f6a","#6ef","#8f6","#fa4"][i%5]})}
 function plGrant(r){addCoins(r.coins);for(const p of r.pz){let ex=PLB.list.find(q=>q.ty==p.ty);if(ex)ex.amt=Math.max(ex.amt,p.amt);else PLB.list.push({ty:p.ty,amt:p.amt})}
  PLB.fights=Math.max(PLB.fights,r.d.fights);PLB.on=1;PLB.flash=120;
- for(const p of r.pz){if(p.ty=="heart"){P.mhp=(P.mhp||100)+p.amt;P.hp=Math.min(P.mhp,P.hp+p.amt)}if(p.ty=="shield")PLB.shield=Math.max(PLB.shield,p.amt)}}
+ for(const p of r.pz){if(p.ty=="heart"){/* Big Heart never stacks inside one fight: keep the bigger one */let had=PLB.hA||0,add=Math.max(0,p.amt-had);P.mhp=(P.mhp||100)+add;P.hp=Math.min(P.mhp,P.hp+add);PLB.hA=Math.max(had,p.amt)}if(p.ty=="shield")PLB.shield=Math.max(PLB.shield,p.amt)}}
 function plExit(win,quiet){let s=PL.sv;PL.act=0;PL.ph="";plPad(0);
  if(s){P.x=s.x;P.f=s.f;P.fly=0;P.hit=0;P.kb=0;P.duck=0;P.lx=s.lx;t=s.t;cam=s.cam;camY=s.camY;shake=0;banner=s.banner;bubble=s.bubble;P.y=s.pp?s.pp.top:s.y;P.vy=quiet?0:-12;P.onPipe=0}
  PL.cool=90;PL.needUp=1;PL.hold=0;for(const kk in k)if(kk!="arrowleft"&&kk!="arrowright")k[kk]=0;
@@ -3045,9 +3045,9 @@ function plPost(){if(!P)return;
  if(a===P&&b&&b!==P&&b!==T&&d>0&&plHas("punch"))d=d*plAmt("punch");
  if(b===P&&a!==P&&d>0&&PLB.shield>0&&plHas("shield")&&!(P.pu=="shield"||P.pu=="star"||P.ff>0)){PLB.shield--;spark(P.x,P.y-60,"#7df",14);beep(1100,.07,"sine");note("🛡️ Pipe Shield blocked that bonk!"+(PLB.shield>0?" ("+PLB.shield+" left)":""),90);return}}}catch(e){}
  return o.call(this,a,b,d)}})();
-(function(){const o=startExtra;startExtra=function(){let r=o.apply(this,arguments);try{PL.hold=0;PL.cool=0;PL.needUp=0;
+(function(){const o=startExtra;startExtra=function(){let r=o.apply(this,arguments);try{PL.hold=0;PL.cool=0;PL.needUp=0;PLB.hA=0;
  if(pr||race){PLB.on=0}
- else if(PLB.fights>0&&PLB.list.length){PLB.fights--;PLB.on=1;PLB.flash=120;PLB.shield=0;for(const q of PLB.list){if(q.ty=="heart"){P.mhp=(P.mhp||100)+q.amt;P.hp=P.mhp}if(q.ty=="shield")PLB.shield=q.amt}
+ else if(PLB.fights>0&&PLB.list.length){PLB.fights--;PLB.on=1;PLB.flash=120;PLB.shield=0;for(const q of PLB.list){if(q.ty=="heart"){P.mhp=(P.mhp||100)+q.amt;P.hp=P.mhp;PLB.hA=q.amt}if(q.ty=="shield")PLB.shield=q.amt}
   setTimeout(()=>{try{note("🟢 Pipe prize ON: "+PLB.list.map(q=>PLP[q.ty].ic+" "+PLP[q.ty].n).join(" + ")+"!",150)}catch(e){}},2600)}
  else{PLB.on=0;PLB.list=[];PLB.fights=0;PLB.shield=0}}catch(e){}return r}})();
 (function(){const o=start;start=function(){plAbort();return o.apply(this,arguments)}})();
@@ -3055,5 +3055,296 @@ function plPost(){if(!P)return;
 (function(){const o=teleport;teleport=function(){if(PL.act)return;return o.apply(this,arguments)}})();
 (function(){const o=toggleInv;toggleInv=function(){if(PL.act)return;return o.apply(this,arguments)}})();
 addEventListener("keydown",e=>{if(PL.act){let q=(e.key||"").toLowerCase();if(q=="i"||q=="t"){e.stopImmediatePropagation()}}},true);
+
+
+/* ===== 🥊 PLAY / FIGHT WHOEVER YOU WANT (Kit's idea) =====
+   Pick YOUR fighter and WHO YOU FIGHT from one big roster. New friendly fighters:
+   Mom, Dad, Kit, Friend, Girl, The Sky, Pac-Man + a Friend/Girl maker (saved in localStorage "heroFriends").
+   Cartoon bonks, dizzy stars and goo only. Layered on top: nothing Kit built is removed. */
+var FWY={o:-1,base:C.length,j:0,blue:0,blueBy:null,err:null,maxF:12};
+const FWYSK={light:["#ffe0c4","#f0bf98","#c08a64"],tan:["#f8d6b4","#dfa97f","#a8724c"],medium:["#e0aa7c","#c08050","#8a5530"],brown:["#b97c50","#955a34","#663a1e"],deep:["#8a5a3a","#6a3f24","#45260f"]};
+const FWYHC={black:"#2a2220",brown:"#6b4423",blonde:"#e8c25a",red:"#c4502a",blue:"#3a7bff",pink:"#ff6fb5",purple:"#9a5ae0"};
+const FWYSH=["#ff5a5a","#ff9f1c","#ffd23f","#3ecf6a","#2fa8ff","#7a5cff","#ff6fb5","#ffffff","#333a4a"];
+function fwyMix(c,d,p){try{let h=s=>{s=s.replace("#","");if(s.length==3)s=s.split("").map(q=>q+q).join("");return[0,2,4].map(i=>parseInt(s.substr(i,2),16))};let A=h(c),B=h(d);return"rgb("+A.map((v,i)=>Math.round(v+(B[i]-v)*p)).join(",")+")"}catch(e){return c}}
+/* ---------- generic cartoon person (Realism-5 style, same proportions as other humans) ---------- */
+function fwHairBack(L,X,y,f){const c=L.hc,s=L.hs,bow=L.bow||"#ff5fa2";x.fillStyle=c;
+ if(s=="long"||s=="mom"){x.beginPath();x.moveTo(X-18,y-124);x.quadraticCurveTo(X-24,y-98,X-18,y-82);x.quadraticCurveTo(X,y-78,X+18,y-82);x.quadraticCurveTo(X+24,y-98,X+18,y-124);x.closePath();x.fill()}
+ if(s=="ponytail"){let px=X-f*18,py=y-122;x.beginPath();x.ellipse(px-f*6,py+14+Math.sin(t/9)*1.5,7,17,f*.4,0,7);x.fill();x.fillStyle=bow;x.beginPath();x.arc(px,py,4,0,7);x.fill()}
+ if(s=="pigtails"){[-1,1].forEach(sd=>{x.fillStyle=c;x.beginPath();x.ellipse(X+sd*22,y-108,7,12,sd*.35,0,7);x.fill();x.fillStyle=bow;x.beginPath();x.arc(X+sd*18,y-121,4,0,7);x.fill()})}
+ if(s=="braids"){[-1,1].forEach(sd=>{for(let i=0;i<5;i++){x.fillStyle=shade(c,i%2?-18:12);x.beginPath();x.ellipse(X+sd*16,y-110+i*7,4.8,4.6,0,0,7);x.fill()}x.fillStyle=bow;x.beginPath();x.arc(X+sd*16,y-76,3.4,0,7);x.fill()})}}
+function fwHairTop(L,X,y,f){const c=L.hc,s=L.hs;let g=x.createLinearGradient(0,y-140,0,y-112);g.addColorStop(0,shade(c,35));g.addColorStop(1,shade(c,-15));x.fillStyle=g;
+ if(s=="buzz"){x.save();x.globalAlpha*=.8;x.beginPath();x.ellipse(X,y-121,16.8,14.5,0,Math.PI,2*Math.PI);x.closePath();x.fill();x.restore();return}
+ x.beginPath();x.ellipse(X,y-120,17.6,16.5,0,Math.PI,2*Math.PI);x.closePath();x.fill();
+ x.beginPath();x.ellipse(X-f*13,y-115,6,10,0,0,7);x.fill();
+ if(s=="spiky"){for(let i=-2;i<=2;i++){let bx=X+i*7-f*2;x.beginPath();x.moveTo(bx-6,y-131+Math.abs(i)*2);x.lineTo(bx+f*3,y-145+Math.abs(i)*3);x.lineTo(bx+6,y-131+Math.abs(i)*2);x.fill()}}
+ if(s=="curly"){for(let i=0;i<9;i++){let an=Math.PI+i*Math.PI/8;x.beginPath();x.arc(X+Math.cos(an)*16,y-120+Math.sin(an)*15,6.5,0,7);x.fill()}}
+ if(s=="swoop"||s=="dad"){x.beginPath();x.moveTo(X-f*15,y-121);x.quadraticCurveTo(X+f*2,y-142,X+f*18,y-122);x.quadraticCurveTo(X+f*6,y-127,X-f*15,y-121);x.fill()}
+ if(s=="short"){for(let i=0;i<4;i++){x.beginPath();x.arc(X+f*(-6+i*6),y-122,4.5,0,7);x.fill()}}
+ if(s=="bun"){x.beginPath();x.arc(X-f*3,y-139,8.5,0,7);x.fill();x.fillStyle=L.bow||"#ff5fa2";x.fillRect(X-f*3-6,y-133,12,3)}
+ if(s=="long"||s=="mom"||s=="ponytail"||s=="pigtails"||s=="braids"){x.beginPath();x.moveTo(X-f*16,y-120);x.quadraticCurveTo(X+f*4,y-138,X+f*17,y-119);x.quadraticCurveTo(X+f*4,y-126,X-f*16,y-120);x.fill();
+  if(s=="mom"){x.beginPath();x.ellipse(X+f*15,y-110,5,11,f*.2,0,7);x.fill()}}}
+function fwHuman(a,X,y,f,ph,run,L){const S=RL.st(a),ld=RL.LD(a.x),fz=a.frz>0,reach=(typeof r4Reach=="function")?r4Reach(a):0,sw=run?Math.sin(t/9)*9:0,sc=L.sc||1;
+ x.save();x.lineCap="round";x.lineJoin="round";if(sc!=1){x.translate(X,y);x.scale(sc,sc);x.translate(-X,-y)}
+ const ic=c=>fz?fwyMix(c,"#ddf6ff",.55):c,sk=L.sk.map(ic),sh=ic(L.sh),pa=ic(L.pa||"#3a5a9a"),so=ic(L.so||"#ff4d4d"),out=L.out||"tee";
+ fwHairBack(Object.assign({},L,{hc:ic(L.hc)}),X,y,f);
+ /* back arm */
+ x.strokeStyle=shade(sh,-25);x.lineWidth=9;x.beginPath();x.moveTo(X-f*12,y-86);x.lineTo(X-f*16-sw*.5,y-68);x.stroke();
+ x.strokeStyle=sk[1];x.lineWidth=7.5;x.beginPath();x.moveTo(X-f*16-sw*.5,y-68);x.lineTo(X-f*15-sw*.8,y-54);x.stroke();x.fillStyle=sk[1];x.beginPath();x.arc(X-f*15-sw*.8,y-52,5.5,0,7);x.fill();
+ /* legs + shoes */
+ const legC=(out=="dress"||out=="skirt")?(L.tights||sk[1]):pa;
+ [[-1,sw],[1,-sw]].forEach((q,i)=>{let lx=X+q[0]*7,fx2=lx+q[1]*.9;x.strokeStyle=i?legC:shade(legC,-12);x.lineWidth=11;x.beginPath();x.moveTo(lx,y-46);x.lineTo(fx2,y-10);x.stroke();
+  x.fillStyle=i?so:shade(so,-15);x.beginPath();x.ellipse(fx2+f*5,y-5,10.5,6,0,0,7);x.fill();x.fillStyle="#fff";x.fillRect(fx2+f*5-10,y-2,20,2.5)});
+ if(out=="tee"||out=="hoodie"||out=="overalls"||out=="apron"||out=="skirt"){x.fillStyle=pa;if(out!="skirt"){x.beginPath();x.moveTo(X-16,y-50);x.lineTo(X+16,y-50);x.lineTo(X+15,y-40);x.lineTo(X-15,y-40);x.fill()}}
+ /* torso */
+ let tg=x.createLinearGradient(X+ld*16,0,X-ld*16,0);tg.addColorStop(0,shade(sh,22));tg.addColorStop(1,shade(sh,-22));x.fillStyle=tg;
+ if(out=="dress"){x.beginPath();x.moveTo(X-14,y-92);x.lineTo(X+14,y-92);x.quadraticCurveTo(X+18,y-62,X+26,y-32);x.quadraticCurveTo(X,y-26,X-26,y-32);x.quadraticCurveTo(X-18,y-62,X-14,y-92);x.fill();
+  x.strokeStyle="rgba(255,255,255,.6)";x.lineWidth=3;x.beginPath();x.moveTo(X-24,y-36);x.quadraticCurveTo(X,y-30,X+24,y-36);x.stroke();x.fillStyle="#fff";for(let i=0;i<3;i++){x.beginPath();x.arc(X+f*(-6+i*6),y-60+i%2*8,2.2,0,7);x.fill()}}
+ else{rr(X-16,y-92,32,out=="skirt"?32:46,9);x.fill();
+  if(out=="skirt"){x.fillStyle=ic(L.sk2||"#7a5cff");x.beginPath();x.moveTo(X-16,y-62);x.lineTo(X+16,y-62);x.lineTo(X+24,y-38);x.quadraticCurveTo(X,y-34,X-24,y-38);x.closePath();x.fill()}
+  if(out=="hoodie"){x.fillStyle=shade(sh,-18);x.beginPath();x.ellipse(X-f*6,y-92,13,6,0,0,7);x.fill();x.fillStyle=shade(sh,-10);rr(X-10,y-66,20,12,5);x.fill();x.strokeStyle="#fff";x.lineWidth=2;x.beginPath();x.moveTo(X+f*3,y-90);x.lineTo(X+f*3,y-78);x.moveTo(X+f*9,y-90);x.lineTo(X+f*9,y-80);x.stroke()}
+  if(out=="overalls"){x.fillStyle=pa;rr(X-12,y-76,24,30,5);x.fill();x.strokeStyle=pa;x.lineWidth=4;x.beginPath();x.moveTo(X-9,y-76);x.lineTo(X-11,y-91);x.moveTo(X+9,y-76);x.lineTo(X+11,y-91);x.stroke();x.fillStyle="#ffd23f";[[-9,-74],[9,-74]].forEach(b=>{x.beginPath();x.arc(X+b[0],y+b[1],2.4,0,7);x.fill()})}
+  if(out=="apron"){x.fillStyle=ic(L.ap||"#fff");rr(X-12,y-82,24,40,6);x.fill();x.strokeStyle=ic(L.ap||"#fff");x.lineWidth=2.5;x.beginPath();x.moveTo(X-10,y-82);x.lineTo(X-6,y-92);x.moveTo(X+10,y-82);x.lineTo(X+6,y-92);x.stroke();if(L.apE)emo(L.apE,X+f*1,y-62,14)}
+  if(L.logo){x.fillStyle=ic(L.logoC||"#ffd23f");x.font="bold 15px sans-serif";x.textAlign="center";x.fillText(L.logo,X+f*2,y-66);x.textAlign="left"}
+  if(L.collar){x.fillStyle=shade(sh,30);x.beginPath();x.moveTo(X-8,y-93);x.lineTo(X,y-84);x.lineTo(X+8,y-93);x.fill()}}
+ if(L.cape&&!fz){x.fillStyle=L.cape;x.beginPath();x.moveTo(X-f*10,y-92);x.quadraticCurveTo(X-f*30,y-64+Math.sin(t/6)*3,X-f*(24+(run?10:0)),y-40);x.lineTo(X-f*6,y-46);x.closePath();x.fill()}
+ /* neck, ear, head */
+ x.fillStyle=sk[1];rr(X-5,y-102,10,12,4);x.fill();
+ x.fillStyle=sk[1];x.beginPath();x.ellipse(X-f*13,y-112,4.5,6,0,0,7);x.fill();
+ let hg=x.createRadialGradient(X+ld*5,y-121,3,X,y-115,22);hg.addColorStop(0,sk[0]);hg.addColorStop(1,sk[1]);x.fillStyle=hg;x.beginPath();x.ellipse(X,y-115,16,19.5,0,0,7);x.fill();
+ x.fillStyle=sk[2];x.globalAlpha*=.35;x.beginPath();x.ellipse(X+f*14,y-107,3.2,2.6,0,0,7);x.fill();x.globalAlpha/=.35;
+ fwHairTop(Object.assign({},L,{hc:ic(L.hc)}),X,y,f);
+ /* face */
+ RL.eye(X+f*8.5,y-114,4.2,5,L.iris||"#5a3a1a",S,ld,!!L.lash,f);RL.eye(X-f*2.5,y-114.5,3.8,4.6,L.iris||"#5a3a1a",S,ld,!!L.lash,f);
+ RL.brow(X+f*8.5,y-121.5,7,f,1,S.mood,shade(ic(L.hc),-30),2.2);RL.brow(X-f*2.5,y-121.8,6,f,0,S.mood,shade(ic(L.hc),-30),2.2);
+ if(L.glasses){x.strokeStyle="#333";x.lineWidth=1.8;x.beginPath();x.arc(X+f*8.5,y-114,6.5,0,7);x.moveTo(X-f*2.5+6,y-114.5);x.arc(X-f*2.5,y-114.5,6,0,7);x.moveTo(X+f*2,y-115);x.lineTo(X+f*3.6,y-115);x.stroke()}
+ if(L.stache){x.fillStyle=shade(ic(L.hc),-20);x.beginPath();x.ellipse(X+f*9,y-104.5,7.5,3.2,0,0,7);x.fill()}
+ RL.mouth(X+f*8.5,y-100,S.mood,f,L.lip||"#c0605a",0);RL.blush(X+f*10,y-106,.25);
+ if(L.ear){x.fillStyle=L.ear;x.beginPath();x.arc(X-f*13,y-104,2.4,0,7);x.fill()}
+ /* hand-held prop */
+ const hx=X+f*(22+reach),hy=y-50;
+ if(a.fwIt&&a.fwItT>t){if(a.fwIt=="spatula"){x.strokeStyle="#7a4a2a";x.lineWidth=4;x.beginPath();x.moveTo(hx,hy);x.lineTo(hx+f*12,hy-26);x.stroke();x.save();x.translate(hx+f*15,hy-34);x.rotate(f*.4);x.fillStyle="#cfd6de";rr(-8,-10,16,14,3);x.fill();x.restore()}
+  if(a.fwIt=="broom"){x.strokeStyle="#a0703a";x.lineWidth=4;x.beginPath();x.moveTo(hx-f*8,hy-30);x.lineTo(hx+f*16,y-12);x.stroke();x.fillStyle="#e8c25a";x.beginPath();x.moveTo(hx+f*10,y-16);x.lineTo(hx+f*30,y-16);x.lineTo(hx+f*36,y);x.lineTo(hx+f*6,y);x.fill()}}
+ /* front arm */
+ x.strokeStyle=sh;x.lineWidth=9.5;x.beginPath();x.moveTo(X+f*11,y-86);x.lineTo(X+f*(17+reach*.5),y-68);x.stroke();
+ x.strokeStyle=sk[1];x.lineWidth=8;x.beginPath();x.moveTo(X+f*(17+reach*.5),y-68);x.lineTo(hx,hy);x.stroke();
+ RL.hand(a,X,y,f,null,reach);
+ x.restore()}
+/* ---------- The Sky: a big friendly cloud with a sunny friend ---------- */
+function fwSkyDraw(a,X,y,f,ph,run){const S=RL.st(a),fz=a.frz>0,wb=Math.sin(t/18+(a===E?2:0))*4,cy=y-80+wb,reach=(typeof r4Reach=="function")?r4Reach(a):0;x.save();
+ if(a.y>G-40){x.fillStyle="rgba(0,0,0,.12)";x.beginPath();x.ellipse(X,y-2,46,7,0,0,7);x.fill()}
+ if(!fz){let sx=X-f*44,sy=cy-50;x.strokeStyle="#ffc93a";x.lineWidth=4;for(let i=0;i<8;i++){let an=t/40+i*Math.PI/4;x.beginPath();x.moveTo(sx+Math.cos(an)*26,sy+Math.sin(an)*26);x.lineTo(sx+Math.cos(an)*36,sy+Math.sin(an)*36);x.stroke()}
+  let g=x.createRadialGradient(sx-5,sy-5,2,sx,sy,24);g.addColorStop(0,"#fff6a8");g.addColorStop(1,"#ffc93a");x.fillStyle=g;x.beginPath();x.arc(sx,sy,22,0,7);x.fill();x.fillStyle="#7a4a00";x.beginPath();x.arc(sx-6,sy-3,2.2,0,7);x.arc(sx+6,sy-3,2.2,0,7);x.fill();x.strokeStyle="#7a4a00";x.lineWidth=2;x.beginPath();x.arc(sx,sy+3,7,.2,Math.PI-.2);x.stroke()}
+ const PF=[[-48,10,26],[-26,-14,32],[6,-26,35],[36,-10,30],[52,12,24],[-14,16,34],[22,18,30]];
+ PF.forEach(p=>{let g=x.createRadialGradient(X+p[0]-p[2]*.3,cy+p[1]-p[2]*.4,2,X+p[0],cy+p[1],p[2]);g.addColorStop(0,"#ffffff");g.addColorStop(1,fz?"#cdeeff":"#d6e8f7");x.fillStyle=g;x.beginPath();x.arc(X+p[0],cy+p[1],p[2],0,7);x.fill()});
+ x.fillStyle="#fff";x.beginPath();x.arc(X-f*58,cy+14,11,0,7);x.fill();x.beginPath();x.arc(X+f*(58+reach),cy+8,12,0,7);x.fill();x.strokeStyle="#c6dcef";x.lineWidth=2;x.stroke();
+ const ex=X+f*6;if(S.bl||S.mood=="sleep"){x.strokeStyle="#334";x.lineWidth=3;[-12,12].forEach(d=>{x.beginPath();x.arc(ex+d,cy-6,6,.2,Math.PI-.2);x.stroke()})}
+ else if(S.mood=="hurt"){x.strokeStyle="#334";x.lineWidth=3;[-12,12].forEach(d=>{x.beginPath();x.moveTo(ex+d-5,cy-11);x.lineTo(ex+d+4,cy-6);x.lineTo(ex+d-5,cy-1);x.stroke()})}
+ else[-12,12].forEach(d=>{x.fillStyle="#fff";x.beginPath();x.ellipse(ex+d,cy-6,7.5,9.5,0,0,7);x.fill();x.strokeStyle="#aac";x.lineWidth=1.2;x.stroke();x.fillStyle="#2b4a8a";x.beginPath();x.arc(ex+d+f*2,cy-5,4.6,0,7);x.fill();x.fillStyle="#fff";x.beginPath();x.arc(ex+d+f*2-1.5,cy-7,1.6,0,7);x.fill()});
+ x.fillStyle="#ff9fb8";x.globalAlpha*=.6;x.beginPath();x.ellipse(ex-22,cy+6,6,4,0,0,7);x.ellipse(ex+22,cy+6,6,4,0,0,7);x.fill();x.globalAlpha/=.6;
+ x.fillStyle="#7a3a4a";x.strokeStyle="#7a3a4a";x.lineWidth=3;if(S.mood=="hurt"){x.beginPath();x.ellipse(ex,cy+12,5,6,0,0,7);x.fill()}else if(S.mood=="attack"||S.mood=="mischief"){x.beginPath();x.arc(ex,cy+6,10,.1,Math.PI-.1);x.fill()}else{x.beginPath();x.arc(ex,cy+5,8,.25,Math.PI-.25);x.stroke()}
+ x.restore()}
+/* ---------- Pac-Man: round yellow chomper with gloves + red sneakers ---------- */
+function fwPacDraw(a,X,y,f,ph,run){const S=RL.st(a),fz=a.frz>0,R=36,cx=X,cy=y-52,reach=(typeof r4Reach=="function")?r4Reach(a):0,sw=run?Math.sin(t/6)*8:0;x.save();x.lineCap="round";
+ const yel=fz?"#e8f8ff":"#ffe600",yd=fz?"#a8d8ee":"#e0a800";
+ x.strokeStyle="#2a2a2a";x.lineWidth=5;[[-1,sw],[1,-sw]].forEach(q=>{x.beginPath();x.moveTo(cx+q[0]*12,cy+28);x.lineTo(cx+q[0]*12+q[1],y-8);x.stroke()});
+ [[-1,sw],[1,-sw]].forEach(q=>{let fx2=cx+q[0]*12+q[1];x.fillStyle="#e8322a";x.beginPath();x.ellipse(fx2+f*5,y-6,11,7,0,0,7);x.fill();x.fillStyle="#fff";x.fillRect(fx2+f*5-10,y-2,20,3)});
+ x.fillStyle="#fff";x.beginPath();x.arc(cx-f*(R-2),cy+10,9,0,7);x.fill();
+ let open=(run||a.hit>0||(a.fwChomp&&a.fwChomp>t))?(Math.abs(Math.sin(t/3))*.55+.08):(.14+Math.abs(Math.sin(t/25))*.12);if(S.mood=="sleep")open=.04;
+ let a0=f>0?open:Math.PI+open,a1=f>0?2*Math.PI-open:3*Math.PI-open;
+ x.fillStyle="#7a2416";x.beginPath();x.moveTo(cx,cy);x.arc(cx,cy,R-3,a1-2*Math.PI,a0);x.closePath();x.fill();
+ x.fillStyle="#ff7a8a";x.beginPath();x.ellipse(cx+f*12,cy+5,8,4,f*.3,0,7);x.fill();
+ let g=x.createRadialGradient(cx-f*10,cy-14,4,cx,cy,R+4);g.addColorStop(0,"#fff9b0");g.addColorStop(.55,yel);g.addColorStop(1,yd);x.fillStyle=g;x.beginPath();x.moveTo(cx,cy);x.arc(cx,cy,R,a0,a1);x.closePath();x.fill();
+ if(S.bl||S.mood=="sleep"){x.strokeStyle="#222";x.lineWidth=3;x.beginPath();x.arc(cx+f*6,cy-19,5,.2,Math.PI-.2);x.stroke()}
+ else{x.fillStyle="#fff";x.beginPath();x.ellipse(cx+f*6,cy-19,6.5,8.5,0,0,7);x.fill();x.fillStyle="#222";x.beginPath();x.ellipse(cx+f*8,cy-18,3.6,5,0,0,7);x.fill();x.fillStyle="#fff";x.beginPath();x.arc(cx+f*7,cy-20,1.4,0,7);x.fill()}
+ x.strokeStyle="#5a3a00";x.lineWidth=2.5;x.beginPath();let bt=S.mood=="attack"?3:S.mood=="hurt"?-3:0;x.moveTo(cx+f*1,cy-30-bt);x.lineTo(cx+f*12,cy-30+bt);x.stroke();
+ x.fillStyle="#ff9fb8";x.globalAlpha*=.6;x.beginPath();x.ellipse(cx-f*6,cy-4,6,4,0,0,7);x.fill();x.globalAlpha/=.6;
+ x.fillStyle="#fff";x.beginPath();x.arc(cx+f*(R-4+reach*.8),cy+14,10,0,7);x.fill();x.strokeStyle="#ccc";x.lineWidth=1.5;x.stroke();
+ x.restore()}
+function fwGhost(gx,gy,col,s,f){x.save();x.translate(gx,gy);x.scale(s,s);x.fillStyle=col;x.beginPath();x.arc(0,-6,18,Math.PI,0);x.lineTo(18,14);for(let i=0;i<4;i++){x.quadraticCurveTo(13.5-i*9,8+((i+Math.floor(t/6))%2)*8,9-i*9,14)}x.closePath();x.fill();
+ [-7,7].forEach(d=>{x.fillStyle="#fff";x.beginPath();x.ellipse(d,-7,5.5,6.5,0,0,7);x.fill();x.fillStyle="#2b4aff";x.beginPath();x.arc(d+f*2,-6,2.8,0,7);x.fill()});
+ x.strokeStyle="#fff";x.lineWidth=2;x.beginPath();x.arc(0,3,5,.3,Math.PI-.3);x.stroke();x.fillStyle="rgba(255,255,255,.5)";x.beginPath();x.ellipse(-12,2,3,2,0,0,7);x.ellipse(12,2,3,2,0,0,7);x.fill();x.restore()}
+/* ---------- looks ---------- */
+const FWYL={
+ "Mom":{sk:FWYSK.light,hs:"mom",hc:FWYHC.brown,sh:"#ff6fae",pa:"#4a5a9a",out:"apron",ap:"#fff",apE:"❤️",lash:1,lip:"#e0507a",ear:"#ffd23f",so:"#ff6fae",iris:"#3a7a4a"},
+ "Dad":{sk:FWYSK.tan,hs:"dad",hc:"#5a3a20",sh:"#3a7bd5",pa:"#c8a878",out:"apron",ap:"#e8322a",apE:"🍔",stache:1,glasses:1,collar:1,so:"#6a4a2a",iris:"#4a3a2a"},
+ "Kit":{sk:FWYSK.light,hs:"spiky",hc:"#7a5030",sh:"#2fbf5a",pa:"#2f5aa8",out:"tee",logo:"K",logoC:"#ffe14a",cape:"#e8322a",so:"#2fa8ff",sc:.86,iris:"#3a6aaa"},
+ "Friend":{sk:FWYSK.brown,hs:"curly",hc:FWYHC.black,sh:"#2fa8ff",pa:"#3a4a6a",out:"hoodie",so:"#ff9f1c",sc:.88},
+ "Girl":{sk:FWYSK.medium,hs:"pigtails",hc:FWYHC.black,sh:"#b46cff",out:"dress",lash:1,lip:"#e0507a",bow:"#ffd23f",so:"#ff6fb5",sc:.86}};
+/* ---------- helpers ---------- */
+function fwFace(a){if(E&&a!==E)a.f=E.x>a.x?1:-1}
+function fwNear(a,rx,ry){return E&&Math.abs(E.x-a.x)<rx&&Math.abs(E.y-a.y)<(ry||150)}
+function fwFx(px,py,em,n,sp){for(let i=0;i<(n||6);i++)fx.push({x:px+(Math.random()-.5)*60,y:py-Math.random()*30,vx:(Math.random()-.5)*(sp||3),vy:-1-Math.random()*1.5,l:50,emo:em[i%em.length]})}
+function fwDashTo(a,rx,go,o){o=o||{};if(fwNear(a,rx))return go();zoom(a,{k:o.k||"fwydash",l:o.l||42,mul:1,auto:o.sp||14,c:o.c||["#fff","#ffe14a"],tick:(a,f,q)=>{if(fwNear(a,95)){q.l=0;go()}},draw:o.draw})}
+/* MOM */
+function fwHug(a){fwFace(a);let f=a.f||1;show("🤗 HUG LOCK! A big gentle squeeze!",60,34);talk("Hug lock!","force");
+ fwDashTo(a,150,()=>{if(!E)return;a.x=clampX(E.x-f*46);hold(E,130,"Awww! A big hug! I can't wiggle out! 🤗");E.kb=0;tune([523,659,784],70,"sine",.1);fwFx(E.x,E.y-130,["💖","💕"],10,2);
+  eff(a,{k:"fwyhug",l:130,tick:(a,f2,q)=>{if(E&&E.held>0){a.x=clampX(E.x-f*44);a.f=f}else q.l=0},draw:()=>{if(E)emo("🤗",(a.x+E.x)/2,E.y-160+Math.sin(t/8)*4,28)}})},{c:["#ffb3d1","#fff"]})}
+function fwTickle(a){fwFace(a);let f=a.f||1;show("🪶 TICKLE ATTACK! Tickle tickle!",55,34);talk("Tickle attack!","force");tune([880,988,1175,988],60,"triangle",.08);
+ for(let i=0;i<3;i++)setTimeout(()=>{if(!on||!E)return;pe(a,{e:"🪶",x:a.x+f*30,y:a.y-90+i*16,vx:f*11,vy:0,d:4,kb:f*4,kvy:-3,sz:30,spin:1,l:120,hit:()=>{dizzy(E,70);E.tspin=Math.max(E.tspin||0,20);say(lineSay(["Hee hee hee! That tickles! 😂","Ha ha! Stop! Hee hee! 🪶","No fair! I'm SO ticklish! 😆"]),55);fwFx(E.x,E.y-140,["😂"],2)}})},i*160)}
+function fwBroom(a){fwFace(a);let f=a.f||1,hit=0;a.fwIt="broom";a.fwItT=t+70;show("🧹 CLEAN YOUR ROOM! Sweep sweep sweep!",60,32);talk("Clean your room!","force");whoosh(.6);
+ obj({k:"fwybroom",x:a.x+f*40,l:75,u:o=>{o.x+=f*11;if(t%3==0)fx.push({x:o.x-f*20,y:G-8,vx:-f*2,vy:-1.5-Math.random(),l:22,c:"#d8c8a8"});if(!hit&&E&&Math.abs(E.x-o.x)<60&&E.y>G-160){hit=1;bonk(a,E,8,f*18,-7);E.tspin=Math.max(E.tspin||0,30);say(lineSay(["Okay, okay! I'll clean my room! 🧹","Whoa! Swept away! 🧹","Not the broom! I'll pick up my toys! 🧸"]),60)}},
+  d:o=>{x.save();x.globalAlpha=Math.min(1,o.l/12);emo("🧹",o.x,G-40,62,f*(.6+Math.sin(t/3)*.35),f<0);["🧦","🧸","📚"].forEach((e,i)=>emo(e,o.x+f*(34+i*16),G-14-Math.abs(Math.sin(t/4+i))*16,18,t/6));x.restore()}})}
+function fwSong(a){show("🎵 BEDTIME YAWN SONG! Rock-a-bye... 😴",70,30);talk("Hush little bad guy, time for bed!","force");tune([392,330,349,294,262],160,"sine",.18);
+ if(E&&Math.abs(E.x-a.x)<650){E.sleep=Math.max(E.sleep||0,170);E.kb=0;say("Yaaawn... is it bedtime? 😴",60);obj({k:"fwysong",l:150,d:o=>{if(!E)return;x.save();x.globalAlpha=Math.min(1,o.l/20);["💤","🎵","🌙"].forEach((e,i)=>emo(e,E.x+Math.sin(t/14+i*2)*30,E.y-150-((t+i*25)%75),20));x.restore()}})}}
+/* DAD */
+const FWJ=["I'm reading a book on anti-gravity. It's impossible to put down!","Why did the scarecrow win a prize? He was outstanding in his field!","What do you call a fake noodle? An impasta!","Why can't a bike stand up by itself? It's two-tired!","What did the ocean say to the beach? Nothing, it just waved!","I used to hate facial hair... but then it grew on me!"];
+function fwJoke(a){let j=FWJ[FWY.j++%FWJ.length];show("😂 DAD JOKE: "+j,190,20);talk(j,"force");tune([523,392,523,659],90,"triangle",.1);
+ if(E&&Math.abs(E.x-a.x)<720){setTimeout(()=>{if(!on||!E)return;hold(E,140,lineSay(["Ugh, DAAAD! 🙄😂","Groan! That's SO cheesy! 🧀","Ha ha... wait, that's so silly! 😂"]));dizzy(E,140);fwFx(E.x,E.y-150,["🙄","😂"],6)},500)}}
+function fwFlip(a){fwFace(a);let f=a.f||1;a.fwIt="spatula";a.fwItT=t+70;show("🥞 BBQ SPATULA FLIP! Flip-flop!",55,34);talk("Spatula flip!","force");
+ fwDashTo(a,140,()=>{if(!E)return;bonk(a,E,8,f*5,-19);E.tspin=Math.max(E.tspin||0,50);say(lineSay(["Whoa! Flipped like a pancake! 🥞","Wheee! I'm a pancake! 🥞","Flip-flop! Hey! 🍳"]),60);tune([392,523,784],60,"triangle",.1)},{c:["#ffcc66","#fff"]})}
+function fwPause(a){show("⏸️ PAUSE! Dad's remote control power!",60,30);talk("Pause!","force");beep(1200,.1,"square");if(!E)return;
+ hold(E,110,"Hey! Dad pressed PAUSE on me! ⏸️");E.kb=0;obj({k:"fwypause",l:110,d:o=>{if(!E)return;x.save();x.globalAlpha=.85*Math.min(1,o.l/15);emo("⏸️",E.x,E.y-175,40);x.restore()}})}
+function fwMow(a){fwFace(a);show("🚜 LAWN MOWER ZOOM! Vroom vroom!",55,34);talk("Lawn mower zoom!","force");zoom(a,{k:"fwymow",l:48,mul:1,auto:13,d:8,c:["#7ad97a","#3fa53f","#fff"],line:"Whoa! Mowed right over! 🌱",draw:a=>emo("🚜",a.x+(a.f||1)*36,a.y-24,40,0,(a.f||1)<0)})}
+/* KIT */
+function fwKZoom(a){fwFace(a);show("👟 KIT ZOOM SNEAKERS! Super fast!",55,34);talk("Zoom sneakers!","force");zoom(a,{k:"fwykz",l:50,mul:1,auto:15,d:7,c:["#5fd3ff","#fff","#ffe14a"],line:"Zoom-bonk! Kit is SO fast! 👟"})}
+function fwKJump(a){show("🦘 SUPER KID JUMP BONK!",55,34);talk("Super kid jump!","force");leap(a,-21,(a2,f)=>{slam(a2,9,380,"#7df","Boing! Super kid bonk! 🦘")})}
+function fwBrick(a){fwFace(a);let f=a.f||1;show("🧱 BUILDING BRICK TOSS!",50,34);talk("Brick toss!","force");for(let i=0;i<2;i++)setTimeout(()=>{if(!on||!E)return;pe(a,{e:["🟥","🟦"][i],x:a.x+f*30,y:a.y-90,vx:f*(11+i*2),vy:-6,g:.3,d:6,kb:f*7,kvy:-5,sz:26,spin:1,bounce:2,l:140,hit:()=>say("Bonk! A building brick! 🧱 Ouchie-wawa!",45)})},i*180)}
+function fwGig(a){show("🤪 SILLY FACE GIGGLES!",55,34);talk("Silly face!","force");tune([660,880,660,990],70,"square",.07);if(E&&Math.abs(E.x-a.x)<480){dizzy(E,110);say(lineSay(["Ha ha ha! That face is SO silly! 🤪","I can't stop giggling! 😂"]),60);fwFx(E.x,E.y-140,["😂","🤪"],6)}else show("🤪 Get closer so they can see your silly face!",60,20)}
+function fwHide(a){if(a!==P){healA(a,10,"👻");return}show("👻 SNEAKY INVISIBLE KIT! Everyone sees you but Noodle Man! 🍝",80,26);talk("Sneaky invisible!","force");let was=!!P.inv;P.inv=true;try{invb.style.background="#fff"}catch(e){}
+ eff(a,{k:"fwyhide",l:420,tick:a=>{P.inv=true;if(t%30==0)fx.push({x:a.x+(Math.random()-.5)*60,y:a.y-140,vx:0,vy:-.6,l:30,emo:"✨"})},end:()=>{if(!was){P.inv=false;try{invb.style.background=""}catch(e){}}if(on)note("👋 Peekaboo! Kit is visible again!",90)}})}
+/* FRIEND favorite powers + basics */
+function fwGoo(a){fwFace(a);let f=a.f||1;show("🟢 GOO BLASTER! Splat!",50,34);talk("Goo blaster!","force");pe(a,{e:"🟢",vx:f*13,vy:-2,g:.12,d:7,sz:30,hit:()=>{dizzy(E,50);E.vx=0;say(lineSay(["Ewww, sticky goo! 🟢","Gooey! I'm all slimy! 🟢"]),45)}})}
+function fwZoomF(a){fwFace(a);show("👟 ZOOM DASH!",50,34);talk("Zoom!","force");zoom(a,{k:"fwyzm",l:45,mul:1,auto:15,d:7,c:["#fff","#5fd3ff"],line:"Zoom-bonk! 👟"})}
+function fwGRay(a){fwFace(a);show("😂 GIGGLE RAY!",50,34);talk("Giggle ray!","force");beam(a,{k:"fwygr",l:45,c:"#ff9de6",d:2,ev:9,e:"😂",hit:()=>{dizzy(E,40);if(Math.random()<.4)say("Ha ha ha! Giggle giggle! 😂",40)}})}
+function fwSnow(a){fwFace(a);let f=a.f||1;show("❄️ SNOWBALL!",50,34);talk("Snowball!","force");pe(a,{e:"❄️",vx:f*13,vy:-3,g:.15,d:6,sz:30,spin:1,hit:()=>{E.frz=Math.max(E.frz||0,90);say("Brrr! Snowball! I'm a popsicle! ❄️",50)}})}
+function fwBub(a){show("🫧 BUBBLE SHIELD! Boing-proof!",55,32);talk("Bubble shield!","force");shieldUp(a,{l:360,c:"#9fe8ff",e:"🫧"})}
+function fwMJump(a){show("🦘 MEGA JUMP!",50,34);talk("Mega jump!","force");leap(a,-22,(a2,f)=>slam(a2,9,360,"#ffe35a","Boing! Mega jump bonk! 🦘"))}
+function fwCart(a){fwFace(a);show("🤸 CARTWHEEL BONK!",50,34);talk("Cartwheel!","force");zoom(a,{k:"fwycart",l:42,mul:1,auto:14,d:7,c:["#ff9de6","#fff59a"],line:"Whoa! Cartwheel bonk! 🤸",draw:a=>emo("🤸",a.x,a.y-170,26,t/5)})}
+function fwFive(a){fwFace(a);let f=a.f||1;show("✋ SUPER HIGH FIVE!",50,34);talk("High five!","force");fwDashTo(a,130,()=>{if(!E)return;bonk(a,E,7,f*12,-8);fwFx(E.x,E.y-120,["✋","⭐"],5);say(lineSay(["Whoa! SUPER high five! ✋","Up top! Boing! ✋"]),45);beep(1400,.06,"square")},{c:["#fff","#ffd23f"]})}
+function fwCheer(a){show("🍎 HEALTHY SNACK CHEER! Yum!",50,32);talk("Snack time!","force");healA(a,22,"🍎")}
+/* THE SKY */
+function fwWind(a){fwFace(a);let f=a.f||1,hit=0;show("🌬️ WIND GUST! Whoooosh!",55,36);talk("Wind gust!","force");whoosh(1,true);
+ obj({k:"fwywind",x:a.x+f*40,l:70,u:o=>{o.x+=f*13;if(!hit&&E&&Math.abs(E.x-o.x)<70){hit=1;bonk(a,E,6,f*30,-9);E.tspin=Math.max(E.tspin||0,40);say(lineSay(["Whoaaa! So windy! 🌬️","My hair! Whooosh! 💨","Blown away like a leaf! 🍃"]),55)}},
+  d:o=>{x.save();x.globalAlpha=Math.min(.9,o.l/14);x.strokeStyle="rgba(255,255,255,.9)";x.lineWidth=5;for(let i=0;i<4;i++){let yy=G-30-i*32;x.beginPath();x.moveTo(o.x-f*80,yy);x.quadraticCurveTo(o.x-f*30,yy-14-Math.sin(t/4+i)*6,o.x,yy);x.stroke()}emo("🍃",o.x+f*10,G-70+Math.sin(t/3)*20,22,t/4);emo("💨",o.x,G-110,26,0,f<0);x.restore()}})}
+function fwRain(a){show("🌧️ RAIN SHOWER! Drip drop!",55,34);talk("Rain shower!","force");tune([1047,880,988,784],90,"sine",.08);if(!E)return;let n=0;
+ obj({k:"fwyrain",l:120,u:o=>{if(!E)return;if(o.l%7==0)pe(a,{e:"💧",x:E.x+(Math.random()-.5)*110,y:E.y-250,vx:0,vy:7,d:2,kb:0,kvy:-2,sz:22,l:60,hit:()=>{if(n++%3==0)say(lineSay(["I'm all wet! 💦","Drip drop! I need an umbrella! ☔","Splish splash! 💧"]),40)}})},
+  d:o=>{if(!E)return;x.save();x.globalAlpha=Math.min(1,o.l/15);let cx=E.x,cy=E.y-260;[[-30,4,20],[0,-6,26],[30,4,20]].forEach(p=>{x.fillStyle="#e6eef7";x.beginPath();x.arc(cx+p[0],cy+p[1],p[2],0,7);x.fill()});x.fillStyle="#556";x.beginPath();x.arc(cx-8,cy,2.4,0,7);x.arc(cx+8,cy,2.4,0,7);x.fill();x.restore()}})}
+function fwRBow(a){if(!E)return;fwFace(a);let f=a.f||1,x0=a.x,x1=clampX(E.x+f*130),n=60,top=Math.min(G-250,Math.min(a.y,E.y)-190),half=0;
+ show("🌈 RAINBOW BRIDGE! Slide over the rainbow!",60,30);talk("Rainbow bridge!","force");tune([523,587,659,784,880,1047],60,"sine",.1);let cx=(x0+x1)/2,R=Math.abs(x1-x0)/2,H=G-top;
+ obj({k:"fwybow",l:n+50,d:o=>{x.save();x.globalAlpha=Math.min(1,o.l/20)*.8;["#ff4d4d","#ffa64d","#ffe14d","#5fd35f","#4da6ff","#9a5ae0"].forEach((c,i)=>{x.strokeStyle=c;x.lineWidth=8;x.beginPath();x.ellipse(cx,G,Math.max(10,R+24-i*8),Math.max(10,H+24-i*8),0,Math.PI,2*Math.PI);x.stroke()});x.restore()}});
+ eff(a,{k:"fwyride",l:n,tick:(a2,f2,q)=>{let p=1-q.l/n;a2.x=x0+(x1-x0)*p;a2.y=G-Math.sin(Math.PI*p)*(H+30);a2.vy=0;if(t%2==0)fx.push({x:a2.x,y:a2.y-40,vx:0,vy:.5,l:24,c:["#ff4d4d","#ffe14d","#4da6ff","#5fd35f"][t%4]});
+  if(p>.5&&!half&&E){half=1;dizzy(E,90);say("Ooh! A rainbow! So pretty! 🌈",55)}},end:a2=>{a2.f=-f;if(E&&Math.abs(E.x-a2.x)<220)bonk(a2,E,6,-f*10,-6)}})}
+function fwSun(a){fwFace(a);show("☀️ SUNSHINE BEAM! So bright!",55,34);talk("Sunshine beam!","force");beam(a,{k:"fwysun",l:50,c:"#ffd84a",w:18,d:3,ev:10,e:"☀️",hit:()=>{if(Math.random()<.5)say(lineSay(["So bright! Sunglasses on! 😎","Whoa, sunny! ☀️","Too warm and sunny! 😎"]),45)}})}
+function fwFlash(a){show("✨ SPARKLE FLASH! Twinkle twinkle! ✨",55,32);talk("Sparkle flash!","force");tune([1568,1318,1760,2093],50,"sine",.07);
+ obj({k:"fwyflash",l:22,d:o=>{x.save();x.globalAlpha=o.l/22*.3;x.fillStyle="#fffbe0";x.fillRect(-1000,-2000,W+2000,4000);x.restore()}});
+ if(E&&Math.abs(E.x-a.x)<650){hold(E,80,"Whoa! So sparkly! ✨");bonk(a,E,4,0,-4);fwFx(E.x,E.y-120,["✨","⭐","🌟"],12,6)}}
+/* PAC-MAN */
+function fwChomp(a){fwFace(a);a.fwChomp=t+50;show("👄 CHOMP DASH! Waka waka!",50,34);talk("Waka waka!","force");tune([392,262,392,262,392],70,"triangle",.07);zoom(a,{k:"fwychomp",l:46,mul:1,auto:16,d:9,c:["#ffe600","#fff59a"],line:"Chomp! Hey, I'm not a snack! 😆"})}
+function fwPellet(a){show("🔵 POWER PELLET! They turn BLUE and run!",80,30);talk("Power pellet!","force");tune([523,659,784,1047,784,1047],70,"square",.07);if(!E)return;FWY.blue=t+420;FWY.blueBy=a;say("Uh-oh! I'm all blue! Run away! 🏃",60)}
+function fwGhostF(a){fwFace(a);let f=a.f||1;show("👻 GHOST FRIENDS! Blinky, Pinky, Inky & Clyde!",70,28);talk("Ghost friends, help me!","force");tune([660,784,880,784],80,"sine",.08);
+ [["#ff3b3b",0],["#ffa5d8",20],["#3be8ff",40],["#ffb347",60]].forEach((g,i)=>{let hit=0,gy=a.y-90-i*18;obj({k:"fwyghost",x:a.x-f*60,l:150,w:g[1],u:o=>{if(o.w>0){o.w--;return}if(!hit&&E){o.x+=Math.sign(E.x-o.x)*7;if(Math.abs(E.x-o.x)<40){hit=1;bonk(a,E,3,f*6,-4);if(i==0)say("Boo-boop! Hi there, little ghosts! 👻💕",55)}}else{gy-=3}},
+  d:o=>{if(o.w>0)return;x.save();x.globalAlpha=Math.min(1,o.l/20);fwGhost(o.x,gy+Math.sin(t/8+i)*6,g[0],1.1,f);x.restore()}})})}
+function fwFruit(a){show("🍒 CHERRY SNACK! Yum!",50,34);talk("Cherry snack!","force");healA(a,25,"🍒")}
+function fwTunnel(a){if(!E)return;let side=Math.sign(a.x-E.x)||1;spark(a.x,a.y-50,"#3a6bff",10);fwFx(a.x,a.y-60,["🌀"],2);a.x=clampX(E.x-side*90);a.f=side;spark(a.x,a.y-50,"#3a6bff",10);show("🌀 TUNNEL ZIP! Pop out the other side!",55,30);talk("Tunnel zip!","force");beep(300,.1,"sine");say("Huh? Where did you go?! 😮",50)}
+/* blue Power Pellet mode */
+function fwyTick(){if(!on||!P||!E){FWY.blue=0;if(E)E.fwBlue=0;return}
+ if(FWY.blue>t){let b=FWY.blueBy||P;E.fwBlue=1;E.held=Math.max(E.held||0,2);let d=Math.sign(E.x-b.x)||1;E.x=clampX(E.x+d*2.6);E.f=d;if(t%40==0)fx.push({x:E.x,y:E.y-150,vx:0,vy:-1,l:40,emo:"💦"});
+  if(Math.abs(E.x-b.x)<75&&Math.abs(E.y-b.y)<130){FWY.blue=0;E.fwBlue=0;bonk(b,E,14,d*16,-12);dizzy(E,90);E.tspin=Math.max(E.tspin||0,40);say("Boing! You caught me! 😵‍💫",60);tune([784,988,1175,1568],60,"square",.08)}}
+ else if(E.fwBlue){E.fwBlue=0;FWY.blue=0;say("Phew! I'm not blue anymore!",50)}}
+(function(){const o=objTick;objTick=function(){let r=o.apply(this,arguments);try{fwyTick()}catch(e){FWY.err=String(e)}return r}})();
+(function(){const o=man;man=function(a){if(a&&E&&a===E&&E.fwBlue&&!a._fwb){a._fwb=1;x.save();try{if("filter" in x)x.filter="grayscale(1) sepia(1) hue-rotate(185deg) saturate(4)";o.apply(this,arguments)}finally{x.restore();a._fwb=0}
+  x.save();x.globalAlpha=.22+.08*Math.sin(t/5);x.fillStyle="#3a6bff";x.beginPath();x.ellipse(a.x,a.y-70,55,85,0,0,7);x.fill();x.restore();emo("🔵",a.x,a.y-190,22);return}return o.apply(this,arguments)}})();
+/* ---------- register the fighters ---------- */
+const FWG={mom:{g:"👩 Mom Powers",c:"#ff6fae"},dad:{g:"👨 Dad Powers",c:"#3a7bd5"},kit:{g:"🧒 Kit Powers",c:"#2fbf5a"},fr:{g:"⭐ Friend Powers",c:"#2fa8ff"},sky:{g:"☁️ Sky Powers",c:"#7fc8ff"},pac:{g:"🟡 Pac-Man Powers",c:"#ffd400"}};
+const FWFP={goo:["Goo Blaster 🟢","fwygoo",fwGoo,["lob","Goo Lob! 🟢"]],zoom:["Zoom Dash 👟","fwyzoom",fwZoomF,["spin","Zoom Spin! 👟"]],giggle:["Giggle Ray 😂","fwygray",fwGRay,["zapH","Giggle Zap! 😂"]],snow:["Snowball ❄️","fwysnow",fwSnow,["lob","Snowball Lob! ❄️"]],
+ bubble:["Bubble Shield 🫧","fwybub",fwBub,["upper","Bubble Hop! 🫧"]],jump:["Mega Jump 🦘","fwymjump",fwMJump,["stomp3","Mega Hop-Bop! 🦘"]],hug:["Friendship Hug 🤗","fwyfhug",fwHug,["poof","Surprise Hug Pop! 🤗"]],cart:["Cartwheel Bonk 🤸","fwycart",fwCart,["spin","Cartwheel Twirl! 🤸"]]};
+function fwyRegPow(n,list,grp){if(PACK2&&PACK2[n])return;reg(n,list.map(q=>[q[0],q[1],(a,b,f)=>q[2](a),q[3]==null?1:q[3],grp]));POW[n]=POW[n].concat(POOL)}
+function fwyAdd(h,look,cool,pows,grp,sig,facts){if(!C.some(q=>q.n==h.n))C.push(h);RL.LK[h.n]={k:"human",skin:look&&look.sk,glove:"skin",iris:(look&&look.iris)||"#5a3a1a"};COOL[h.n]=cool;fwyRegPow(h.n,pows,grp);try{FOE2.S[h.n]=sig}catch(e){}if(facts){let o={};o["h:"+h.n]=facts;Object.assign(RF,o)}}
+try{
+ fwyAdd({n:"Mom",c:"#ff6fae",sp:6.5,dm:9,p:"Hug Lock",fwy:1},FWYL.Mom,["👩 Mom — the kindest, silliest super-mom","🤗 Hug Lock: a big gentle squeeze — they can't wiggle away!","🪶 Tickle Attack: tickle feathers make bad guys giggle","🧹 'Clean Your Room!' broom sweep","🍪 Fresh Cookie Snack heals you","🎵 Bedtime Yawn Song puts bad guys to sleep"],
+  [["Hug Lock 🤗","fwyhug",fwHug],["Tickle Attack 🪶","fwytickle",fwTickle],["Clean Your Room! Broom Sweep 🧹","fwybroom",fwBroom],["Fresh Cookie Snack 🍪","fwycookie",a=>{show("🍪 FRESH COOKIES! Yum!",50,34);talk("Fresh cookies!","force");healA(a,25,"🍪")}],["Bedtime Yawn Song 🎵","fwysong",fwSong]],FWG.mom,
+  [["lob","Tickle Feather Toss! 🪶"],["zapL","Clean Your Room Broom Sweep! 🧹"],["upper","Big Hug Hop! 🤗"]],["🤗 Real fact: Hugs can help people feel calmer and happier!","😂 Real fact: Laughing is contagious — when you hear someone laugh, you want to laugh too!"]);
+ CUSTOMD["Mom"]=(a,X,y,f,ph,run)=>fwHuman(a,X,y,f,ph,run,FWYL.Mom);
+ fwyAdd({n:"Dad",c:"#3a7bd5",sp:6.5,dm:10,p:"Dad Joke Stun",fwy:1},FWYL.Dad,["👨 Dad — mustache, glasses and a BBQ apron","😂 Dad Joke Stun: so cheesy that bad guys groan and freeze","🥞 BBQ Spatula Flip: flips bad guys like pancakes","⏸️ Remote Control PAUSE button","🚜 Lawn Mower Zoom","🥞 Pancake Stack Snack heals you"],
+  [["Dad Joke Stun 😂","fwyjoke",fwJoke],["BBQ Spatula Flip 🥞","fwyflip",fwFlip],["Remote Control PAUSE ⏸️","fwypause",fwPause],["Lawn Mower Zoom 🚜","fwymow",fwMow],["Pancake Stack Snack 🥞","fwypancake",a=>{show("🥞 PANCAKE STACK! Yum!",50,34);talk("Pancakes!","force");healA(a,25,"🥞")}]],FWG.dad,
+  [["zapH","Dad Joke Zap! 😂"],["lob","BBQ Spatula Pancake Flip! 🥞"],["stomp3","Dad Dance Stomp! 🕺"]],["🥞 Real fact: Pancakes are one of the oldest foods — people made them thousands of years ago!","😂 Real fact: Laughing is contagious — when you hear someone laugh, you want to laugh too!"]);
+ CUSTOMD["Dad"]=(a,X,y,f,ph,run)=>fwHuman(a,X,y,f,ph,run,FWYL.Dad);
+ fwyAdd({n:"Kit",c:"#2fbf5a",sp:8,dm:9,p:"Kit Zoom Sneakers",fwy:1},FWYL.Kit,["🧒 Kit — the kid hero who invents the whole game!","👟 Kit Zoom Sneakers","🦘 Super Kid Jump Bonk","🧱 Building Brick Toss","🤪 Silly Face Giggles","👻 Sneaky Invisible Kit (only a Noodle can spot him!)"],
+  [["Kit Zoom Sneakers 👟","fwykzoom",fwKZoom],["Super Kid Jump Bonk 🦘","fwykjump",fwKJump],["Building Brick Toss 🧱","fwybrick",fwBrick],["Silly Face Giggles 🤪","fwykgig",fwGig],["Sneaky Invisible Kit 👻","fwykhide",fwHide,0]],FWG.kit,
+  [["spin","Kit Zoom Spin! 👟"],["upper","Super Kid Hop! 🦘"],["lob","Building Brick Lob! 🧱"]],["🦴 Real fact: Babies have about 300 bones, and grown-ups have 206 — some bones join together as you grow!","🧠 Real fact: Kids' brains grow super fast — by age 6 a brain is almost as big as a grown-up's!"]);
+ CUSTOMD["Kit"]=(a,X,y,f,ph,run)=>fwHuman(a,X,y,f,ph,run,FWYL.Kit);
+ fwyAdd({n:"Friend",c:"#2fa8ff",sp:7,dm:9,p:"Goo Blaster",fwy:1},FWYL.Friend,["🧒 Friend — your buddy! Make your own with 🧒 Make a Friend!","🟢 Goo Blaster","✋ Super High Five","🍎 Healthy Snack Cheer","🎨 Pick a name, skin, hair, shirt and favorite power","💾 Save lots of friends to fight or team up with"],
+  [["Goo Blaster 🟢","fwygoo",fwGoo],["Super High Five ✋","fwyfive",fwFive],["Healthy Snack Cheer 🍎","fwycheer",fwCheer]],FWG.fr,[["lob","Goo Lob! 🟢"],["zapL","High Five Wave! ✋"]],["😂 Real fact: Laughing is contagious — when you hear someone laugh, you want to laugh too!","🤝 Real fact: Playing with friends helps your brain learn to share, take turns and solve problems!"]);
+ CUSTOMD["Friend"]=(a,X,y,f,ph,run)=>fwHuman(a,X,y,f,ph,run,FWYL.Friend);
+ fwyAdd({n:"Girl",c:"#b46cff",sp:7.5,dm:9,p:"Cartwheel Bonk",fwy:1},FWYL.Girl,["👧 Girl — a super fun friend! Make your own with 👧 Make a Girl!","🤸 Cartwheel Bonk","✋ Super High Five","🍎 Healthy Snack Cheer","🎀 Pick a name, hair, bows, dress and favorite power","💾 Save lots of friends to fight or team up with"],
+  [["Cartwheel Bonk 🤸","fwycart",fwCart],["Super High Five ✋","fwyfive",fwFive],["Healthy Snack Cheer 🍎","fwycheer",fwCheer]],FWG.fr,[["spin","Cartwheel Twirl! 🤸"],["zapL","High Five Wave! ✋"]],["🤸 Real fact: Gymnasts practice cartwheels for years — it's great for balance and strong arms!","😂 Real fact: Laughing is contagious — when you hear someone laugh, you want to laugh too!"]);
+ CUSTOMD["Girl"]=(a,X,y,f,ph,run)=>fwHuman(a,X,y,f,ph,run,FWYL.Girl);
+ fwyAdd({n:"The Sky",c:"#7fc8ff",sp:6,dm:10,p:"Wind Gust",fly:1,fwy:1},{sk:FWYSK.light,iris:"#2b4a8a"},["☁️ The Sky — a big friendly fluffy cloud with a sunny buddy","🌬️ Wind Gust blows bad guys away","🌧️ Rain Shower: drip drop!","🌈 Rainbow Bridge: slide over the bad guy","☀️ Sunshine Beam","✨ Sparkle Flash: twinkle twinkle!"],
+  [["Wind Gust 🌬️","fwywind",fwWind],["Rain Shower 🌧️","fwyrain",fwRain],["Rainbow Bridge 🌈","fwyrbow",fwRBow],["Sunshine Beam ☀️","fwysun",fwSun],["Sparkle Flash ✨","fwyflash",fwFlash]],FWG.sky,
+  [["zapL","Whoosh Wind Wave! 🌬️"],["lob","Raindrop Lob! 💧"],["zapH","Sunshine Zap! ☀️"]],["☁️ Real fact: A big puffy cloud can weigh over a million pounds — about as much as 100 elephants! It floats because its water drops are tiny and spread out.","🌈 Real fact: You can only see a rainbow when the sun is behind you!","☀️ Real fact: The Sun is a star — the closest star to Earth!"]);
+ CUSTOMD["The Sky"]=fwSkyDraw;
+ fwyAdd({n:"Pac-Man",c:"#ffe600",sp:9,dm:9,p:"Chomp Dash",fwy:1},{sk:FWYSK.light,iris:"#222"},["🟡 Pac-Man — the famous yellow chomper (waka waka!)","👄 Chomp Dash","🔵 Power Pellet: bad guys turn blue and run away","👻 Ghost Friends: Blinky, Pinky, Inky & Clyde help out","🍒 Cherry Snack heals you","🌀 Tunnel Zip: pop out behind the bad guy"],
+  [["Chomp Dash 👄","fwychomp",fwChomp],["Power Pellet Mode 🔵","fwypellet",fwPellet,0],["Ghost Friends 👻","fwyghost",fwGhostF],["Cherry Snack 🍒","fwyfruit",fwFruit],["Tunnel Zip 🌀","fwytunnel",fwTunnel]],FWG.pac,
+  [["spin","Chomp Chomp Dash! 👄"],["zapL","Waka Waka Roll! 🟡"],["poof","Tunnel Zip! 🌀"]],["🕹️ Real fact: Pac-Man came out in 1980 in Japan, and it became one of the most famous video games ever!","👻 Real fact: Pac-Man's four ghosts are named Blinky, Pinky, Inky and Clyde!"]);
+ CUSTOMD["Pac-Man"]=fwPacDraw;
+ Object.assign(RF,{"h:Superman":(RF["h:Superman"]||[]).concat(["📚 Real fact: Superman first appeared in a comic book in 1938!"])});
+}catch(e){FWY.err="reg:"+e}
+FWY.fam=C.length;
+/* ---------- saved custom friends ---------- */
+function fwyLoad(){try{let a=JSON.parse(localStorage.heroFriends||"[]");return Array.isArray(a)?a.filter(r=>r&&r.n).slice(0,FWY.maxF):[]}catch(e){return[]}}
+function fwyStore(a){try{localStorage.heroFriends=JSON.stringify(a)}catch(e){}}
+function fwyLook(r){let L={sk:FWYSK[r.sk]||FWYSK.tan,hs:r.hs||"short",hc:FWYHC[r.hc]||FWYHC.brown,sh:r.sh||"#2fa8ff",out:r.out||"tee",pa:r.g?"#5a4a8a":"#3a4a6a",so:r.g?"#ff6fb5":"#ff9f1c",sc:.87};if(r.g){L.lash=1;L.lip="#e0507a";L.bow="#ffd23f";L.sk2="#ff9fd0"}return L}
+function fwyAddRec(r){if(C.some(q=>q.n==r.n))return;try{delete PACK2[r.n];delete POW[r.n];delete TPOW[r.n]}catch(e){}let fp=FWFP[r.fp]||FWFP.goo,L=fwyLook(r);
+ fwyAdd({n:r.n,c:r.sh||"#2fa8ff",sp:7.5,dm:9,p:fp[0],fwy:2,fr:r},L,[(r.g?"👧 ":"🧒 ")+r.n+" — your custom "+(r.g?"girl friend":"friend")+"!","⭐ Favorite power: "+fp[0],"✋ Super High Five","🍎 Healthy Snack Cheer","🎨 Made in the Friend Maker","💾 Saved on this device"],
+  [[fp[0],fp[1],fp[2]],["Super High Five ✋","fwyfive",fwFive],["Healthy Snack Cheer 🍎","fwycheer",fwCheer]],FWG.fr,[fp[3],["zapL","High Five Wave! ✋"]],["🤝 Real fact: Playing with friends helps your brain learn to share, take turns and solve problems!","😂 Real fact: Laughing is contagious — when you hear someone laugh, you want to laugh too!"]);
+ CUSTOMD[r.n]=(a,X,y,f,ph,run)=>fwHuman(a,X,y,f,ph,run,L)}
+try{fwyLoad().forEach(fwyAddRec)}catch(e){FWY.err="load:"+e}
+/* ---------- menu: rebuild hero/teammate chips + WHO YOU FIGHT ---------- */
+function fwyLab(h){return(h.boss?"⚡ ":"")+(h.fwy==2?(h.fr&&h.fr.g?"👧 ":"🧒 "):h.n=="Mom"?"👩 ":h.n=="Dad"?"👨 ":h.n=="Kit"?"🧒 ":h.n=="Friend"?"🧑 ":h.n=="Girl"?"👧 ":h.n=="The Sky"?"☁️ ":h.n=="Pac-Man"?"🟡 ":"")+h.n}
+function fwyChips(){try{heroes.innerHTML="";chips(heroes,C,"h",fwyLab,h=>h.c);if(pick.h!=null&&heroes.children[pick.h])heroes.children[pick.h].classList.add("sel");
+ mates.innerHTML="";[{n:"No teammate"}].concat(C).forEach((h,i)=>{let b=document.createElement("button");b.textContent=i?"🤝 "+h.n:"🙅 Solo";b.style.background=i?h.c:"#ccc";b.onclick=()=>{pick.t=i-1;[...mates.children].forEach(q=>q.classList.remove("sel"));b.classList.add("sel");beep(600,.08)};if(i-1===pick.t)b.classList.add("sel");mates.appendChild(b)});
+ fwyOpp()}catch(e){FWY.err="chips:"+e}}
+function fwyOpp(){let box=document.getElementById("fwyopp");if(!box)return;box.innerHTML="";[{n:"🎲 Random bad guy",c:"#ddd"}].concat(C).forEach((h,i)=>{let b=document.createElement("button");b.textContent=i?"vs "+fwyLab(h):h.n;b.style.background=h.c;if(i-1===FWY.o)b.classList.add("sel");
+ b.onclick=()=>{FWY.o=i-1;if(FWY.o>=0&&pick.g){pick.g=false;try{giantb.textContent="👑 Giant Boss: King Wobble — OFF"}catch(e){}}[...box.children].forEach(q=>q.classList.remove("sel"));b.classList.add("sel");beep(420+i*20,.08);let s=document.getElementById("fwysay");if(s)s.textContent=FWY.o<0?"You'll fight a surprise bad guy! 🎲":"You will fight: "+C[FWY.o].n+"! 🥊"};box.appendChild(b)})}
+function fwyUI(){if(document.getElementById("fwybox"))return;let anchor=[...menu.querySelectorAll("h3")].find(h=>/power-up/i.test(h.textContent));let box=document.createElement("div");box.id="fwybox";
+ box.innerHTML='<h3>🥊 Pick WHO YOU FIGHT! (Anyone you want!)</h3><div id="fwyopp"></div><div id="fwysay" style="font-weight:bold;margin:4px">You\'ll fight a surprise bad guy! 🎲</div><div id="fwymk"></div>';
+ if(anchor)menu.insertBefore(box,anchor);else menu.appendChild(box);
+ let mk=document.getElementById("fwymk");[["🧒 Make a Friend!",0,"#2fa8ff"],["👧 Make a Girl!",1,"#b46cff"]].forEach(q=>{let b=document.createElement("button");b.id=q[1]?"fwymkg":"fwymkf";b.textContent=q[0];b.style.cssText="background:"+q[2]+";color:#fff;font-size:20px;min-height:56px;padding:8px 18px;margin:6px;border-radius:14px";b.onclick=()=>fwyCZ(q[1]);mk.appendChild(b)});
+ try{const og=giantb.onclick;giantb.onclick=function(){let r=og&&og.apply(this,arguments);if(pick.g&&FWY.o>=0){FWY.o=-1;fwyOpp();let s=document.getElementById("fwysay");if(s)s.textContent="Giant Boss is ON — King Wobble is coming! 👑"}return r}}catch(e){}
+ fwyChips()}
+/* ---------- the Friend / Girl maker (pre-fight screen only) ---------- */
+const FWYN={0:["Max","Leo","Sam","Ben","Noah","Eli","Jack","Liam"],1:["Ava","Mia","Zoe","Lily","Emma","Ella","Ruby","Nora"]};
+const FWYHS={0:["spiky","short","curly","buzz","swoop","ponytail","long"],1:["ponytail","pigtails","long","bun","braids","curly"]};
+const FWYOUT={0:["tee","hoodie","overalls"],1:["dress","skirt","tee"]};
+var FWYCZ=null;
+function fwyCZ(g){if(menu.style.display=="none")return;let old=document.getElementById("fwycz");if(old)old.remove();
+ FWYCZ={g:g?1:0,n:FWYN[g?1:0][Math.floor(Math.random()*8)],sk:"tan",hs:FWYHS[g?1:0][0],hc:"brown",sh:g?"#ff6fb5":"#2fa8ff",out:FWYOUT[g?1:0][0],fp:g?"cart":"goo",typing:0};
+ let d=document.createElement("div");d.id="fwycz";d.style.cssText="position:fixed;inset:0;z-index:99999;background:linear-gradient(#2b2f6a,#1a1d40);color:#fff;overflow-y:auto;-webkit-overflow-scrolling:touch;font-family:sans-serif;text-align:center;padding:8px 8px 110px";
+ let B=(lab,st,fn,id)=>{let b=document.createElement("button");b.textContent=lab;b.style.cssText="min-width:56px;min-height:56px;font-size:20px;margin:4px;padding:6px 12px;border-radius:14px;border:3px solid rgba(255,255,255,.35);color:#222;font-weight:bold;"+(st||"");if(id)b.id=id;b.onclick=e=>{e.stopPropagation();fn(b);beep(700,.05)};return b};
+ let sec=(title,id)=>{let h=document.createElement("div");h.innerHTML='<div style="font:bold 22px sans-serif;margin:12px 0 4px;color:#ffd800">'+title+'</div>';let r=document.createElement("div");r.id=id;h.appendChild(r);d.appendChild(h);return r};
+ let top=document.createElement("div");top.style.cssText="display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap";top.innerHTML='<canvas id="fwypv" width="220" height="250" style="width:180px;height:205px;background:linear-gradient(#bfe6ff,#effaff);border-radius:16px;border:4px solid #ffd800"></canvas><div><div style="font:bold 30px sans-serif">'+(g?"👧 Make a Girl!":"🧒 Make a Friend!")+'</div><div id="fwynm" style="font:bold 40px sans-serif;color:#ffd800;margin:6px"></div><div style="font-size:16px;opacity:.85">Pick everything, then press ✅ Save!</div></div>';d.appendChild(top);
+ let mark=(row,b)=>{[...row.children].forEach(q=>q.style.outline="");b.style.outline="5px solid #ffd800"};
+ let R1=sec("1. Name","fwyn1");FWYN[FWYCZ.g].forEach(n=>R1.appendChild(B(n,"background:#fff",b=>{FWYCZ.n=n;FWYCZ.typing=0;mark(R1,b);fwyPV()})));R1.appendChild(B("🔤 Spell it!","background:#ffd800",b=>{let ab=document.getElementById("fwyab");ab.style.display=ab.style.display=="none"?"block":"none"},"fwyspell"));
+ let AB=document.createElement("div");AB.id="fwyab";AB.style.display="none";"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(L=>AB.appendChild(B(L,"background:#e8f0ff;min-width:52px",()=>{if(!FWYCZ.typing){FWYCZ.n="";FWYCZ.typing=1}if(FWYCZ.n.length<10)FWYCZ.n+=FWYCZ.n.length?L.toLowerCase():L;fwyPV()})));
+ AB.appendChild(B("⌫","background:#ffb3b3",()=>{FWYCZ.typing=1;FWYCZ.n=FWYCZ.n.slice(0,-1);fwyPV()},"fwybs"));R1.parentNode.appendChild(AB);
+ let R2=sec("2. Skin","fwysk");Object.keys(FWYSK).forEach(k=>R2.appendChild(B(" ","background:"+FWYSK[k][1]+";border-radius:50%",b=>{FWYCZ.sk=k;mark(R2,b);fwyPV()})));
+ let R3=sec("3. Hair style","fwyhs");FWYHS[FWYCZ.g].forEach(k=>R3.appendChild(B(k,"background:#fff",b=>{FWYCZ.hs=k;mark(R3,b);fwyPV()})));
+ let R4=sec("4. Hair color","fwyhc");Object.keys(FWYHC).forEach(k=>R4.appendChild(B(" ","background:"+FWYHC[k]+";border-radius:50%",b=>{FWYCZ.hc=k;mark(R4,b);fwyPV()})));
+ let R5=sec("5. Clothes","fwyout");FWYOUT[FWYCZ.g].forEach(k=>R5.appendChild(B({tee:"👕 T-shirt",hoodie:"🧥 Hoodie",overalls:"👖 Overalls",dress:"👗 Dress",skirt:"🩰 Skirt"}[k],"background:#fff",b=>{FWYCZ.out=k;mark(R5,b);fwyPV()})));
+ let R6=sec("6. Shirt color","fwysh");FWYSH.forEach(c=>R6.appendChild(B(" ","background:"+c,b=>{FWYCZ.sh=c;mark(R6,b);fwyPV()})));
+ let R7=sec("7. Favorite power","fwyfp");Object.keys(FWFP).forEach(k=>R7.appendChild(B(FWFP[k][0],"background:#fff",b=>{FWYCZ.fp=k;mark(R7,b);fwyPV()})));
+ let R8=sec("⭐ Your saved friends (tap 🗑️ to remove)","fwylist");
+ let bar=document.createElement("div");bar.style.cssText="position:fixed;left:0;right:0;bottom:0;padding:10px;background:rgba(20,22,50,.95);z-index:100000";
+ bar.appendChild(B("✅ Save my friend!","background:#3ecf6a;color:#fff;font-size:24px;min-height:64px;padding:8px 24px",()=>fwySave(),"fwysave"));bar.appendChild(B("❌ Close","background:#ff8a8a;font-size:24px;min-height:64px;padding:8px 24px",()=>fwyClose(),"fwyclose"));d.appendChild(bar);
+ document.body.appendChild(d);
+ [[R2,Object.keys(FWYSK).indexOf(FWYCZ.sk)],[R3,0],[R4,Object.keys(FWYHC).indexOf(FWYCZ.hc)],[R5,0],[R6,FWYSH.indexOf(FWYCZ.sh)],[R7,Object.keys(FWFP).indexOf(FWYCZ.fp)]].forEach(q=>{if(q[0].children[q[1]])mark(q[0],q[0].children[q[1]])});
+ fwyList();fwyPV()}
+function fwyPV(){let c=document.getElementById("fwypv"),nm=document.getElementById("fwynm");if(!c)return;if(nm)nm.textContent=FWYCZ.n||"…";let ctx=c.getContext("2d"),ox=x;ctx.clearRect(0,0,c.width,c.height);
+ let fake={x:110,y:240,f:1,h:{n:"__fwyprev"},hp:100,mhp:100,hit:0,frz:0,vy:0,dz:0};RL.LK.__fwyprev={k:"human",skin:FWYSK[FWYCZ.sk],glove:"skin",iris:"#5a3a1a"};
+ try{x=ctx;x.save();x.translate(110,240);x.scale(1.45,1.45);x.translate(-110,-240);fwHuman(fake,110,240,1,0,0,Object.assign(fwyLook(FWYCZ),{sc:1}));x.restore();x=ctx;x.font="34px sans-serif";x.textAlign="center";x.fillText((FWFP[FWYCZ.fp]||FWFP.goo)[0].split(" ").pop(),190,40);x.textAlign="left"}catch(e){FWY.err="pv:"+e}finally{x=ox}}
+function fwyList(){let r=document.getElementById("fwylist");if(!r)return;r.innerHTML="";let a=fwyLoad();if(!a.length){r.innerHTML='<div style="opacity:.8">No saved friends yet — make one!</div>';return}
+ a.forEach(q=>{let w=document.createElement("span");w.style.cssText="display:inline-block;margin:4px;padding:6px 10px;border-radius:14px;background:"+(q.sh||"#2fa8ff")+";color:#222;font:bold 20px sans-serif";w.textContent=(q.g?"👧 ":"🧒 ")+q.n+" ";let del=document.createElement("button");del.textContent="🗑️";del.style.cssText="min-width:52px;min-height:52px;font-size:22px;border-radius:12px";del.onclick=e=>{e.stopPropagation();fwyDel(q.n)};w.appendChild(del);r.appendChild(w)})}
+function fwySave(){if(!FWYCZ)return;let a=fwyLoad();let n=(FWYCZ.n||"").trim()||FWYN[FWYCZ.g][0];if(a.length>=FWY.maxF){fwyMsg("You have "+FWY.maxF+" friends saved! Remove one with 🗑️ first.");return}
+ let base=n,k=2;while(C.some(q=>q.n==n)||a.some(q=>q.n==n))n=base+" "+(k++);
+ let r={n,g:FWYCZ.g,sk:FWYCZ.sk,hs:FWYCZ.hs,hc:FWYCZ.hc,sh:FWYCZ.sh,out:FWYCZ.out,fp:FWYCZ.fp};a.push(r);fwyStore(a);fwyAddRec(r);fwyChips();fwyList();try{tada()}catch(e){tune([523,659,784,1047],90,"sine",.12)}fwyMsg("🎉 "+n+" is saved! Pick "+n+" as your hero, your teammate, or WHO YOU FIGHT!")}
+function fwyMsg(s){let m=document.getElementById("fwymsg");if(!m){m=document.createElement("div");m.id="fwymsg";m.style.cssText="font:bold 22px sans-serif;color:#7dffb0;margin:10px";let d=document.getElementById("fwycz");if(d)d.insertBefore(m,d.children[1])}m.textContent=s}
+function fwyDel(n){let a=fwyLoad().filter(q=>q.n!=n);fwyStore(a);let i=C.findIndex(q=>q.n==n&&q.fwy==2);if(i>=0){C.splice(i,1);let fix=v=>v==null||v<0?v:v==i?(v===pick.h?null:-1):v>i?v-1:v;
+  if(pick.h===i){pick.h=null;try{card.style.display="none"}catch(e){}}else if(pick.h>i)pick.h--;if(pick.t===i)pick.t=-1;else if(pick.t>i)pick.t--;if(FWY.o===i)FWY.o=-1;else if(FWY.o>i)FWY.o--;if(foe===i)foe=0;else if(foe>i)foe--}
+ fwyChips();fwyList();beep(300,.1)}
+function fwyClose(){let d=document.getElementById("fwycz");if(d)d.remove();FWYCZ=null}
+/* ---------- fight flow: use the picked opponent ---------- */
+(function(){const o=start;start=function(){try{let d=document.getElementById("fwycz");if(d)d.remove();if(!pr&&!pick.g){if(FWY.o>=0&&C[FWY.o])foe=FWY.o;else if(foe>=FWY.base&&FWY.base>1){let j;do j=Math.floor(Math.random()*FWY.base);while(j==pick.h);foe=j}}}catch(e){FWY.err="start:"+e}return o.apply(this,arguments)}})();
+(function(){const o=startExtra;startExtra=function(){FWY.blue=0;try{[P,E,T].forEach(a=>{if(a){a.fwBlue=0;a.fwIt=null;a.fwChomp=0}});if(E&&P&&!pr&&!E.h.giant&&FWY.o>=0&&C[FWY.o]===E.h){let n=E.h.n+(E.h===P.h?" Twin":"");E.nick=n;bubble={s:"I am "+n+"! Let's play fight! 🥊",t:140};if(!race)talk("Hi! I am "+n+"! Let's play fight!","force")}}catch(e){FWY.err="sx:"+e}return o.apply(this,arguments)}})();
+try{fwyUI()}catch(e){FWY.err="ui:"+e}
 
 </script></body></html>
