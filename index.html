@@ -2837,9 +2837,9 @@ function ssTick(){if(P&&P.ssVacP&&t>P.ssVacP.t)ssVacDone(P.ssVacP.c);if(!P)retur
    The fight is frozen while you're in the level. Not in Race. Recording pauses inside (replay skips the level). */
 var PL={act:0,ph:"",pt:0,hold:0,tip:0,cool:0,needUp:0,lv:null,sv:null,d:null,cam:0,hp:100,tries:5,coins:0,inv:0,cp:120,pcd:0,lastA:0,lastUp:0,lastDn:0,prevY:0,kvx:0,dropT:0,force:null,seed:0,post:0,res:null,n:0,err:null,txt:[]};
 var PLB={list:[],fights:0,on:0,shield:0,flash:0,hA:0};
-const PLD=[{id:"easy",n:"Super Easy",ic:"🟢",col:"#2a9d48",L:1,w:50,len:2600,foes:6,cps:1,tries:5,fights:1,np:1,coins:5,tier:0},
- {id:"hard",n:"Super Hard",ic:"🟠",col:"#e67c12",L:5,w:35,len:3300,foes:10,cps:2,tries:5,fights:2,np:2,coins:12,tier:1},
- {id:"duper",n:"Super Duper Hard",ic:"🔴",col:"#d42a4a",L:8,w:15,len:4000,foes:14,cps:3,tries:5,fights:3,np:3,coins:25,tier:2}];
+const PLD=[{id:"easy",n:"Super Easy",ic:"🟢",col:"#2a9d48",L:1,w:50,len:4600,foes:10,cps:2,tries:5,fights:1,np:1,coins:5,tier:0},
+ {id:"hard",n:"Super Hard",ic:"🟠",col:"#e67c12",L:5,w:35,len:5600,foes:16,cps:2,tries:5,fights:2,np:2,coins:12,tier:1},
+ {id:"duper",n:"Super Duper Hard",ic:"🔴",col:"#d42a4a",L:8,w:15,len:6600,foes:22,cps:3,tries:5,fights:3,np:3,coins:25,tier:2}];
 const PLP={heart:{ic:"❤️",n:"Big Heart",amt:[25,40,50],say:a=>"+"+a+" HP"},
  punch:{ic:"💪",n:"Mega Punch",amt:[1.25,1.4,1.5],say:a=>"hits "+Math.round((a-1)*100)+"% harder"},
  shield:{ic:"🛡️",n:"Pipe Shield",amt:[2,4,5],say:a=>"blocks "+a+" bonks"},
@@ -2866,12 +2866,18 @@ function plPad(hide){document.querySelectorAll("#pad .t").forEach(b=>{let d=b.da
 function plEnter(pp,d){d=d||(PL.force?PLD.find(q=>q.id==PL.force)||plRoll():plRoll());PL.d=d;
  PL.sv={x:P.x,y:P.y,vy:P.vy,f:P.f,fly:P.fly,hit:P.hit,kb:P.kb,t,cam,camY,shake,banner,bubble,pp,lx:P.lx};
  PL.act=1;PL.ph="in";PL.pt=0;PL.hold=0;PL.n++;PL.sx=P.x-cam;PL.sy=P.y-40-camY;banner=null;bubble=null;shake=0;
- plBoop(0);plPad(1);PL.lv=plBuild(d);PL.hp=100;PL.tries=d.tries;PL.coins=0;PL.inv=0;PL.cp=110;PL.pcd=0;PL.kvx=0;PL.txt=[];PL.res=null;PL.fx=[];
+ plBoop(0);plPad(1);PL.lv=plBuild(d);PL.hp=100;PL.tries=d.tries;PL.coins=0;PL.inv=0;PL.cp=110;PL.pcd=0;PL.kvx=0;PL.txt=[];PL.res=null;PL.fx=[];PL.bag=[];PL.bonus=0;PL.secN=0;PL.exH=0;
  try{whoosh(.7,false)}catch(e){}}
 /* ---------- level ---------- */
-function plBuild(d){PL.seed=(PL.fseed||((Math.random()*1e9)|0));let R=plRng(PL.seed),s=FOE2.scale(d.L),
- lv={d,s,len:d.len,plats:[],pipes:[],blocks:[],coins:[],foes:[],cps:[],apples:[],goo:[],exit:d.len-170};
- let xx=520;const end=d.len-430;
+/* ENDLESS: the level is built one long section at a time, just ahead of the hero, and old sections behind are recycled,
+   so memory and frame time stay flat. Each section ends with a 🎁 prize flag + an EXIT pipe (stand on it + hold ⬇ to go home). */
+function plBuild(d){PL.seed=(PL.fseed||((Math.random()*1e9)|0));let s=FOE2.scale(d.L),
+ lv={d,s,R:plRng(PL.seed),len:0,genTo:0,ns:0,minX:40,plats:[],pipes:[],blocks:[],coins:[],foes:[],cps:[],apples:[],goo:[],gates:[],exit:1e9,peak:0};
+ lv.dmg=Math.round(7*s.dmg*s.hd.dmg);lv.chase=s.chase;lv.k=s.k;lv.spit=s.combo>0;
+ plGen(lv);plGen(lv);return lv}
+function plGen(lv){let d=lv.d,s=lv.s,R=lv.R,x0=lv.genTo,L=d.len,sec=++lv.ns,gx=x0+L-170;
+ let xx=x0+(sec==1?520:260);const end=gx-260;
+ let pl0=lv.plats.length;
  while(xx<end){let ch=R();
   if(ch<.28){let w=160+((R()*3)|0)*40,y=PLG-(100+((R()*2)|0)*16);lv.plats.push({x:xx,w,y});for(let i=0;i<w/40;i++)lv.coins.push({x:xx+20+i*40,y:y-32});
    if(R()<.4){let y2=y-100,x2=xx+w/2-60;lv.plats.push({x:x2,w:120,y:y2});lv.coins.push({x:x2+60,y:y2-32})}xx+=w+150}
@@ -2879,21 +2885,32 @@ function plBuild(d){PL.seed=(PL.fseed||((Math.random()*1e9)|0));let R=plRng(PL.s
   else if(ch<.7){let n=1+((R()*3)|0);for(let i=0;i<n;i++)lv.blocks.push({x:xx+i*44,y:PLG-150,hit:0,q:i%2==0,b:0});xx+=n*44+170}
   else{for(let i=0;i<5;i++)lv.coins.push({x:xx+i*36,y:PLG-40-Math.sin(i/4*Math.PI)*70});xx+=5*36+150}}
  const inPipe=px=>lv.pipes.some(p=>px>p.x-50&&px<p.x+p.w+50);
- let n=d.foes,span=lv.exit-260-650;
- for(let i=0;i<n;i++){let fx=650+(i+.5)*span/n+(R()-.5)*60,g=0;while(inPipe(fx)&&g++<8)fx+=60;
+ let n=d.foes,f0=x0+(sec==1?650:420),span=gx-260-f0;
+ for(let i=0;i<n;i++){let fx=f0+(i+.5)*span/n+(R()-.5)*60,g=0;while(inPipe(fx)&&g++<8)fx+=60;
   let kd=d.L>=5&&i%3==2?"puff":i%2==1?"jelly":"mushy",mh=Math.max(1,Math.round(1.3*s.hp*s.hd.hp));
   lv.foes.push({k:kd,x:fx,home:fx,rng:70+R()*60,y:PLG,vy:0,dir:R()<.5?-1:1,v:(.9+.5*R())*s.sp*s.hd.sp,hp:mh,mh,ph:R()*99,ht:30+((R()*60)|0),gt:90+((R()*90)|0),out:0,fl:0,kb:0})}
- for(let i=1;i<=d.cps;i++){let cx=Math.round(lv.exit*i/(d.cps+1)),g=0;while(inPipe(cx)&&g++<8)cx+=60;lv.cps.push({x:cx,on:0})}
- if(d.L>=5){lv.plats.filter((p,i)=>i%3==1).slice(0,d.L>=8?3:2).forEach(p=>lv.apples.push({x:p.x+p.w/2,y:p.y-40,got:0}))}
- lv.dmg=Math.round(7*s.dmg*s.hd.dmg);lv.chase=s.chase;lv.k=s.k;lv.spit=s.combo>0;
- return lv}
-function plSolid(px,py){for(const p of PL.lv.pipes)if(px>p.x-18&&px<p.x+p.w+18&&py>p.top+3)return p;let e=PL.lv.exit;if(px>e-18&&py>PLG-96)return{x:e,w:84,top:PLG-96,ex:1};return null}
+ for(let i=1;i<=d.cps;i++){let cx=Math.round(x0+(gx-x0)*i/(d.cps+1)),g=0;while(inPipe(cx)&&g++<8)cx+=60;lv.cps.push({x:cx,on:0})}
+ if(d.L>=5){lv.plats.slice(pl0).filter((p,i)=>i%3==1).slice(0,d.L>=8?3:2).forEach(p=>lv.apples.push({x:p.x+p.w/2,y:p.y-40,got:0}))}
+ lv.gates.push({x:gx,sec,on:0});lv.pipes.push({x:gx+60,w:84,top:PLG-96,ex:1,sec});
+ lv.genTo=x0+L;lv.len=lv.genTo}
+function plRecycle(lv){let cut=Math.min(P.x-1800,PL.cp-300);if(cut<=lv.minX)return;lv.minX=cut;
+ const keep=o=>(o.x+(o.w||0))>cut;
+ lv.plats=lv.plats.filter(keep);lv.pipes=lv.pipes.filter(keep);lv.blocks=lv.blocks.filter(keep);lv.coins=lv.coins.filter(c=>!c.got&&keep(c));
+ lv.foes=lv.foes.filter(f=>keep(f)&&!(f.out>40));lv.cps=lv.cps.filter(keep);lv.apples=lv.apples.filter(a=>!a.got&&keep(a));lv.gates=lv.gates.filter(keep)}
+function plCount(lv){return lv.plats.length+lv.pipes.length+lv.blocks.length+lv.coins.length+lv.foes.length+lv.cps.length+lv.apples.length+lv.gates.length+lv.goo.length+PL.fx.length+PL.txt.length}
+function plGate(g){g.on=1;PL.cp=g.x+10;PL.hp=100;PL.secN=Math.max(PL.secN||0,g.sec);let d=PL.d,have=PL.bag.map(q=>q.ty),ks=Object.keys(PLP),fresh=ks.filter(q=>!have.includes(q)),ty=(PL.forceP&&PL.forceP[(g.sec-1)%PL.forceP.length])||(fresh.length?fresh:ks)[Math.floor(Math.random()*(fresh.length?fresh:ks).length)],amt=PLP[ty].amt[d.tier];
+ let ex=PL.bag.find(q=>q.ty==ty);if(ex)ex.amt=Math.max(ex.amt,amt);else PL.bag.push({ty,amt});PL.bonus+=d.coins;
+ show("🎁 Prize: "+PLP[ty].ic+" "+PLP[ty].n+"! Hold ⬇ on the EXIT pipe to take it home — or keep going ➜",190,18);
+ try{tada()}catch(e){}for(let i=0;i<30;i++)PL.fx.push({x:g.x+(Math.random()-.5)*160,y:PLG-200-Math.random()*60,vx:(Math.random()-.5)*5,vy:Math.random()*2,l:70,c:["#ff4","#f6a","#6ef","#8f6","#fa4"][i%5]})}
+function plLeave(){if(!PL.act||(PL.ph!="play"&&PL.ph!="drop"))return;PL.exH=0;
+ if(PL.bag.length){plWin()}else{PL.res=null;PL.ph="out";PL.pt=0;plBoop(1)}}
+function plSolid(px,py){for(const p of PL.lv.pipes)if(px>p.x-18&&px<p.x+p.w+18&&py>p.top+3)return p;return null}
 function plOuch(dmg,dir){if(PL.inv>0||PL.ph!="play")return;PL.hp-=dmg;PL.inv=70;P.vy=-7;PL.kvx=-(dir||P.f)*6;try{beep(220,.12,"triangle");setTimeout(()=>beep(160,.1,"triangle"),70)}catch(e){}
  PL.txt.push({x:P.x,y:P.y-130,s:["Bonk! 💫","Oof! 💫","Boing! 💫"][PL.n%3],l:40});PL.n++;if(PL.hp<=0)plFail()}
-function plFail(){PL.tries--;if(PL.tries>0){PL.hp=100;P.x=PL.cp;P.y=PLG-220;P.vy=0;PL.inv=110;PL.kvx=0;show("Oopsie! Back to the flag 🚩 — "+PL.tries+" 🎈 tries left!",140,18);try{[523,440,523].forEach((f,i)=>setTimeout(()=>beep(f,.1,"sine"),i*90))}catch(e){}}
+function plFail(){if(true){PL.hp=100;P.x=PL.cp;P.y=PLG-220;P.vy=0;PL.inv=110;PL.kvx=0;show("Oopsie! Back to the flag 🚩 — keep going!",120,18);try{[523,440,523].forEach((f,i)=>setTimeout(()=>beep(f,.1,"sine"),i*90))}catch(e){}}
  else{PL.ph="fail";PL.pt=0;PL.hp=0;show("Whew! That pipe was super tricky! Popping you back out — try again anytime! 😊",210,18)}}
 function plPick(d){let ks=Object.keys(PLP),R=Math.random,out=[];while(out.length<d.np&&ks.length){let i=Math.floor(R()*ks.length);let ty=ks.splice(i,1)[0];out.push({ty,amt:PLP[ty].amt[d.tier]})}return out}
-function plWin(){PL.ph="win";PL.pt=0;let d=PL.d,pz=PL.forceP?PL.forceP.map(ty=>({ty,amt:PLP[ty].amt[d.tier]})):plPick(d);PL.res={pz,d,coins:d.coins+PL.coins};try{tada()}catch(e){}
+function plWin(){PL.ph="win";PL.pt=0;let d=PL.d,pz=PL.bag.map(q=>({ty:q.ty,amt:q.amt}));PL.res={pz,d,coins:PL.bonus+PL.coins,secs:PL.secN||0};try{tada()}catch(e){}
  for(let i=0;i<60;i++)PL.fx.push({x:P.x+(Math.random()-.5)*300,y:P.y-200-Math.random()*100,vx:(Math.random()-.5)*6,vy:Math.random()*2,l:90,c:["#ff4","#f6a","#6ef","#8f6","#fa4"][i%5]})}
 function plGrant(r){addCoins(r.coins);for(const p of r.pz){let ex=PLB.list.find(q=>q.ty==p.ty);if(ex)ex.amt=Math.max(ex.amt,p.amt);else PLB.list.push({ty:p.ty,amt:p.amt})}
  PLB.fights=Math.max(PLB.fights,r.d.fights);PLB.on=1;PLB.flash=120;
@@ -2913,17 +2930,19 @@ function plPlay(){let lv=PL.lv,d=PL.d;t++;if(PL.inv>0)PL.inv--;if(PL.pcd>0)PL.pc
  P.duck=dn&&gr?1:0;if(P.duck)spd*=.4;
  if(dn&&!PL.lastDn&&PL.onP&&PL.onP.pl){PL.dropT=10;P.y+=6;PL.onP=null}
  let ox=P.x;if(L&&!Rr){P.x-=spd;P.f=-1}if(Rr&&!L){P.x+=spd;P.f=1}P.x+=PL.kvx;PL.kvx*=.85;if(Math.abs(PL.kvx)<.2)PL.kvx=0;
- P.x=Math.max(40,Math.min(lv.len-30,P.x));let sp=plSolid(P.x,P.y);if(sp){P.x=ox<=sp.x+sp.w/2?sp.x-18.5:sp.x+sp.w+18.5;if(sp.ex){plWin();return}}
- if(P.x>=lv.exit-20){plWin();return}
+ P.x=Math.max(lv.minX+40,P.x);let sp=plSolid(P.x,P.y);if(sp){P.x=ox<=sp.x+sp.w/2?sp.x-18.5:sp.x+sp.w+18.5}
+ if(P.x>lv.genTo-2400)plGen(lv);if(t%30==0)plRecycle(lv);
  if(up&&!PL.lastUp&&gr){P.vy=-15.5;PL.onP=null;try{beep(520,.06,"sine")}catch(e){}}
  PL.lastUp=up;PL.lastDn=dn;
  PL.prevY=P.y;P.vy=Math.min(P.vy+.8,up&&P.vy>0?3.2:14);P.y+=P.vy;P.fly=0;
  // ceilings: ? blocks
  if(P.vy<0)for(const b of lv.blocks){let top=P.y-112;if(Math.abs(P.x-(b.x+20))<30&&top<b.y&&PL.prevY-112>=b.y-2){P.y=b.y+112;P.vy=1.5;if(!b.hit){b.hit=1;b.b=10;if(b.q){PL.coins++;PL.txt.push({x:b.x+20,y:b.y-30,s:"🪙",l:30,c:1});try{beep(988,.06,"square");setTimeout(()=>beep(1318,.1,"square"),60)}catch(e){}}}else b.b=6;break}}
  // landing
- PL.onP=null;if(P.vy>=0){let tops=[];for(const p of lv.plats)if(PL.dropT<=0&&P.x>p.x-12&&P.x<p.x+p.w+12)tops.push({y:p.y,pl:1});for(const p of lv.pipes)if(P.x>p.x-14&&P.x<p.x+p.w+14)tops.push({y:p.top});
+ PL.onP=null;if(P.vy>=0){let tops=[];for(const p of lv.plats)if(PL.dropT<=0&&P.x>p.x-12&&P.x<p.x+p.w+12)tops.push({y:p.y,pl:1});for(const p of lv.pipes)if(P.x>p.x-14&&P.x<p.x+p.w+14)tops.push({y:p.top,ex:p.ex});
   for(const q of tops)if(PL.prevY<=q.y+1&&P.y>=q.y){P.y=q.y;P.vy=0;PL.onP=q;break}}
  if(P.y>=PLG){P.y=PLG;P.vy=0}
+ if(PL.onP&&PL.onP.ex&&dn){PL.exH++;if(PL.exH>=20){plLeave();return}}else PL.exH=0;
+ for(const g of lv.gates)if(!g.on&&P.x>g.x)plGate(g);
  // pickups
  for(const c of lv.coins)if(!c.got&&Math.abs(P.x-c.x)<26&&c.y>P.y-120&&c.y<P.y+6){c.got=1;PL.coins++;try{beep(1318,.05,"square")}catch(e){}}
  for(const a of lv.apples)if(!a.got&&Math.abs(P.x-a.x)<28&&a.y>P.y-120&&a.y<P.y+6){a.got=1;PL.hp=Math.min(100,PL.hp+35);PL.txt.push({x:a.x,y:a.y-20,s:"+35 ❤️",l:45});try{beep(660,.08,"sine");setTimeout(()=>beep(990,.1,"sine"),80)}catch(e){}}
@@ -2940,7 +2959,7 @@ function plPlay(){let lv=PL.lv,d=PL.d;t++;if(PL.inv>0)PL.inv--;if(PL.pcd>0)PL.pc
   if(ch)f.dir=Math.sign(dx)||f.dir;else if(Math.abs(f.x-f.home)>f.rng)f.dir=Math.sign(f.home-f.x);
   let v=f.v*(ch?1+.25*lv.chase:1),nx=f.x+f.dir*v+f.kb;f.kb*=.8;if(Math.abs(f.kb)<.2)f.kb=0;
   if(f.k=="puff"){f.x=nx;f.y=PLG-132+Math.sin((t+f.ph*10)/26)*18}
-  else{let blk=lv.pipes.some(p=>nx>p.x-22&&nx<p.x+p.w+22)||nx<60||nx>lv.exit-40;if(blk){f.dir*=-1;f.kb=0}else f.x=nx;
+  else{let blk=lv.pipes.some(p=>nx>p.x-22&&nx<p.x+p.w+22)||nx<lv.minX+20;if(blk){f.dir*=-1;f.kb=0}else f.x=nx;
    if(f.k=="jelly"){f.vy+=.7;f.y+=f.vy;if(f.y>=PLG){f.y=PLG;f.vy=0;if(--f.ht<=0){f.vy=-(7.5+5*lv.k);f.ht=Math.round(100-45*lv.k)}}
     if(lv.spit&&ad<430&&ad>90&&--f.gt<=0){f.gt=Math.round(250-90*lv.k);lv.goo.push({x:f.x,y:f.y-30,vx:Math.sign(dx)*3.2,vy:-7,l:200});try{beep(300,.08,"sine")}catch(e){}}}}
   let r=f.k=="puff"?20:22,ft=f.k=="puff"?f.y-20:f.y-40,fb=f.k=="puff"?f.y+20:f.y;
@@ -2967,7 +2986,7 @@ function plFoe(f){let a=f.out?Math.max(0,1-f.out/30):1;if(a<=0)return;x.save();x
 function plEyes(cx,cy,ang,lk){x.fillStyle="#fff";x.beginPath();x.ellipse(cx-6,cy,4.5,5.5,0,0,7);x.ellipse(cx+6,cy,4.5,5.5,0,0,7);x.fill();lk=lk||1;x.fillStyle="#222";x.beginPath();x.arc(cx-6+lk*1.5,cy+1,2.3,0,7);x.arc(cx+6+lk*1.5,cy+1,2.3,0,7);x.fill();x.strokeStyle="#3a2414";x.lineWidth=2;x.beginPath();if(ang){x.moveTo(cx-11,cy-8);x.lineTo(cx-2,cy-5);x.moveTo(cx+11,cy-8);x.lineTo(cx+2,cy-5)}else{x.moveTo(cx-10,cy-8);x.lineTo(cx-3,cy-7);x.moveTo(cx+10,cy-8);x.lineTo(cx+3,cy-7)}x.stroke()}
 function plSwirl(cx,cy,p){x.save();x.setTransform(1,0,0,1,0,0);let R=60+p*820,rot=t*.18;x.globalAlpha=Math.min(1,p*1.6);x.fillStyle="rgba(255,250,235,"+(p*.85)+")";x.beginPath();x.arc(cx,cy,R*.55,0,7);x.fill();x.lineCap="round";
  for(let i=0;i<6;i++){x.strokeStyle="hsl("+(i*60+t*5)%360+",90%,62%)";x.lineWidth=6+p*26;x.beginPath();for(let a=0;a<12.6;a+=.25){let r=a/12.6*R;x.lineTo(cx+Math.cos(a+rot+i*1.047)*r,cy+Math.sin(a+rot+i*1.047)*r)}x.stroke()}x.restore()}
-function plDraw(){let lv=PL.lv,d=PL.d;if(!PLART)plArt();PL.cam=Math.max(0,Math.min(lv.len-900,P.x-320));let cm=PL.cam;
+function plDraw(){let lv=PL.lv,d=PL.d;if(!PLART)plArt();PL.cam=Math.max(0,lv.minX,P.x-320);let cm=PL.cam;
  x.save();x.setTransform(1,0,0,1,0,0);
  let ox2=-((cm*.5)%480);for(let i=-1;i<3;i++)x.drawImage(PLART.wall,ox2+i*480,0);
  // warm lanterns (cozy light)
@@ -2988,8 +3007,10 @@ function plDraw(){let lv=PL.lv,d=PL.d;if(!PLART)plArt();PL.cam=Math.max(0,Math.m
  for(const p of lv.plats){if(p.x>cm+920||p.x+p.w<cm-20)continue;for(let i=0;i<p.w;i+=40){x.fillStyle="#e08a3e";x.fillRect(p.x+i,p.y,40,22);x.strokeStyle="#9a4a1e";x.lineWidth=2;x.strokeRect(p.x+i+1,p.y+1,38,20);x.fillStyle="rgba(255,255,255,.25)";x.fillRect(p.x+i+2,p.y+2,36,4)}}
  for(const b of lv.blocks){let by=b.y-40-(b.b>0?b.b--:0);x.fillStyle=b.hit?"#b07a46":"#f6c431";rr(b.x,by,40,40,5);x.fill();x.strokeStyle="#8a5a12";x.lineWidth=3;x.stroke();if(!b.hit){x.fillStyle="#fff";x.font="bold 26px sans-serif";x.textAlign="center";x.textBaseline="middle";x.fillText(b.q?"?":"✦",b.x+20,by+21);x.textBaseline="alphabetic"}}
  for(const p of lv.pipes){if(p.x>cm+920||p.x+p.w<cm-20)continue;plPipe(p.x,p.top,p.w,PLG)}
- // exit pipe + flag
- let ex=lv.exit;plPipe(ex,PLG-96,84,PLG);x.fillStyle="#eee";x.fillRect(ex+100,PLG-230,6,230);x.fillStyle="#ffd800";x.beginPath();x.arc(ex+103,PLG-234,7,0,7);x.fill();x.fillStyle="#2fb34a";x.beginPath();x.moveTo(ex+106,PLG-226);x.lineTo(ex+160,PLG-210+Math.sin(t/7)*4);x.lineTo(ex+106,PLG-192);x.fill();x.font="bold 15px sans-serif";x.textAlign="center";x.fillStyle="#fff";x.strokeStyle="rgba(0,0,0,.5)";x.lineWidth=3;x.strokeText("EXIT ➜ 🏁",ex+42,PLG-108);x.fillText("EXIT ➜ 🏁",ex+42,PLG-108);
+ // 🎁 prize flags + EXIT pipes (one per section)
+ for(const g of lv.gates){if(g.x>cm+1100||g.x<cm-260)continue;let gx=g.x;x.fillStyle="#eee";x.fillRect(gx-3,PLG-230,6,230);x.fillStyle="#ffd800";x.beginPath();x.arc(gx,PLG-234,7,0,7);x.fill();x.fillStyle=g.on?"#3c4":"#f6a";x.beginPath();x.moveTo(gx+3,PLG-226);x.lineTo(gx+58,PLG-210+Math.sin(t/7)*4);x.lineTo(gx+3,PLG-192);x.fill();x.font="22px serif";x.textAlign="center";x.fillText(g.on?"✅":"🎁",gx+24,PLG-240);
+  let ex=gx+60;x.font="bold 13px sans-serif";x.fillStyle="#fff";x.strokeStyle="rgba(0,0,0,.5)";x.lineWidth=3;x.strokeText("EXIT ⬇ 🏠",ex+42,PLG-108);x.fillText("EXIT ⬇ 🏠",ex+42,PLG-108);x.font="bold 11px sans-serif";x.strokeText("more ➜",ex+120,PLG-60);x.fillText("more ➜",ex+120,PLG-60)}
+ if(PL.exH>0){let f=Math.min(1,PL.exH/20),cx=P.x,cy=P.y+14;x.globalAlpha=.85;x.strokeStyle="rgba(0,0,0,.35)";x.lineWidth=7;x.beginPath();x.arc(cx,cy,15,0,7);x.stroke();x.strokeStyle="#4f4";x.lineWidth=5;x.beginPath();x.arc(cx,cy,15,-Math.PI/2,-Math.PI/2+f*6.283);x.stroke();x.globalAlpha=1}
  // coins / apples
  for(const c of lv.coins){if(c.got||c.x<cm-20||c.x>cm+920)continue;let s=Math.abs(Math.cos(t/9+c.x*.01));x.fillStyle="#ffd21f";x.beginPath();x.ellipse(c.x,c.y,10*s+1.5,12,0,0,7);x.fill();x.strokeStyle="#c78a00";x.lineWidth=2;x.stroke()}
  x.font="26px serif";x.textAlign="center";x.textBaseline="middle";for(const a of lv.apples)if(!a.got)x.fillText("🍎",a.x,a.y+Math.sin(t/12)*3);x.textBaseline="alphabetic";
@@ -3003,11 +3024,12 @@ function plDraw(){let lv=PL.lv,d=PL.d;if(!PLART)plArt();PL.cam=Math.max(0,Math.m
 function plHud(){let d=PL.d;x.save();x.setTransform(1,0,0,1,0,0);
  // health + tries (top-left, slim)
  x.globalAlpha=.8;x.fillStyle="#1d1446";rr(10,30,236,24,12);x.fill();x.globalAlpha=1;x.font="14px sans-serif";x.textBaseline="middle";x.textAlign="left";x.fillText("❤️",16,43);
- x.fillStyle="#5a1630";rr(36,37,130,12,6);x.fill();x.fillStyle="#ff5a8a";rr(36,37,130*Math.max(0,PL.hp)/100,12,6);x.fill();x.font="bold 13px sans-serif";x.fillStyle="#fff";x.fillText("🎈×"+PL.tries,174,43);
+ x.fillStyle="#5a1630";rr(36,37,130,12,6);x.fill();x.fillStyle="#ff5a8a";rr(36,37,130*Math.max(0,PL.hp)/100,12,6);x.fill();x.font="bold 13px sans-serif";x.fillStyle="#fff";x.fillText("∞ #"+((PL.secN||0)+1),174,43);
+ x.globalAlpha=.85;x.fillStyle="#1d1446";rr(10,60,92,26,13);x.fill();x.globalAlpha=1;x.strokeStyle="#7df";x.lineWidth=2;x.stroke();x.fillStyle="#fff";x.font="bold 13px sans-serif";x.fillText("🚪 Exit",28,73);
  // coins (top center)
  x.textAlign="center";x.font="bold 18px sans-serif";x.fillStyle="#ffd800";x.strokeStyle="rgba(0,0,0,.5)";x.lineWidth=3;let ct="🪙 "+PL.coins+"   (bank "+coins+")";x.strokeText(ct,450,44);x.fillText(ct,450,44);
  // progress
- let pf=Math.max(0,Math.min(1,P.x/PL.lv.exit));x.globalAlpha=.7;x.fillStyle="#1d1446";rr(370,58,160,6,3);x.fill();x.globalAlpha=1;x.fillStyle="#7df";rr(370,58,160*pf,6,3);x.fill();x.font="11px serif";x.fillText("🏁",538,61);
+ let g0=PL.lv.gates.find(g=>!g.on),pf=g0?Math.max(0,Math.min(1,1-(g0.x-P.x)/(PL.d.len-170))):1;x.globalAlpha=.7;x.fillStyle="#1d1446";rr(370,58,160,6,3);x.fill();x.globalAlpha=1;x.fillStyle="#7df";rr(370,58,160*pf,6,3);x.fill();x.font="11px serif";x.fillText("🎁",538,61);
  // difficulty label (corner pill)
  x.font="bold 13px sans-serif";let lb=d.ic+" "+d.n,w=x.measureText(lb).width+20;x.globalAlpha=.88;x.fillStyle=d.col;rr(890-w,30,w,22,11);x.fill();x.globalAlpha=1;x.fillStyle="#fff";x.textAlign="center";x.fillText(lb,890-w/2,42);
  x.restore();
@@ -3015,12 +3037,12 @@ function plHud(){let d=PL.d;x.save();x.setTransform(1,0,0,1,0,0);
  try{realLamp();realCanvasFact()}catch(e){}
  if(PL.ph=="win"&&PL.res)plCard()}
 function plCard(){let r=PL.res,a=Math.min(1,PL.pt/12);x.save();x.setTransform(1,0,0,1,0,0);x.globalAlpha=.9*a;x.fillStyle="#1d1446";rr(230,96,440,180,22);x.fill();x.globalAlpha=a;x.strokeStyle=r.d.col;x.lineWidth=4;x.stroke();
- x.textAlign="center";x.textBaseline="middle";x.fillStyle="#ffd800";x.font="bold 30px sans-serif";x.fillText("🎉 YOU DID IT! 🎉",450,128);x.fillStyle="#fff";x.font="bold 15px sans-serif";x.fillText(r.d.ic+" "+r.d.n+" prize — works now + next "+r.d.fights+" fight"+(r.d.fights>1?"s":""),450,158);
+ x.textAlign="center";x.textBaseline="middle";x.fillStyle="#ffd800";x.font="bold 30px sans-serif";x.fillText("🎉 GREAT RUN! 🎉",450,128);x.fillStyle="#fff";x.font="bold 15px sans-serif";x.fillText(r.d.ic+" "+r.d.n+" prize — works now + next "+r.d.fights+" fight"+(r.d.fights>1?"s":""),450,158);
  let n=r.pz.length;r.pz.forEach((p,i)=>{let cx=450+(i-(n-1)/2)*140,bob=Math.sin(t/8+i)*3;x.font="38px serif";x.fillText(PLP[p.ty].ic,cx,200+bob);x.font="bold 13px sans-serif";x.fillStyle="#fff";x.fillText(PLP[p.ty].n,cx,232);x.fillStyle="#bfe";x.font="12px sans-serif";x.fillText(PLP[p.ty].say(p.amt),cx,248)});
  x.fillStyle="#ffd800";x.font="bold 14px sans-serif";x.fillText("+"+r.coins+" 🪙",450,266);x.restore()}
 function plFrame(){PL.pt++;let ph=PL.ph;
  if(ph=="in"){t++;plSwirl(PL.sx,PL.sy,Math.min(1,PL.pt/34));if(PL.pt>=36){PL.ph="drop";PL.pt=0;P.x=116;P.y=40;P.vy=2;P.f=1;P.duck=0;P.hit=0;PL.cam=0;PL.lastUp=1;PL.lastA=1;PL.lastDn=1;
-   show("Run to the 🏁 EXIT pipe! Jump ON bad guys or 👊 bonk them!",170,18);try{realFact("plPipe")}catch(e){}}return}
+   show("Endless pipe! Grab 🎁 prizes. Jump ON bad guys or 👊 bonk them!",170,18);try{realFact("plPipe")}catch(e){}}return}
  if(ph=="drop"){plPlay();if(PL.ph=="drop"){plDraw();if(PL.pt<22)plSwirl(450,200,1-PL.pt/22);if(PL.pt>20)PL.ph="play"}return}
  if(ph=="play"){plPlay();plDraw();return}
  if(ph=="win"){t++;P.vy=0;P.hit=0;P.duck=0;plDraw();if(PL.pt>170||(PL.pt>60&&k.a&&!PL.lastA)){PL.ph="out";PL.pt=0;plBoop(1)}PL.lastA=k.a;return}
@@ -3055,6 +3077,8 @@ function plPost(){if(!P)return;
 (function(){const o=teleport;teleport=function(){if(PL.act)return;return o.apply(this,arguments)}})();
 (function(){const o=toggleInv;toggleInv=function(){if(PL.act)return;return o.apply(this,arguments)}})();
 addEventListener("keydown",e=>{if(PL.act){let q=(e.key||"").toLowerCase();if(q=="i"||q=="t"){e.stopImmediatePropagation()}}},true);
+(function(){const cv=document.getElementById("c");if(!cv)return;cv.addEventListener("pointerdown",e=>{if(!PL.act)return;let r=cv.getBoundingClientRect(),sc=Math.min(r.width/900,r.height/420)||1,px=(e.clientX-r.left-(r.width-900*sc)/2)/sc,py=(e.clientY-r.top-(r.height-420*sc)/2)/sc;if(px>=4&&px<=110&&py>=54&&py<=92){e.preventDefault();e.stopPropagation();plLeave()}},true)})();
+addEventListener("keydown",e=>{if(PL.act&&(e.key=="Escape"||e.key=="Backspace")){e.preventDefault();plLeave()}},true);
 
 
 /* ===== 🥊 PLAY / FIGHT WHOEVER YOU WANT (Kit's idea) =====
