@@ -347,7 +347,7 @@ for(let i=0;i<W;i+=300){let fx0=i+Math.sin(t/60+i)*40;if(fx0>cam-340&&fx0<cam+92
   if(typeof dnTick=="function")try{dnTick()}catch(e){}
   if(k.a&&!race)punch(P,E);if(t%420==210)talk(P.h.boss?SUB_LINES[Math.floor(Math.random()*6)]:HERO_LINES[Math.floor(Math.random()*5)],"hero");if(k.s&&!race)special(P,E);qbHit();
   // villain brain
-  if(race)raceAI();else if(E.bubble>0){if(t%90==0)say(["Hey! Let me out of this bubble! 🫧","I'm floating! Wheee... I mean, NOT fair!","Pop pop! Somebody pop me!"][Math.floor(Math.random()*3)],70)}else if(P.inv&&!sees(E)&&!pr&&!E.carried){if(t%120==0)say(["Where did you go?","Hey! I can't see you!","Is that you? Hmm..."][Math.floor(Math.random()*3)],70);E.x+=Math.sin(t/30)*1.5}else if(E.ctrl>0){E.ctrl--;let l=k.arrowleft,r=k.arrowright;if(l){E.x-=4;E.f=-1}if(r){E.x+=4;E.f=1}if(k.arrowup&&E.y>=G-1)E.vy=-15;if(P.heli>0){E.x+=(P.x-E.x)*.1;E.y=Math.min(E.y,P.y+110);E.vy=0}if(t%50==0)say(["Whoa! My feet are dancing! 🕺","Hee hee! Who is steering me?","I'm a puppet! Wheee!"][Math.floor(Math.random()*3)],45);if(E.ctrl==0)say("Phew! My feet are mine again! Hee hee!",60)}else if(E.carried){if(t%60==0)say("Whoa! Put me down! Hee hee!",50)}else if(E.held>0){E.held--;if(GLOW>0){E.x+=Math.sin(t/20)*2.5;E.f=Math.sin(t/20)>0?1:-1}if(E.heldS&&t%120==0)say(E.heldS,60)}else if(E.sleep>0&&!pr)E.sleep--;else if(pr){E.f=P.x<E.x?-1:1;E.sleep=0;if(E.hp<30){E.hp=100;show("Bouncy is all better! Keep practicing! 🎯",60,30)}}else if(E.brag>0)E.brag--;else if(typeof hdBusy=="function"&&hdBusy())HD.act=t;else{if(typeof HD!="undefined")HD.act=t;
+  if(race)raceAI();else if(E.bubble>0){if(t%90==0)say(["Hey! Let me out of this bubble! 🫧","I'm floating! Wheee... I mean, NOT fair!","Pop pop! Somebody pop me!"][Math.floor(Math.random()*3)],70)}else if(P.inv&&!sees(E)&&!pr&&!E.carried){if(t%120==0)say(["Where did you go?","Hey! I can't see you!","Is that you? Hmm..."][Math.floor(Math.random()*3)],70);E.x+=Math.sin(t/30)*1.5}else if(E.ctrl>0){E.ctrl--;let l=k.arrowleft,r=k.arrowright;if(l){E.x-=4;E.f=-1}if(r){E.x+=4;E.f=1}if(k.arrowup&&E.y>=G-1)E.vy=-15;if(P.heli>0){E.x+=(P.x-E.x)*.1;E.y=Math.min(E.y,P.y+110);E.vy=0}if(t%50==0)say(["Whoa! My feet are dancing! 🕺","Hee hee! Who is steering me?","I'm a puppet! Wheee!"][Math.floor(Math.random()*3)],45);if(E.ctrl==0)say("Phew! My feet are mine again! Hee hee!",60)}else if(E.carried){if(t%60==0)say("Whoa! Put me down! Hee hee!",50)}else if(E.held>0){E.held--;if(GLOW>0){E.x+=Math.sin(t/20)*2.5;E.f=Math.sin(t/20)>0?1:-1}if(E.heldS&&t%120==0)say(E.heldS,60)}else if(E.sleep>0&&!pr)E.sleep--;else if(pr){E.f=P.x<E.x?-1:1;E.sleep=0;if(E.hp<30){E.hp=100;show("Bouncy is all better! Keep practicing! 🎯",60,30)}if(typeof bnAI=="function")bnAI()}else if(E.brag>0)E.brag--;else if(typeof hdBusy=="function"&&hdBusy())HD.act=t;else{if(typeof HD!="undefined")HD.act=t;
    if(mood.id!="grumpy"||t%40==0)E.f=P.x<E.x?-1:1;let d=Math.abs(P.x-E.x);if(d>(E.h.giant?120:65))E.x+=(P.x<E.x?-1:1)*E.h.sp*0.6*(E.slow>0?.4:1)*(E.sz<1?.7:1);else if(!(MREAD>0)&&Math.random()<.05)punch(E,P);
    if(!(MREAD>0)&&Math.random()<.007)special(E,P);if(!(MREAD>0)&&Math.random()<.01&&E.y>=G)E.vy=-15;
    if(t%300==150&&!(MREAD>0)){say(E.h.giant?KWL[Math.floor(Math.random()*KWL.length)]:mood.taunt[Math.floor(Math.random()*4)],100);if(mood.id=="silly"){E.sleep=110;show("He fell asleep laughing! HIT HIM! 😴",80,34)}}}
@@ -2616,5 +2616,80 @@ function recBadge(){x.save();x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;let a=.
 (function(){const o=end;end=function(){let r=o.apply(this,arguments);if(REC.on){try{recCapture()}catch(e){}recStop()}rpwShow();return r}})();
 (function(){const o=start;start=function(){if(REC.on)recStop();if(RP.act)rpEnd();REC.mid=(REC.mid||0)+1;let r=o.apply(this,arguments);rpwShow();return r}})();
 (function(){const o=showMenu;showMenu=function(){if(REC.on)recStop();return o.apply(this,arguments)}})();
+
+
+// ===== 🎯 BOUNCY MOVES (Practice Zone dummy walks, runs, jumps, dodges; 0-damage boop only) =====
+// Runs only from the Practice Zone branch of the villain brain (pr==true). No FOE2 scaling, no damage.
+const BN={P:.27,SAYCD:420,lines:["Wheee! 🎈","Boing boing! 🦘","Hop hop! 🐰","Can't catch me! Hee hee! 😄","La la la! 🎵","I'm a bouncy ball! 🏀"],
+ dodgeL:["Whoops! Missed me! 🦘","Hee hee! Too slow! 😄","Boing! Over here! 🎈"],stats:{thr:0,dg:0,boop:0}};
+function bnSay(s,force){if(!E)return;if(!force&&t-(E.bnSaid||-9999)<BN.SAYCD)return;if(force&&t-(E.bnSaid||-9999)<150)return;E.bnSaid=t;say(s,70)}
+function bnBlind(){return (typeof invHide=="function"&&invHide())||(P.inv&&typeof sees=="function"&&!sees(E))}
+function bnCam(){return Math.max(0,Math.min(W-900,P.x-450))}
+// returns true if Bouncy decides to dodge this threat (never twice in a row, ~22%)
+function bnRoll(){BN.stats.thr++;if(E.bnLD){E.bnLD=0;return false}if(Math.random()<BN.P){E.bnLD=1;BN.stats.dg++;return true}return false}
+function bnFree(){return !(E.frz>0||E.held>0||E.carried||E.bubble>0||E.ctrl>0||E.dz>0||E.kb||(typeof TSTOP!="undefined"&&TSTOP>0)||(typeof TFZ!="undefined"&&TFZ>0)||E.inPipe)}
+function bnGround(){return E.y>=G-1||E.onPlat>=t-1||E.onPipe}
+function bnAI(){if(!on||!pr||!E||!P||race)return;try{
+ if(E.bnS==null){E.bnS="idle";E.bnT=50;E.bnVx=0;E.bnLD=0;E.bnBoopT=t+240;E.bnSaid=t}
+ if(!bnFree()){E.bnVx=0;if(!E.held&&!E.carried){let c0=bnCam();if(E.x<c0+70)E.x=c0+70;if(E.x>c0+830)E.x=c0+830}return}
+ let blind=bnBlind(),d=P.x-E.x,ad=Math.abs(d),g=bnGround(),cm=bnCam();
+ // --- dodge incoming hero shots by jumping over them (small ones only) ---
+ if(!blind&&g)for(const s of shots){if(s.o!==P||s.bnSeen||s.big||s.dead)continue;let dx=E.x-s.x;if(Math.sign(dx)!==Math.sign(s.v)||!s.v)continue;
+  let fr=Math.abs(dx)/Math.abs(s.v);if(fr>14||Math.abs(s.y-(E.y-45))>60)continue;s.bnSeen=1;
+  if(bnRoll()){E.vy=-15;E.bnVx=0;E.bnS="air";E.bnT=40;burst(E,"💨",0);bnSay(BN.dodgeL[Math.floor(Math.random()*3)],1)}}
+ // --- airborne: keep sideways drift ---
+ if(!g){E.x+=E.bnVx;if(E.x<cm+75||E.x>cm+825)E.bnVx=0;if(E.x<cm+70)E.x=cm+70;if(E.x>cm+830)E.x=cm+830;return}
+ if(E.bnS=="air"||E.bnS=="dodge"){E.bnS="idle";E.bnT=30+Math.floor(Math.random()*30);E.bnVx=0}
+ // --- silly 0-damage boop (rare) ---
+ if(!blind&&ad<62&&Math.abs(P.y-E.y)<60&&t>E.bnBoopT&&Math.random()<.02){E.bnBoopT=t+600;E.hit=8;E.f=d<0?-1:1;BN.stats.boop++;
+  if(P.duck)bnSay("You ducked my boop! Hee hee! 🦆",1);else{fx.push({x:P.x,y:P.y-80,vx:0,vy:-1.2,l:40,emo:"💕"});bnSay("Boop! 👉 Got your nose! Hee hee!",1)}}
+ if(--E.bnT<=0){let r=Math.random();
+  if(blind){E.bnS=r<.5?"idle":"walk";E.bnT=60+Math.floor(Math.random()*60);E.bnDir=Math.random()<.5?-1:1;if(t%3==0)bnSay("Where did you go? 🙈")}
+  else if(r<(ad<130?.55:.22)){E.bnS="idle";E.bnT=40+Math.floor(Math.random()*50)}
+  else if(r<.68){E.bnS="walk";E.bnT=60+Math.floor(Math.random()*80)}
+  else if(r<.84){E.bnS="run";E.bnT=35+Math.floor(Math.random()*35);if(Math.random()<.5)bnSay("Wheee! 🎈")}
+  else{E.bnS="jump";E.bnT=1}
+  if(!blind){ // choose a direction: stay 90..340px from hero, else random
+   if(ad>300)E.bnDir=d>0?1:-1;else if(ad<40)E.bnDir=d>0?-1:1;else E.bnDir=Math.random()<.6?(d>0?1:-1):(d>0?-1:1)}
+  if(Math.random()<.12)bnSay(BN.lines[Math.floor(Math.random()*BN.lines.length)])}
+ let sp=0;if(E.bnS=="walk")sp=blind?.7:1.3;else if(E.bnS=="run")sp=2.8;
+ // fell far behind (hero ran off): hurry back onto the screen
+ if(!blind&&ad>520){E.bnS="run";E.bnDir=d>0?1:-1;sp=4.6;if(E.bnT<10)E.bnT=10;if(ad>800)bnSay("Wait for me! 🏃")}
+ if(E.bnS=="jump"){let tg=null,best=1e9;
+  for(const o of OBJS)if(o&&o.k=="plat"&&!o.own&&o.y<G-30&&o.y>G-175){let q=Math.abs(o.x-E.x);if(q<260&&q<best){best=q;tg=o}}
+  let pp=null;if(!tg){for(let i=420;i<W;i+=700){let q=Math.abs(i+28-E.x);if(q<240&&q<best){best=q;pp={x:i+28,top:G-(60+(i%3)*25)-22}}}}
+  let tx=tg?tg.x:pp?pp.x:null,ty=tg?tg.y:pp?pp.top:null;
+  if(tx!=null&&tx>cm+40&&tx<cm+860){let h=G-ty+30;E.vy=-Math.min(19,Math.sqrt(2*h)+1);let air=Math.max(20,-E.vy*1.9);E.bnVx=Math.max(-5,Math.min(5,(tx-E.x)/air));bnSay("Up I go! 🦘")}
+  else{E.vy=-13;E.bnVx=(E.bnDir||1)*1.2}
+  E.bnS="air";E.bnT=40;return}
+ if(sp){E.x+=E.bnDir*sp;if(E.bnS=="run")E.f=E.bnDir;
+  if(E.x<cm+50){E.x=cm+50;E.bnDir=1}else if(E.x>cm+850){E.x=cm+850;E.bnDir=-1}}
+ else if(!blind){/* idle: just face the hero (already set) */}
+ if(blind)E.f=E.bnDir||E.f;
+ if(E.x<cm+70)E.x=cm+70;if(E.x>cm+830)E.x=cm+830;
+}catch(e){}}
+// punch dodge: hop back / sidestep before the hero's punch lands (Practice Zone only)
+const _bnPunch=punch;punch=function(a,b){
+ if(on&&pr&&a===P&&b===E&&E&&a.cd<=0&&!(a.frz>0)&&a.meteor!=2&&a.pu!="lift"&&!bnBlind()&&bnFree()&&bnGround()&&
+  Math.abs(a.x-b.x)<(a.h.boss?100:70)+(a.h.giant?80:0)&&Math.abs(a.y-b.y)<60&&bnRoll()){
+  let away=E.x>=P.x?1:-1;E.bnMiss=1;try{_bnPunch.apply(this,arguments)}finally{E.bnMiss=0}
+  if(Math.random()<.5){E.kb=away*11;E.vy=-9;E.bnS="dodge"}else{E.kb=away*15;E.bnS="dodge";burst(E,"💨",0)}
+  bnSay(BN.dodgeL[Math.floor(Math.random()*3)],1);return}
+ return _bnPunch.apply(this,arguments)};
+const _bnHurt=hurt;hurt=function(a,b,d){if(b&&b===E&&E.bnMiss&&a===P)return;return _bnHurt.apply(this,arguments)};
+// Practice Zone has no end screen, so a practice recording gets a small "▶ Watch practice replay" button on the menu
+(function(){try{
+ const b=document.createElement("button");b.id="bnrp";b.type="button";b.textContent="▶ Watch practice replay";
+ b.style.cssText="display:none;font-size:20px;padding:8px 18px;background:#e22;color:#fff";practb.parentNode.insertBefore(b,practb.nextSibling);
+ practb.parentNode.insertBefore(document.createTextNode(" "),b);
+ window.bnRpShow=function(){b.style.display=(typeof REC!="undefined"&&REC.last&&REC.last.pr&&REC.last.m==REC.mid&&!on&&!(RP&&RP.act))?"inline-block":"none"};
+ b.onclick=()=>{if(on||!REC.last)return;b.style.display="none";rpStart()};
+ const oS=recStart;recStart=function(){REC.prRec=pr;return oS.apply(this,arguments)};
+ const oT=recStop;recStop=function(){let was=REC.on;let r=oT.apply(this,arguments);if(was&&REC.last&&REC.last.fr&&REC.last.m==REC.mid)REC.last.pr=!!REC.prRec;bnRpShow();return r};
+ const oR=rpStart;rpStart=function(){let r=oR.apply(this,arguments);if(RP.act&&RP.data&&RP.data.pr){pr=true;REC.bnPr=1}bnRpShow();return r};
+ const oE=rpEnd;rpEnd=function(){if(REC.bnPr){REC.bnPr=0;pr=false}return oE.apply(this,arguments)};
+ const oM=showMenu;showMenu=function(){let r=oM.apply(this,arguments);bnRpShow();return r};
+ const oG=start;start=function(){b.style.display="none";return oG.apply(this,arguments)};
+}catch(e){}})();
 
 </script></body></html>
