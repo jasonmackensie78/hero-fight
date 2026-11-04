@@ -3866,9 +3866,7 @@ function tkAnswer(raw,mode,c){c=c||TKC[TK.talk]||TKC[0];let s=tkNorm(raw);if(!s)
 
 /* ---------- speaking ---------- */
 function tkSpeak(txt,c){try{if(!TK.tts||!window.speechSynthesis)return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(String(txt).replace(/[^\p{L}\p{N}\s.,!?'’:;-]/gu," ").replace(/…/g,". "));u.rate=.95;u.pitch=c&&c.pitch||1.1;speechSynthesis.speak(u)}catch(e){}}
-function tkSay(c,txt,kitQ){let b=document.getElementById("tksay");if(!b)return;TK.sayFor=c?TKC.indexOf(c):-1;TK.sayT=TK.fr;TK.last=txt;
- b.innerHTML=(kitQ?'<div style="font-size:.72em;opacity:.85;margin-bottom:4px">🧒 Kit: '+tkEsc(kitQ)+'</div>':"")+(c?'<b style="color:'+c.col+'">'+c.em+" "+c.n+':</b> ':"")+tkEsc(txt);
- try{let r=b.getBoundingClientRect();if(r.top<0||r.bottom>innerHeight)b.scrollIntoView({block:"nearest"})}catch(e){}
+function tkSay(c,txt,kitQ){/* no on-screen speech box any more (Jason: nothing covers the screen) — the friend just says it out loud */TK.sayFor=c?TKC.indexOf(c):-1;TK.sayT=TK.fr;TK.last=txt;TK.lastQ=kitQ||"";TK.lastWho=c?c.n:"";
  if(c)tkSpeak(txt,c)}
 function tkEsc(s){return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
 function tkReward(st,co,why){TK.stars+=st;try{localStorage.heroTalkStars=TK.stars}catch(e){}if(co){coins+=co;try{localStorage.heroCoins=coins}catch(e){}}
@@ -4008,7 +4006,7 @@ function tkKey(e){if(!TK.open)return;let k=e.key;e.stopImmediatePropagation();
 window.addEventListener("keydown",tkKey,true);window.addEventListener("keyup",e=>{if(!TK.open)return;e.stopImmediatePropagation();if(["ArrowLeft","ArrowRight","a","d"].includes(e.key))TK.hold=0},true);
 function tkOpen(){if(on||document.getElementById("tkov"))return;TK.open=1;TK.mode="walk";TK.talk=-1;TK.near=-2;TK.x=180;TK.cam=0;TK.hold=0;TK.goal=null;TK.err=null;
  let o=document.createElement("div");o.id="tkov";o.style.cssText="position:fixed;inset:0;z-index:99990;background:linear-gradient(#2a1f66,#1d1446);overflow-y:auto;overflow-x:hidden;box-sizing:border-box;-webkit-overflow-scrolling:touch;font-family:sans-serif;text-align:center;padding-bottom:20px";
- o.innerHTML='<div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;padding:4px"></div><canvas id="tkcv" width="900" height="420" style="display:block;margin:0 auto;max-width:100%;max-height:44vh;border-radius:14px;touch-action:manipulation"></canvas><div id="tksay" style="background:#fff;color:#222;font-size:clamp(20px,2.7vw,26px);line-height:1.3;border-radius:18px;margin:8px auto;padding:10px 16px;max-width:880px;width:92%;min-height:40px;text-align:left;border:4px solid #ffd23f;box-sizing:border-box"></div><div id="tkpanel"></div>';
+ o.innerHTML='<div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;padding:4px"></div><canvas id="tkcv" width="900" height="420" style="display:block;margin:0 auto;max-width:100%;max-height:44vh;border-radius:14px;touch-action:manipulation"></canvas><div id="tkpanel"></div>';
  document.body.appendChild(o);let top=o.firstChild;
  top.appendChild(tkBtn("🚪 Leave Town","#fbb",tkClose,"tkleave"));let hd=document.createElement("span");hd.id="tkhud";hd.style.cssText="color:#ffe14a;font-size:22px;font-weight:bold;padding:0 10px";top.appendChild(hd);
  if(window.speechSynthesis)top.appendChild(tkBtn(TK.tts?"🔊 Read aloud: ON":"🔇 Read aloud: OFF","#cfe",tkTTS,"tktts"));
