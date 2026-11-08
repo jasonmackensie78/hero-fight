@@ -1,6 +1,6 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Hero Fight"><title>Hero Fight</title>
-<meta name="hf" content="75">
+<meta name="hf" content="76">
 <style>
 body{margin:0;background:#120a24;color:#fff;font-family:"Comic Sans MS","Chalkboard SE",sans-serif;text-align:center;user-select:none;-webkit-user-select:none}
 h1{margin:6px;font-size:34px;color:#ffd800;text-shadow:3px 3px #e2008a}
@@ -3517,5 +3517,35 @@ heartBar=function(a,xx,lab){let m=a.mhp||100,k=Math.max(0,Math.min(1,a.hp/m)),bw
  x.fillStyle="#fff";x.font="bold 15px sans-serif";x.strokeStyle="rgba(0,0,0,.45)";x.lineWidth=3;x.strokeText(lab,xx,50);x.fillText(lab,xx,50);x.restore()};
 try{if(typeof COOL!="undefined"&&COOL[WZN]){let i=COOL[WZN].findIndex(s=>/HEARTS/.test(s));if(i>=0)COOL[WZN][i]="❤️ His own red health bar (it empties from the left)"}}catch(e){}
 function R6H(a,hx,hy,f,c3,gc,reach){try{R6.set(a,null,f)}catch(e){}R6.handAt(hx,hy,f,c3,reach>3||a.hit>0||!!a.h.boss,{cuff:gc!="skin"&&gc!="metal"})}
+
+/* quiet optional mark — no menu entry */
+var QX={on:0,dwell:0,flies:[],cool:0,reduce:0};
+try{QX.on=localStorage.hfQuiet==="1"?1:0}catch(e){}
+try{QX.reduce=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)}catch(e){}
+function qxLive(){return !!(on&&P&&!race&&!(typeof PL!="undefined"&&PL.act)&&!(typeof RP!="undefined"&&RP.act)&&!(typeof BK!="undefined"&&BK.act))}
+function qxTick(){if(!qxLive()){QX.dwell=0;return}
+ var near=P.y>=G-8&&P.x>16&&P.x<100;if(near)QX.dwell++;else QX.dwell=0;
+ if(!QX.on&&QX.dwell>=22)qxFound();else if(QX.on&&near&&QX.cool<=0&&QX.dwell===22)qxHello();
+ if(QX.cool>0)QX.cool--;
+ for(var i=QX.flies.length-1;i>=0;i--){var f=QX.flies[i];if(!QX.reduce){f.x+=Math.sin((t+f.p)/9)*.8;f.y+=f.vy;f.vy*=.985}if(--f.l<=0)QX.flies.splice(i,1)}}
+function qxBurst(n){for(var i=0;i<n&&QX.flies.length<8;i++)QX.flies.push({x:P.x-24+i*12,y:G-6,vy:QX.reduce?0:-.4-Math.random()*.5,l:QX.reduce?80:160,p:i*3})}
+function qxFound(){QX.on=1;QX.cool=700;qxBurst(6);try{localStorage.hfQuiet="1"}catch(e){}}
+function qxHello(){QX.cool=700;qxBurst(3)}
+function qxDrawWorld(){if(!qxLive()||!QX.flies.length)return;for(var i=0;i<QX.flies.length;i++){var f=QX.flies[i];x.save();x.globalAlpha=Math.min(1,f.l/18);emo("🦋",f.x,f.y-(QX.reduce?30:0),18);x.restore()}}
+function qxHud(){if(!QX.on||!on||game.style.display!="block"||(typeof PL!="undefined"&&PL.act)||(typeof RP!="undefined"&&RP.act)||(typeof BK!="undefined"&&BK.act))return;
+ x.save();x.setTransform(1,0,0,1,0,0);x.globalAlpha=.82;x.fillStyle="#1d1446";x.beginPath();x.arc(34,188,14,0,7);x.fill();x.strokeStyle="#b7f7c8";x.lineWidth=2;x.stroke();x.font="15px serif";x.textAlign="center";x.textBaseline="middle";x.fillText("🦋",34,189);x.restore()}
+function qxBtn(){if(!QX.on||document.getElementById("qxw")||over.style.display!="flex")return;
+ var b=document.createElement("button");b.id="qxw";b.type="button";b.textContent="🦋";b.setAttribute("aria-label","Sparkles");
+ b.style.cssText="position:fixed;bottom:12px;right:12px;z-index:12;width:56px;height:56px;border-radius:50%;font-size:26px;padding:0;background:#fff6c8;touch-action:manipulation";
+ b.onclick=function(){if(b.dataset.did)return;b.dataset.did="1";b.style.transform="scale(.94)";if(QX.reduce){b.textContent="✨";return}
+  for(var i=0;i<6;i++){(function(i){var e=document.createElement("div");e.textContent="🦋";e.style.cssText="position:fixed;bottom:18px;left:-28px;font-size:26px;z-index:12;pointer-events:none;transition:transform 2.2s linear";document.body.appendChild(e);requestAnimationFrame(function(){e.style.transform="translateX("+(110+i*64)+"px)"});setTimeout(function(){e.remove()},2400)})(i)}};
+ document.body.appendChild(b)}
+function qxUnbtn(){var b=document.getElementById("qxw");if(b)b.remove()}
+(function(){var ow=worldExtra;worldExtra=function(){var r=ow.apply(this,arguments);try{qxDrawWorld()}catch(e){}return r};
+ var L=loop;loop=function(){try{qxTick()}catch(e){}var r=L.apply(this,arguments);try{qxHud()}catch(e){}return r};
+ var oe=end;end=function(w){var r=oe.apply(this,arguments);setTimeout(qxBtn,w?2900:1000);return r};
+ var os=start;start=function(){qxUnbtn();QX.dwell=0;QX.flies.length=0;return os.apply(this,arguments)};
+ var om=showMenu;showMenu=function(){var r=om.apply(this,arguments);qxUnbtn();return r};
+ var orp=rpStart;rpStart=function(){qxUnbtn();return orp.apply(this,arguments)}})();
 
 </script></body></html>
